@@ -1,0 +1,22 @@
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item android:id="@+id/add_item"
+        android:title="@string/ADD_ITEM"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="ifRoom|withText" />
+
+    <!-- <item android:id="@+id/sort_products"
+        android:title="@string/SORT_ITEMS"
+        android:orderInCategory="50"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        app:showAsAction="ifRoom|withText" /> -->
+
+    <item android:id="@+id/transfer_products"
+        android:title="@string/TRANSFER_ITEMS"
+        android:orderInCategory="25"
+        android:icon="@android:drawable/ic_menu_set_as"
+        app:showAsAction="ifRoom|withText" />
+</menu>

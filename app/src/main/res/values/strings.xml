@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Shopper</string>
+
+    <string name="CANCEL">Cancel</string>
+    <string name="CREATE">Create</string>
+    <string name="UPDATE">Update</string>
+    <string name="DELETE">Delete</string>
+    <string name="TRANSFER">Transfer</string>
+
+    <string name="NEW_ITEM">New Item</string>
+    <string name="ITEM_QUANTITY">Quantity</string>
+    <string name="ITEM_NAME">Product Name</string>
+
+    <string name="INCLUDE_CLIPBOARD">Include Clipboard</string>
+    <string name="INCLUDE_ITEMS">Include %1$s Items</string>
+    <string name="PENDING_ITEMS">%1$d/%2$d</string>
+
+    <string name="EDIT_LIST">Edit List Name</string>
+    <string name="NEW_LIST">New List</string>
+    <string name="ADD_ITEM">New Item</string>
+    <string name="SORT_ITEMS">Sort</string>
+    <string name="TRANSFER_ITEMS">Transfer</string>
+    <string name="LIST_NAME">List Name</string>
+
+    <string name="LIST_ADDED">List added: %1$s</string>
+    <string name="LIST_DELETED">List deleted: %1$s</string>
+    <string name="LIST_RENAMED">Renamed %1$s to %2$s</string>
+
+    <string name="LIST_SORTED">List sorted</string>
+
+    <string name="ITEM_TRANSFER">Transfer Item</string>
+    <string name="ITEM_ADDED">Item added: %1$s %2$d</string>
+    <string name="ITEM_DELETED">Item deleted: %1$s</string>
+
+    <string name="TRANSFER_FAIL">Nothing to transfer</string>
+    <string name="ITEM_TRANSFERRED">Transferred %1$s item(s) from %2$s to %3$s</string>
+    <string name="NEXT">Create Another</string>
+</resources>
