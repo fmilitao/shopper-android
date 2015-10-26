@@ -19,10 +19,7 @@ public class ShopsActivity extends AppCompatActivity {
                     .commit();
         }
 
-        Utilities.file = new File(this.getFilesDir(), Utilities.FILENAME);
-        Utilities.context = getApplicationContext();
-
-        Utilities.load();
+        Utilities.init(this);
     }
 
 }

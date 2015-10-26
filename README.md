@@ -9,5 +9,4 @@ Tasks:
 - [x] basic activity layout and functionality
 - [ ] fix animations and auto-sorting
 - [ ] switch to using SQLite for persistent stuff
-- [ ] suggest words as they are typed?
 - [ ] animation between activities, transition left/right

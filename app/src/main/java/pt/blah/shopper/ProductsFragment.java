@@ -89,7 +89,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                     // ignores error
                 }
 
-                sData.list.get(position).products.add(new DataDB.Product(p_name, p_quantity));
+                sData.list.get(position).products.add(sData.newProduct(p_name, p_quantity));
 
                 Utilities.notifyListeners();
                 Utilities.popUp(getActivity(), format(R.string.ITEM_ADDED, p_name, p_quantity));

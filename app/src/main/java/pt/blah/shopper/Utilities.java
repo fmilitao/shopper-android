@@ -25,11 +25,20 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
-    static Context context;
+    static public void init(Activity main){
+        Utilities.file = new File(main.getFilesDir(), Utilities.FILENAME);
+        Utilities.context = main.getApplicationContext();
+
+        Utilities.load();
+    }
 
     static final String LOG_TG = Utilities.class.toString();
     static final String INTENT_TAG = "POS_TAG";
+    static final String FILENAME = "SHOPPER.DAT";
 
+    //
+    // Import from clipboard
+    //
 
     static public List<DataDB.Product> parseProductList(String txt){
         List<DataDB.Product> list = new LinkedList<>();
@@ -74,7 +83,7 @@ public class Utilities {
             }
 
             //Log.v("PARSER RESULT:", name+" :: "+left+" || "+quantity);
-            list.add(new DataDB.Product(left, quantity));
+            list.add(sData.newProduct(left, quantity));
         }
 
         return list;
@@ -96,7 +105,6 @@ public class Utilities {
     // File stuff
     //
 
-    static final String FILENAME = "SHOPPER.TXT";
     static File file;
 
     static void save(){
@@ -109,7 +117,7 @@ public class Utilities {
         Log.v(LOG_TG,file.getAbsolutePath());
         try {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-            out.writeObject(sData.list);
+            sData.save(out);
             out.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,24 +136,20 @@ public class Utilities {
 
         try {
             ObjectInputStream o = new ObjectInputStream(new FileInputStream(file));
-            sData.list = (List<DataDB.Shop>) o.readObject();
+            sData.load(o);
             o.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
         Log.v(LOG_TG,"file loaded");
 
-        // ensures all products are correctly sorted
-        for(DataDB.Shop s : sData.list){
-            DataDB.sort( s.products ); //TODO ensures sorted, better with sorted set, but cannot change representation...
-        }
     }
 
     //
     // listeners stuff
     //
 
-    static List<Pair<Object,BaseAdapter>> listeners = new LinkedList<>();
+    static final List<Pair<Object,BaseAdapter>> listeners = new LinkedList<>();
 
     static void notifyListeners(){
         ++version;
@@ -180,6 +184,8 @@ public class Utilities {
     //
     // format
     //
+
+    static Context context;
 
     static String format(int id, Object... args){
         return String.format(context.getResources().getString(id),args);

@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.util.HashMap;
-
 import static pt.blah.shopper.Utilities.sData;
 
 public class ProductsListAdapter extends BaseAdapter {
@@ -21,16 +19,10 @@ public class ProductsListAdapter extends BaseAdapter {
     final DataDB.Shop shop;
     final LayoutInflater mInflater;
 
-    HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
-
     public ProductsListAdapter(Context context, int position) {
         mInflater = LayoutInflater.from(context);
         pos = position;
         shop = sData.list.get(position);
-
-        for (int i = 0; i < shop.products.size(); ++i) {
-            mIdMap.put(shop.products.get(i).name, i);
-        }
     }
 
     @Override
@@ -43,15 +35,9 @@ public class ProductsListAdapter extends BaseAdapter {
         return shop.products.get(position);
     }
 
-//    @Override
-//    public long getItemId(int position) {
-//        return position;
-//    }
-
     @Override
     public long getItemId(int position) {
-        String item = ((DataDB.Product)getItem(position)).name;
-        return mIdMap.get(item);
+        return ((DataDB.Product)getItem(position)).id;
     }
 
     @Override

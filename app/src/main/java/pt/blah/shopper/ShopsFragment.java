@@ -98,7 +98,7 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
                 public void onClick(DialogInterface dialog, int which) {
                     String name = text.getText().toString();
                     if (name.length() > 0) {
-                        DataDB.Shop shop = new DataDB.Shop(name);
+                        DataDB.Shop shop = sData.newShop(name);
                         shop.products = list;
 
                         Utilities.sData.list.add(shop);
