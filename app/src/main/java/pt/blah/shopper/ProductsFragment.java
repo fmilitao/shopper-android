@@ -89,12 +89,17 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                     // ignores error
                 }
 
-                sData.list.get(position).products.add(sData.newProduct(p_name, p_quantity));
+                final DataDB.Product p = sData.newProduct(p_name, p_quantity);
 
-                Utilities.notifyListeners();
+                autoSort(mListView, new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.shop.products.add(p);
+                    }
+                }, p, null);
+
                 Utilities.popUp(getActivity(), format(R.string.ITEM_ADDED, p_name, p_quantity));
 
-                autoSort(mListView); //FIXME!
             }
         };
 
@@ -129,14 +134,6 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
             addItem();
             return true;
         }
-
-//        if( id == R.id.sort_products ){
-////            DataDB.sort( sData.list.get(mAdapter.pos).products );
-////            Utilities.popUp(getActivity(), getString(R.string.LIST_SORTED));
-////            Utilities.notifyListeners();
-//            autoSort(mListView); //TODO
-//            return true;
-//        }
 
         if( id == R.id.transfer_products ){
 
@@ -180,7 +177,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                     if( i == mAdapter.pos ) {
                         Utilities.popUp(getActivity(), getString(R.string.TRANSFER_FAIL));
                     } else {
-                        DataDB.Shop from = sData.list.get(moveAdapter.pos);
+                        DataDB.Shop from = moveAdapter.shop;
                         DataDB.Shop to = sData.list.get(i);
 
                         // first copy
@@ -256,7 +253,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
         final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
-        final DataDB.Product product = sData.list.get(mAdapter.pos).products.get(position);
+        final DataDB.Product product = mAdapter.shop.products.get(position);
 
         n.setText(product.name);
         n.setSelection(n.getText().length());
@@ -286,9 +283,15 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
         builder.setNegativeButton(R.string.DELETE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // aborted, nothing to do
-                sData.list.get(mAdapter.pos).products.remove(position);
-                Utilities.notifyListeners();
+                DataDB.Product p = sData.list.get(mAdapter.pos).products.get(position);
+
+                autoSort(mListView, new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.shop.products.remove(position);
+                    }
+                }, null, p);
+
                 Utilities.popUp(getActivity(), format(R.string.ITEM_DELETED, product.name));
             }
         });
@@ -299,12 +302,11 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        int p = mAdapter.pos;
-        DataDB.Product pp = sData.list.get(p).products.get(position);
+        DataDB.Product pp = mAdapter.shop.products.get(position);
         pp.done = !pp.done;
 
         //Utilities.notifyListeners();
-        autoSort(mListView); //TODO
+        autoSort(mListView,null,null,null);
     }
 
 
@@ -312,7 +314,38 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
     //
     //
 
-    private void autoSort(final ListView listview) {
+    private void autoSort(final ListView listview,
+                          final Runnable action,
+                          final DataDB.Product added, final DataDB.Product deleted
+    ) {
+
+        if( deleted != null ){
+            int firstVisiblePosition = listview.getFirstVisiblePosition();
+            for (int i = 0; i < listview.getChildCount(); ++i) {
+                final View child = listview.getChildAt(i);
+                final int position = firstVisiblePosition + i;
+                final long itemId = mAdapter.getItemId(position);
+
+                if( deleted.id == itemId) {
+                    // found deleted item!
+                    child.animate().setDuration(MOVE_SPEED)
+                            .alpha(0)
+                            .translationX(child.getWidth())
+                            .withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    child.setAlpha(1);
+                                    child.setTranslationX(0);
+                                    autoSort(listview, action, added, null);
+                                }
+                    });
+
+
+                    return;
+                }
+            }
+        }
+
         final Map<Long,Integer> map = new HashMap<>();
         int firstVisiblePosition = listview.getFirstVisiblePosition();
         for (int i = 0; i < listview.getChildCount(); ++i) {
@@ -337,6 +370,13 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                     int position = firstVisiblePosition + i;
                     long itemId = mAdapter.getItemId(position);
 
+                    if( added != null && itemId == added.id ){
+                        // the new product
+                        child.setTranslationX(listview.getWidth());
+                        child.animate().setDuration(MOVE_SPEED*2).translationX(0);
+                        continue;
+                    }
+
                     // is null on non existing views (i.e. outside screen)
                     Integer oldTop = map.get(itemId);
                     int newTop = child.getTop(); // i.e. the new position!
@@ -360,8 +400,13 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
             }
         });
 
-        DataDB.sort(sData.list.get(mAdapter.pos).products );
-        //Utilities.popUp(getActivity(), getString(R.string.LIST_SORTED));
+        // changes only become visible here
+        if( action != null ) {
+            action.run();
+        }
+
+        DataDB.sort(mAdapter.shop.products);
         Utilities.notifyListeners();
     }
+
 }
