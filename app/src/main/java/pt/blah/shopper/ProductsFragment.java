@@ -19,7 +19,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +67,6 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
         final View root = inflater.inflate(R.layout.product_dialog, null);
-        final int position = mAdapter.pos;
 
         builder.setTitle(R.string.NEW_ITEM);
         builder.setView(root);
@@ -195,6 +193,8 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                             }
                         }
 
+                        // FIXME: animations!
+
                         Utilities.notifyListeners();
                         Utilities.popUp(getActivity(), format(R.string.ITEM_TRANSFERRED, count, from.name, to.name));
                     }
@@ -266,16 +266,20 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                String p_name = n.getText().toString();
-                int p_quantity = Integer.parseInt(q.getText().toString());
+                final String p_name = n.getText().toString();
+                final int p_quantity = Integer.parseInt(q.getText().toString());
 
-                if (p_name.length() > 0) {
-                    product.name = p_name;
-                    product.quantity = p_quantity;
+                if (p_name.length() > 0 && (!p_name.equals(product.name) || p_quantity != product.quantity ) ) {
 
-                    // FIXME needs to update unique ids
-                    Utilities.notifyListeners();
-                    Utilities.popUp(getActivity(), format(R.string.ITEM_ADDED, p_name, p_quantity));
+                    autoSort(mListView, new Runnable() {
+                        @Override
+                        public void run() {
+                            product.name = p_name;
+                            product.quantity = p_quantity;
+                        }
+                    }, null, null);
+
+                    Utilities.popUp(getActivity(), format(R.string.ITEM_UPDATED, p_name, p_quantity));
                 }
             }
         });
@@ -326,7 +330,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                 final int position = firstVisiblePosition + i;
                 final long itemId = mAdapter.getItemId(position);
 
-                if( deleted.id == itemId) {
+                if( deleted.id == itemId ) {
                     // found deleted item!
                     child.animate().setDuration(MOVE_SPEED)
                             .alpha(0)
@@ -338,7 +342,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                                     child.setTranslationX(0);
                                     autoSort(listview, action, added, null);
                                 }
-                    });
+                            });
 
 
                     return;
@@ -395,7 +399,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                     child.setTranslationY(delta);
                     child.animate().setDuration(MOVE_SPEED).translationY(0);
                 }
-                map.clear();
+                map.clear(); // kinda of pointless with this code, but nevermind.
                 return true;
             }
         });

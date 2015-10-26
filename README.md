@@ -7,6 +7,7 @@ Will eventually be a usable shopping list app, maybe.
 Tasks:
 
 - [x] basic activity layout and functionality
-- [ ] fix animations and auto-sorting
+- [ ] fix animations and auto-sorting, refactor code instead of current mess.
+- [ ] add swipe to delete?
 - [ ] switch to using SQLite for persistent stuff
 - [ ] animation between activities, transition left/right
