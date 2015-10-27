@@ -78,6 +78,7 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
                         List<DataDB.Product> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
                         if (tmp != null) {
                             list.addAll(tmp);
+                            DataDB.sort(list);
                             box.setText(String.format(getString(R.string.INCLUDE_ITEMS), tmp.size()));
                         }
                     } else {
@@ -152,6 +153,9 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
         // links to position in the DB
         intent.putExtra(Utilities.INTENT_TAG, position);
         startActivity(intent);
+
+        // for animation
+        getActivity().overridePendingTransition(R.anim.pull_in_right, R.anim.push_out_left);
     }
 
     @Override

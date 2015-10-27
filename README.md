@@ -10,5 +10,5 @@ Tasks:
 - [ ] fix animations and auto-sorting, refactor code instead of current mess.
 - [ ] add swipe to delete?
 - [ ] switch to using SQLite for persistent stuff
-- [ ] animation between activities, transition left/right
+- [x] animation between activities, transition left/right
 - [ ] fix double tap on any button.
