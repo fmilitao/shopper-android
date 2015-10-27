@@ -11,3 +11,4 @@ Tasks:
 - [ ] add swipe to delete?
 - [ ] switch to using SQLite for persistent stuff
 - [ ] animation between activities, transition left/right
+- [ ] fix double tap on any button.

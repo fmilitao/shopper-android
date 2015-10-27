@@ -31,10 +31,7 @@ import static pt.blah.shopper.Utilities.format;
 public class ShopsFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     ShopsListAdapter mAdapter;
-
-    public ShopsFragment() {
-        // intentionally empty
-    }
+    ListView mListView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -133,15 +130,15 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
         mAdapter = new ShopsListAdapter(getActivity());
 
         View rootView = inflater.inflate(R.layout.shop_fragment, container, false);
-        ListView listView = (ListView) rootView.findViewById(R.id.shops_list);
+        mListView = (ListView) rootView.findViewById(R.id.shops_list);
 
-        listView.setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
 
-        listView.setClickable(true);
-        listView.setOnItemClickListener(this);
+        mListView.setClickable(true);
+        mListView.setOnItemClickListener(this);
 
-        listView.setLongClickable(true);
-        listView.setOnItemLongClickListener(this);
+        mListView.setLongClickable(true);
+        mListView.setOnItemLongClickListener(this);
 
         return rootView;
     }

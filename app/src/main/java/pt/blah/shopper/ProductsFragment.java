@@ -12,7 +12,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -20,23 +19,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static pt.blah.shopper.Utilities.sData;
 import static pt.blah.shopper.Utilities.format;
+import static pt.blah.shopper.Utilities.sData;
 
 
 public class ProductsFragment extends Fragment implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
 
-    static final int MOVE_SPEED = 250;
-
     ProductsListAdapter mAdapter;
     ListView mListView;
-
-    public ProductsFragment() {
-        // intentionally empty
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,12 +79,14 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
 
                 final DataDB.Product p = sData.newProduct(p_name, p_quantity);
 
-                autoSort(mListView, new Runnable() {
+                addAnimation( new Runnable() {
                     @Override
                     public void run() {
                         mAdapter.shop.products.add(p);
+                        DataDB.sort(mAdapter.shop.products);
+                        Utilities.notifyListeners();
                     }
-                }, p, null);
+                },p);
 
                 Utilities.popUp(getActivity(), format(R.string.ITEM_ADDED, p_name, p_quantity));
 
@@ -158,7 +150,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
 
             // LIST
             final ProductsMoveAdapter moveAdapter = new ProductsMoveAdapter(getActivity(),mAdapter.pos);
-            ListView listView = (ListView) root.findViewById(R.id.product_list);
+            final ListView listView = (ListView) root.findViewById(R.id.product_list);
             listView.setAdapter(moveAdapter);
             // LIST
 
@@ -169,31 +161,50 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     // ...
-                    boolean[] set = moveAdapter.getSelected();
-                    int i = spinner.getSelectedItemPosition();
+                    final boolean[] set = moveAdapter.getSelected();
+                    final int i = spinner.getSelectedItemPosition();
 
-                    if( i == mAdapter.pos ) {
+                    int count = 0;
+                    for(boolean b : set ){
+                        count += b ? 1 : 0;
+                    }
+
+                    if( i == mAdapter.pos || count == 0 ) {
                         Utilities.popUp(getActivity(), getString(R.string.TRANSFER_FAIL));
                     } else {
-                        DataDB.Shop from = moveAdapter.shop;
-                        DataDB.Shop to = sData.list.get(i);
+                        final DataDB.Shop from = moveAdapter.shop;
+                        final DataDB.Shop to = sData.list.get(i);
 
-                        // first copy
-                        for(int j = 0 ; j < set.length ; ++ j ){
-                            if( set[j]) {
-                                to.products.add(from.products.get(j));
+                        // pick elements for transfer
+                        DataDB.Product[] transfers = new DataDB.Product[count];
+                        for(int x=0,y=0; x < set.length; ++x ){
+                            if( set[x] ){
+                                transfers[y++] = from.products.get(x);
                             }
                         }
 
-                        int count = 0;
-                        for(int j = set.length-1 ; j >= 0 ; --j ){
-                            if( set[j]) {
-                                from.products.remove(j);
-                                ++count;
-                            }
-                        }
+                        deleteAnimation( new Runnable() {
+                            @Override
+                            public void run() {
 
-                        // FIXME: animations!
+                                // first copy
+                                for(int j = 0 ; j < set.length ; ++ j ){
+                                    if( set[j]) {
+                                        to.products.add(from.products.get(j));
+                                    }
+                                }
+
+                                // then remove
+                                for(int j = set.length-1 ; j >= 0 ; --j ){
+                                    if( set[j]) {
+                                        from.products.remove(j);
+                                    }
+                                }
+
+                                // no need to animate since order did not change
+                                Utilities.notifyListeners();
+                            }
+                        }, transfers);
 
                         Utilities.notifyListeners();
                         Utilities.popUp(getActivity(), format(R.string.ITEM_TRANSFERRED, count, from.name, to.name));
@@ -219,7 +230,6 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
 
         int pos = 0;
         Intent intent = getActivity().getIntent();
@@ -247,7 +257,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final LayoutInflater inflater = getActivity().getLayoutInflater();
 
         final View root = inflater.inflate(R.layout.product_dialog, null);
         final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
@@ -269,15 +279,17 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                 final String p_name = n.getText().toString();
                 final int p_quantity = Integer.parseInt(q.getText().toString());
 
-                if (p_name.length() > 0 && (!p_name.equals(product.name) || p_quantity != product.quantity ) ) {
+                if (p_name.length() > 0 && (!p_name.equals(product.name) || p_quantity != product.quantity)) {
 
-                    autoSort(mListView, new Runnable() {
+                    addAnimation(new Runnable() {
                         @Override
                         public void run() {
                             product.name = p_name;
                             product.quantity = p_quantity;
+                            DataDB.sort(mAdapter.shop.products);
+                            Utilities.notifyListeners();
                         }
-                    }, null, null);
+                    }, null);
 
                     Utilities.popUp(getActivity(), format(R.string.ITEM_UPDATED, p_name, p_quantity));
                 }
@@ -289,12 +301,19 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
             public void onClick(DialogInterface dialog, int which) {
                 DataDB.Product p = sData.list.get(mAdapter.pos).products.get(position);
 
-                autoSort(mListView, new Runnable() {
+                deleteAnimation( new Runnable() {
                     @Override
                     public void run() {
-                        mAdapter.shop.products.remove(position);
+                        addAnimation(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.shop.products.remove(position);
+                                DataDB.sort(mAdapter.shop.products);
+                                Utilities.notifyListeners();
+                            }
+                        }, null);
                     }
-                }, null, p);
+                }, p);
 
                 Utilities.popUp(getActivity(), format(R.string.ITEM_DELETED, product.name));
             }
@@ -309,108 +328,22 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
         DataDB.Product pp = mAdapter.shop.products.get(position);
         pp.done = !pp.done;
 
-        //Utilities.notifyListeners();
-        autoSort(mListView,null,null,null);
+        addAnimation(new Runnable() {
+            @Override
+            public void run() {
+                DataDB.sort(mAdapter.shop.products);
+                Utilities.notifyListeners();
+            }
+        }, null);
     }
 
 
-    //
-    //
-    //
+    private void addAnimation(Runnable action, DataDB.Product added){
+        ListAnimations.addAnimation(mAdapter, mListView, action, added);
+    }
 
-    private void autoSort(final ListView listview,
-                          final Runnable action,
-                          final DataDB.Product added, final DataDB.Product deleted
-    ) {
-
-        if( deleted != null ){
-            int firstVisiblePosition = listview.getFirstVisiblePosition();
-            for (int i = 0; i < listview.getChildCount(); ++i) {
-                final View child = listview.getChildAt(i);
-                final int position = firstVisiblePosition + i;
-                final long itemId = mAdapter.getItemId(position);
-
-                if( deleted.id == itemId ) {
-                    // found deleted item!
-                    child.animate().setDuration(MOVE_SPEED)
-                            .alpha(0)
-                            .translationX(child.getWidth())
-                            .withEndAction(new Runnable() {
-                                @Override
-                                public void run() {
-                                    child.setAlpha(1);
-                                    child.setTranslationX(0);
-                                    autoSort(listview, action, added, null);
-                                }
-                            });
-
-
-                    return;
-                }
-            }
-        }
-
-        final Map<Long,Integer> map = new HashMap<>();
-        int firstVisiblePosition = listview.getFirstVisiblePosition();
-        for (int i = 0; i < listview.getChildCount(); ++i) {
-            View child = listview.getChildAt(i);
-            int position = firstVisiblePosition + i;
-            long itemId = mAdapter.getItemId(position);
-
-            // stores old top of a view on a Map
-            map.put(itemId, child.getTop());
-
-        }
-
-        final ViewTreeObserver observer = listview.getViewTreeObserver();
-        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            public boolean onPreDraw() {
-                observer.removeOnPreDrawListener(this);
-
-                int firstVisiblePosition = listview.getFirstVisiblePosition();
-
-                for (int i = 0; i < listview.getChildCount(); ++i) {
-                    final View child = listview.getChildAt(i);
-                    int position = firstVisiblePosition + i;
-                    long itemId = mAdapter.getItemId(position);
-
-                    if( added != null && itemId == added.id ){
-                        // the new product
-                        child.setTranslationX(listview.getWidth());
-                        child.animate().setDuration(MOVE_SPEED*2).translationX(0);
-                        continue;
-                    }
-
-                    // is null on non existing views (i.e. outside screen)
-                    Integer oldTop = map.get(itemId);
-                    int newTop = child.getTop(); // i.e. the new position!
-
-                    // already in correct position
-                    if (oldTop != null && oldTop == newTop)
-                        continue;
-
-                    // child not previously present
-                    if (oldTop == null) {
-                        int childHeight = child.getHeight() + listview.getDividerHeight();
-                        oldTop = newTop + (i > 0 ? childHeight : -childHeight);
-                    }
-
-                    int delta = oldTop - newTop;
-                    child.setTranslationY(delta);
-                    child.animate().setDuration(MOVE_SPEED).translationY(0);
-                }
-                map.clear(); // kinda of pointless with this code, but nevermind.
-                return true;
-            }
-        });
-
-        // changes only become visible here
-        if( action != null ) {
-            action.run();
-        }
-
-        DataDB.sort(mAdapter.shop.products);
-        Utilities.notifyListeners();
+    private void deleteAnimation(Runnable andThen, DataDB.Product ...deletes){
+        ListAnimations.deleteAnimation(mAdapter, mListView, andThen, deletes);
     }
 
 }
