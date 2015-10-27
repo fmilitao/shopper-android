@@ -34,7 +34,12 @@ public class ShopsListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return ((DataDB.Shop)getItem(position)).id;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return true;
     }
 
     @Override

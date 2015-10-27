@@ -10,11 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-// FIXME find how to avoid depending on DataDB.Product to make this more generic
 public class ListAnimations {
 
     static final int MOVE_SPEED = 250;
-
 
     //
     // fades and moves row to the right
@@ -24,7 +22,7 @@ public class ListAnimations {
             final ListAdapter mAdapter,
             final ListView listView,
             final Runnable andThen,
-            final DataDB.Product ...deletedItems
+            final int ...deletedItems
     ) {
 
         // nothing to animate but still has 'andThen' action
@@ -42,7 +40,7 @@ public class ListAnimations {
             final long itemId = mAdapter.getItemId(position);
 
             for (int j = 0; j < deletedItems.length; ++j) {
-                if (deletedItems[j].id == itemId) {
+                if (deletedItems[j] == itemId) {
                     // found deleted item!
                     ViewPropertyAnimator anim = child.animate().setDuration(MOVE_SPEED)
                             .alpha(0)
@@ -85,7 +83,7 @@ public class ListAnimations {
             final ListAdapter mAdapter,
             final ListView listview,
             final Runnable action,
-            final DataDB.Product added
+            final int added
     ) {
 
         final Map<Long,Integer> map = new HashMap<>();
@@ -114,7 +112,7 @@ public class ListAnimations {
                     int position = firstVisiblePosition + i;
                     long itemId = mAdapter.getItemId(position);
 
-                    if( added != null && itemId == added.id ){
+                    if( itemId == added ){
                         // the new product
                         child.setTranslationX(listview.getWidth());
                         child.animate().setDuration(MOVE_SPEED*2).translationX(0);

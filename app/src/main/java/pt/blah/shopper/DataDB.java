@@ -14,12 +14,14 @@ import java.util.List;
 public class DataDB implements Serializable {
 
     public class Shop implements Serializable {
+        final public int id;
         public String name;
         public List<Product> products;
 
         Shop(String n){
             name = n;
             products = new ArrayList<Product>();
+            id = count++;
         }
 
         int getPending(){
@@ -33,10 +35,10 @@ public class DataDB implements Serializable {
     }
 
     public class Product implements Serializable {
+        final public int id;
         public String name;
         public int quantity;
         public boolean done;
-        public int id;
 
         Product(String n, int q){
             name = n;

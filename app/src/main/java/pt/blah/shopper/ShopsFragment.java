@@ -95,11 +95,16 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
                 public void onClick(DialogInterface dialog, int which) {
                     String name = text.getText().toString();
                     if (name.length() > 0) {
-                        DataDB.Shop shop = sData.newShop(name);
+                        final DataDB.Shop shop = sData.newShop(name);
                         shop.products = list;
 
-                        Utilities.sData.list.add(shop);
-                        Utilities.notifyListeners();
+                        addAnimation(new Runnable() {
+                            @Override
+                            public void run() {
+                                Utilities.sData.list.add(shop);
+                                Utilities.notifyListeners();
+                            }
+                        }, shop.id);
 
                         Utilities.popUp(getActivity(), format(R.string.LIST_ADDED, name));
                     }
@@ -191,9 +196,18 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sData.list.remove(position);
-                Utilities.notifyListeners();
+
+                DataDB.Shop s = sData.list.get(position);
                 dialog.dismiss();
+
+                deleteAnimation(new Runnable() {
+                    @Override
+                    public void run() {
+                        sData.list.remove(position);
+                        Utilities.notifyListeners();
+                    }
+                },s.id);
+
                 Utilities.popUp(getActivity(), format(R.string.LIST_DELETED, shop.name));
             }
         });
@@ -202,5 +216,11 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
         return true;
     }
 
+    private void addAnimation(Runnable action, int added){
+        ListAnimations.addAnimation(mAdapter, mListView, action, added);
+    }
 
+    private void deleteAnimation(Runnable andThen, int delete){
+        ListAnimations.deleteAnimation(mAdapter, mListView, andThen, delete);
+    }
 }

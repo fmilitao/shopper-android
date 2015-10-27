@@ -71,6 +71,10 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                 String p_name = n.getText().toString();
                 int p_quantity = 1;
 
+                // nothing to add
+                if( p_name == null || p_name.length() == 0 )
+                    return;
+
                 try {
                     p_quantity = Integer.parseInt(q.getText().toString());
                 } catch (NumberFormatException e) {
@@ -86,7 +90,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                         DataDB.sort(mAdapter.shop.products);
                         Utilities.notifyListeners();
                     }
-                },p);
+                },p.id);
 
                 Utilities.popUp(getActivity(), format(R.string.ITEM_ADDED, p_name, p_quantity));
 
@@ -176,10 +180,10 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                         final DataDB.Shop to = sData.list.get(i);
 
                         // pick elements for transfer
-                        DataDB.Product[] transfers = new DataDB.Product[count];
+                        int[] transfers = new int[count];
                         for(int x=0,y=0; x < set.length; ++x ){
                             if( set[x] ){
-                                transfers[y++] = from.products.get(x);
+                                transfers[y++] = from.products.get(x).id;
                             }
                         }
 
@@ -289,7 +293,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                             DataDB.sort(mAdapter.shop.products);
                             Utilities.notifyListeners();
                         }
-                    }, null);
+                    });
 
                     Utilities.popUp(getActivity(), format(R.string.ITEM_UPDATED, p_name, p_quantity));
                 }
@@ -301,7 +305,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
             public void onClick(DialogInterface dialog, int which) {
                 DataDB.Product p = sData.list.get(mAdapter.pos).products.get(position);
 
-                deleteAnimation( new Runnable() {
+                deleteAnimation(new Runnable() {
                     @Override
                     public void run() {
                         addAnimation(new Runnable() {
@@ -311,9 +315,9 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                                 DataDB.sort(mAdapter.shop.products);
                                 Utilities.notifyListeners();
                             }
-                        }, null);
+                        });
                     }
-                }, p);
+                }, p.id);
 
                 Utilities.popUp(getActivity(), format(R.string.ITEM_DELETED, product.name));
             }
@@ -334,15 +338,19 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                 DataDB.sort(mAdapter.shop.products);
                 Utilities.notifyListeners();
             }
-        }, null);
+        });
     }
 
 
-    private void addAnimation(Runnable action, DataDB.Product added){
+    private void addAnimation(Runnable action, int added){
         ListAnimations.addAnimation(mAdapter, mListView, action, added);
     }
 
-    private void deleteAnimation(Runnable andThen, DataDB.Product ...deletes){
+    private void addAnimation(Runnable action){
+        ListAnimations.addAnimation(mAdapter, mListView, action, -1);
+    }
+
+    private void deleteAnimation(Runnable andThen, int ...deletes){
         ListAnimations.deleteAnimation(mAdapter, mListView, andThen, deletes);
     }
 

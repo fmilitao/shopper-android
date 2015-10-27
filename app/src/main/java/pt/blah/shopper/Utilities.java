@@ -140,6 +140,10 @@ public class Utilities {
             o.close();
         } catch (Exception e) {
             e.printStackTrace();
+
+            // FIXME warn on deleting data!
+            file.delete();
+            Log.v(LOG_TG, "fail to load. delete corrupted file");
         }
         Log.v(LOG_TG,"file loaded");
 
