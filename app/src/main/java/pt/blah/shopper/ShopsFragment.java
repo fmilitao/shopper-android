@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +19,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -98,7 +96,7 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
                         final DataDB.Shop shop = sData.newShop(name);
                         shop.products = list;
 
-                        addAnimation(new Runnable() {
+                        animateAdd(new Runnable() {
                             @Override
                             public void run() {
                                 Utilities.sData.list.add(shop);
@@ -200,13 +198,13 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
                 DataDB.Shop s = sData.list.get(position);
                 dialog.dismiss();
 
-                deleteAnimation(new Runnable() {
+                animateDelete(new Runnable() {
                     @Override
                     public void run() {
                         sData.list.remove(position);
                         Utilities.notifyListeners();
                     }
-                },s.id);
+                }, s.id);
 
                 Utilities.popUp(getActivity(), format(R.string.LIST_DELETED, shop.name));
             }
@@ -216,11 +214,12 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
         return true;
     }
 
-    private void addAnimation(Runnable action, int added){
-        ListAnimations.addAnimation(mAdapter, mListView, action, added);
+
+    private void animateAdd(Runnable action, int added){
+        ListAnimations.animateAdd(mAdapter, mListView, action, added);
     }
 
-    private void deleteAnimation(Runnable andThen, int delete){
-        ListAnimations.deleteAnimation(mAdapter, mListView, andThen, delete);
+    private void animateDelete(Runnable andThen, int delete){
+        ListAnimations.animateDelete(mAdapter, mListView, andThen, delete);
     }
 }

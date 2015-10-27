@@ -83,14 +83,14 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
 
                 final DataDB.Product p = sData.newProduct(p_name, p_quantity);
 
-                addAnimation( new Runnable() {
+                animateAdd(new Runnable() {
                     @Override
                     public void run() {
                         mAdapter.shop.products.add(p);
                         DataDB.sort(mAdapter.shop.products);
                         Utilities.notifyListeners();
                     }
-                },p.id);
+                }, p.id);
 
                 Utilities.popUp(getActivity(), format(R.string.ITEM_ADDED, p_name, p_quantity));
 
@@ -187,20 +187,20 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
                             }
                         }
 
-                        deleteAnimation( new Runnable() {
+                        animateDelete(new Runnable() {
                             @Override
                             public void run() {
 
                                 // first copy
-                                for(int j = 0 ; j < set.length ; ++ j ){
-                                    if( set[j]) {
+                                for (int j = 0; j < set.length; ++j) {
+                                    if (set[j]) {
                                         to.products.add(from.products.get(j));
                                     }
                                 }
 
                                 // then remove
-                                for(int j = set.length-1 ; j >= 0 ; --j ){
-                                    if( set[j]) {
+                                for (int j = set.length - 1; j >= 0; --j) {
+                                    if (set[j]) {
                                         from.products.remove(j);
                                     }
                                 }
@@ -285,7 +285,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
 
                 if (p_name.length() > 0 && (!p_name.equals(product.name) || p_quantity != product.quantity)) {
 
-                    addAnimation(new Runnable() {
+                    animateAdd(new Runnable() {
                         @Override
                         public void run() {
                             product.name = p_name;
@@ -305,10 +305,10 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
             public void onClick(DialogInterface dialog, int which) {
                 DataDB.Product p = sData.list.get(mAdapter.pos).products.get(position);
 
-                deleteAnimation(new Runnable() {
+                animateDelete(new Runnable() {
                     @Override
                     public void run() {
-                        addAnimation(new Runnable() {
+                        animateAdd(new Runnable() {
                             @Override
                             public void run() {
                                 mAdapter.shop.products.remove(position);
@@ -332,7 +332,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
         DataDB.Product pp = mAdapter.shop.products.get(position);
         pp.done = !pp.done;
 
-        addAnimation(new Runnable() {
+        animateAdd(new Runnable() {
             @Override
             public void run() {
                 DataDB.sort(mAdapter.shop.products);
@@ -342,16 +342,16 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
     }
 
 
-    private void addAnimation(Runnable action, int added){
-        ListAnimations.addAnimation(mAdapter, mListView, action, added);
+    private void animateAdd(Runnable action, int added){
+        ListAnimations.animateAdd(mAdapter, mListView, action, added);
     }
 
-    private void addAnimation(Runnable action){
-        ListAnimations.addAnimation(mAdapter, mListView, action, -1);
+    private void animateAdd(Runnable action){
+        ListAnimations.animateAdd(mAdapter, mListView, action, -1);
     }
 
-    private void deleteAnimation(Runnable andThen, int ...deletes){
-        ListAnimations.deleteAnimation(mAdapter, mListView, andThen, deletes);
+    private void animateDelete(Runnable andThen, int... deletes){
+        ListAnimations.animateDelete(mAdapter, mListView, andThen, deletes);
     }
 
 }

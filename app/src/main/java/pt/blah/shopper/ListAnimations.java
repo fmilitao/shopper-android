@@ -18,11 +18,11 @@ public class ListAnimations {
     // fades and moves row to the right
     //
 
-    static void deleteAnimation(
+    static void animateDelete(
             final ListAdapter mAdapter,
             final ListView listView,
             final Runnable andThen,
-            final int ...deletedItems
+            final int... deletedItems
     ) {
 
         // nothing to animate but still has 'andThen' action
@@ -79,7 +79,7 @@ public class ListAnimations {
     // re-arranges old items and pushes new row in from the left
     //
 
-    static void addAnimation(
+    static void animateAdd(
             final ListAdapter mAdapter,
             final ListView listview,
             final Runnable action,
