@@ -12,5 +12,6 @@ Tasks:
 - [x] animation between activities, transition left/right
 - [X] add swipe to delete
 - [x] shake to undo delete
+- [x] export list to clipboard
 - [ ] switch to using SQLite for persistent stuff http://developer.android.com/training/basics/data-storage/databases.html
 - [ ] fix double tap on any button.

@@ -89,6 +89,14 @@ public class Utilities {
         return list;
     }
 
+    static public String stringifyProductList(List<DataDB.Product> products){
+        StringBuilder builder = new StringBuilder();
+        for(DataDB.Product p : products ){
+            builder.append(p.name+" "+p.quantity+"\n");
+        }
+        return builder.toString();
+    }
+
     static public String getClipboardString(Activity activity){
         ClipboardManager clipboard=(ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
         if( clipboard == null )
@@ -99,6 +107,16 @@ public class Utilities {
             return null;
 
         return text.getItemAt(0).coerceToText(activity).toString();
+    }
+
+    static public boolean setClipboardString(Activity activity, String label, String text){
+        ClipboardManager clipboard=(ClipboardManager)activity.getSystemService(Context.CLIPBOARD_SERVICE);
+        if( clipboard == null )
+            return false;
+
+        ClipData clip = ClipData.newPlainText(label, text);
+        clipboard.setPrimaryClip(clip);
+        return true;
     }
 
     //

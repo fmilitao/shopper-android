@@ -221,6 +221,17 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             }
         });
 
+        builder.setNeutralButton("Copy To Clipboard", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String name = shop.name;
+                String text = Utilities.stringifyProductList(shop.products);
+
+                Utilities.setClipboardString(getActivity(),name,text);
+                Utilities.popUp(getActivity(),"Copied "+name+" to clipboard ("+shop.products.size()+" item(s)).");
+            }
+        });
+
         builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
