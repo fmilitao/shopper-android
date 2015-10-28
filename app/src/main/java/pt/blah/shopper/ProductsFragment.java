@@ -26,7 +26,7 @@ import static pt.blah.shopper.Utilities.format;
 import static pt.blah.shopper.Utilities.sData;
 
 
-public class ProductsFragment extends Fragment implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
+public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
 
     ProductsListAdapter mAdapter;
     ListView mListView;
@@ -39,28 +39,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
         setHasOptionsMenu(true);
 
         undo = new LinkedList<>();
-        mShakeSensor = new ShakeSensor(new Runnable() {
-            @Override
-            public void run() {
-                if( undo.isEmpty() ){
-                    Utilities.popUp(getActivity(),"Nothing to undo.");
-                    return;
-                }
-
-                final DataDB.Product product = undo.remove(0);
-
-                animateAdd(new Runnable() {
-                    @Override
-                    public void run() {
-                        mAdapter.shop.products.add(product);
-                        DataDB.sort(mAdapter.shop.products);
-                        Utilities.notifyListeners();
-                    }
-                }, product.id);
-
-                Utilities.popUp(getActivity(), "Undeleted "+product.name);
-            }
-        });
+        mShakeSensor = new ShakeSensor(this);
         mShakeSensor.onCreate(getActivity());
     }
 
@@ -389,4 +368,24 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
         ListAnimations.animateDelete(mAdapter, mListView, andThen, deletes);
     }
 
+    @Override
+    public void onShake() {
+        if (undo.isEmpty()) { //FIXME string constants
+            Utilities.popUp(getActivity(), "Nothing to undo.");
+            return;
+        }
+
+        final DataDB.Product product = undo.remove(0);
+
+        animateAdd(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.shop.products.add(product);
+                DataDB.sort(mAdapter.shop.products);
+                Utilities.notifyListeners();
+            }
+        }, product.id);
+
+        Utilities.popUp(getActivity(), "Undeleted " + product.name);
+    }
 }

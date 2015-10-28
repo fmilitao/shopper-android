@@ -32,7 +32,7 @@ import java.util.List;
 import static pt.blah.shopper.Utilities.sData;
 import static pt.blah.shopper.Utilities.format;
 
-public class ShopsFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     ShopsListAdapter mAdapter;
     ListView mListView;
@@ -45,27 +45,7 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
         setHasOptionsMenu(true);
 
         undo = new LinkedList<>();
-        mShakeSensor = new ShakeSensor(new Runnable() {
-            @Override
-            public void run() {
-                if( undo.isEmpty() ){
-                    Utilities.popUp(getActivity(),"Nothing to undo.");
-                    return;
-                }
-
-                final DataDB.Shop shop = undo.remove(0);
-
-                animateAdd(new Runnable() {
-                    @Override
-                    public void run() {
-                        Utilities.sData.list.add(shop);
-                        Utilities.notifyListeners();
-                    }
-                }, shop.id);
-
-                Utilities.popUp(getActivity(), "Undeleted "+shop.name);
-            }
-        });
+        mShakeSensor = new ShakeSensor(this);
         mShakeSensor.onCreate(getActivity());
     }
 
@@ -262,5 +242,25 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
 
     private void animateDelete(Runnable andThen, int delete){
         ListAnimations.animateDelete(mAdapter, mListView, andThen, delete);
+    }
+
+    @Override
+    public void onShake() {
+        if (undo.isEmpty()) { //FIXME string constants
+            Utilities.popUp(getActivity(), "Nothing to undo.");
+            return;
+        }
+
+        final DataDB.Shop shop = undo.remove(0);
+
+        animateAdd(new Runnable() {
+            @Override
+            public void run() {
+                Utilities.sData.list.add(shop);
+                Utilities.notifyListeners();
+            }
+        }, shop.id);
+
+        Utilities.popUp(getActivity(), "Undeleted " + shop.name);
     }
 }

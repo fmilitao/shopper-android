@@ -20,13 +20,16 @@ public class ShakeSensor implements SensorEventListener {
     float mAccelLast; // last acceleration including gravity
     long lastUpdate = 0;
 
-    Runnable mOnShake;
+    ShakeListener mOnShake;
 
-    ShakeSensor(@NonNull Runnable onShakeAction){
+    ShakeSensor(@NonNull ShakeListener onShakeAction){
         mOnShake = onShakeAction;
     }
 
     public void onSensorChanged(SensorEvent se) {
+        // http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it
+        // http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
+
         long curTime = System.currentTimeMillis();
         if ((curTime - lastUpdate) > MIN_INTERVAL) {
             lastUpdate = curTime;
@@ -40,7 +43,7 @@ public class ShakeSensor implements SensorEventListener {
             mAccel = mAccel * 0.9f + delta; // perform low-cut filter
 
             if (mAccel > SHAKE_THRESHOLD) {
-                mOnShake.run();
+                mOnShake.onShake();
             }
         }
     }
@@ -68,4 +71,13 @@ public class ShakeSensor implements SensorEventListener {
     public void onResume(){
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
+
+    //
+    // Listener Interface
+    //
+
+    interface ShakeListener {
+        void onShake();
+    }
+
 }
