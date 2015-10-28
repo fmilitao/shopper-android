@@ -3,13 +3,8 @@ package pt.blah.shopper;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,22 +12,22 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static pt.blah.shopper.Utilities.sData;
 import static pt.blah.shopper.Utilities.format;
+import static pt.blah.shopper.Utilities.sData;
 
-public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener,
+        TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener{
 
     ShopsListAdapter mAdapter;
     ListView mListView;
@@ -147,24 +142,51 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mAdapter = new ShopsListAdapter(getActivity());
-
         View rootView = inflater.inflate(R.layout.shop_fragment, container, false);
         mListView = (ListView) rootView.findViewById(R.id.shops_list);
 
+        TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(this.getContext()),mListView);
+        mAdapter = new ShopsListAdapter(getActivity(), t);
+        t.setOnClick(this);
+        t.setOnLongClick(this);
+        t.setOnSwipeOut(this);
+
         mListView.setAdapter(mAdapter);
-
-        mListView.setClickable(true);
-        mListView.setOnItemClickListener(this);
-
-        mListView.setLongClickable(true);
-        mListView.setOnItemLongClickListener(this);
 
         return rootView;
     }
 
+    private void animateAdd(Runnable action, int added){
+        ListAnimations.animateAdd(mAdapter, mListView, action, added);
+    }
+
+    private void animateDelete(Runnable andThen, int delete){
+        ListAnimations.animateDelete(mAdapter, mListView, andThen, delete);
+    }
+
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onShake() {
+        if (undo.isEmpty()) { //FIXME string constants
+            Utilities.popUp(getActivity(), "Nothing to undo.");
+            return;
+        }
+
+        final DataDB.Shop shop = undo.remove(0);
+
+        animateAdd(new Runnable() {
+            @Override
+            public void run() {
+                Utilities.sData.list.add(shop);
+                Utilities.notifyListeners();
+            }
+        }, shop.id);
+
+        Utilities.popUp(getActivity(), "Undeleted " + shop.name);
+    }
+
+    @Override
+    public void onClick(ListView listView, View view) {
+        int position = mListView.getPositionForView(view);
         Intent intent = new Intent(getActivity(), ProductsActivity.class);
         // links to position in the DB
         intent.putExtra(Utilities.INTENT_TAG, position);
@@ -175,8 +197,8 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-
+    public void onLongClick(ListView listView, View view) {
+        final int position = mListView.getPositionForView(view);
         final DataDB.Shop shop = Utilities.sData.list.get(position);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -232,35 +254,18 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
         });
 
         dialog.show();
-        return true;
-    }
-
-
-    private void animateAdd(Runnable action, int added){
-        ListAnimations.animateAdd(mAdapter, mListView, action, added);
-    }
-
-    private void animateDelete(Runnable andThen, int delete){
-        ListAnimations.animateDelete(mAdapter, mListView, andThen, delete);
     }
 
     @Override
-    public void onShake() {
-        if (undo.isEmpty()) { //FIXME string constants
-            Utilities.popUp(getActivity(), "Nothing to undo.");
-            return;
-        }
-
-        final DataDB.Shop shop = undo.remove(0);
-
+    public void onSwipeOut(ListView listView, View view) {
+        final int position = listView.getPositionForView(view);
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                Utilities.sData.list.add(shop);
+                undo.add(sData.list.get(position));
+                sData.list.remove(position);
                 Utilities.notifyListeners();
             }
-        }, shop.id);
-
-        Utilities.popUp(getActivity(), "Undeleted " + shop.name);
+        }, -1);
     }
 }

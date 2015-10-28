@@ -15,11 +15,13 @@ public class ShopsListAdapter extends BaseAdapter {
 
     final LayoutInflater mInflater;
     final Context mContext;
+    final View.OnTouchListener mTouchListener;
 
-    public ShopsListAdapter(Context context) {
+    public ShopsListAdapter(Context context, View.OnTouchListener listener) {
         super();
         mContext = context;
         mInflater = LayoutInflater.from(context);
+        mTouchListener = listener;
     }
 
     @Override
@@ -54,6 +56,8 @@ public class ShopsListAdapter extends BaseAdapter {
             holder.size = (TextView)view.findViewById(R.id.list_size);
 
             view.setTag(holder);
+
+            view.setOnTouchListener(mTouchListener);
         } else {
             view = convertView;
             holder = (ViewHolder)view.getTag();

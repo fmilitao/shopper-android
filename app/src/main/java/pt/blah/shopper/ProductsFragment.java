@@ -11,9 +11,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -26,7 +26,8 @@ import static pt.blah.shopper.Utilities.format;
 import static pt.blah.shopper.Utilities.sData;
 
 
-public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
+public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListener,
+        TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener {
 
     ProductsListAdapter mAdapter;
     ListView mListView;
@@ -210,6 +211,8 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                                         to.products.add(from.products.get(j));
                                     }
                                 }
+                                // only needs to sort added stuff
+                                DataDB.sort(to.products);
 
                                 // then remove
                                 for (int j = set.length - 1; j >= 0; --j) {
@@ -253,26 +256,74 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         if (intent != null && intent.hasExtra(Utilities.INTENT_TAG)) {
             pos = intent.getIntExtra(Utilities.INTENT_TAG, 0);
         }
-        mAdapter = new ProductsListAdapter(getActivity(),pos);
 
         View rootView = inflater.inflate(R.layout.product_fragment, container, false);
         mListView = (ListView) rootView.findViewById(R.id.product_list);
+
+        TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(this.getContext()),mListView);
+        mAdapter = new ProductsListAdapter(getActivity(),pos, t);
+        t.setOnClick(this);
+        t.setOnLongClick(this);
+        t.setOnSwipeOut(this);
+
         mListView.setAdapter(mAdapter);
-
-        mListView.setClickable(true);
-        mListView.setOnItemClickListener(this);
-
-        mListView.setLongClickable(true);
-        mListView.setOnItemLongClickListener(this);
 
         DataDB.Shop shop = sData.list.get(pos);
         getActivity().setTitle(shop.name);
         return rootView;
     }
 
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+    private void animateAdd(Runnable action, int added){
+        ListAnimations.animateAdd(mAdapter, mListView, action, added);
+    }
 
+    private void animateAdd(Runnable action){
+        ListAnimations.animateAdd(mAdapter, mListView, action, -1);
+    }
+
+    private void animateDelete(Runnable andThen, int... deletes){
+        ListAnimations.animateDelete(mAdapter, mListView, andThen, deletes);
+    }
+
+    @Override
+    public void onShake() {
+        if (undo.isEmpty()) { //FIXME string constants
+            Utilities.popUp(getActivity(), "Nothing to undo.");
+            return;
+        }
+
+        final DataDB.Product product = undo.remove(0);
+
+        animateAdd(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.shop.products.add(product);
+                DataDB.sort(mAdapter.shop.products);
+                Utilities.notifyListeners();
+            }
+        }, product.id);
+
+        Utilities.popUp(getActivity(), "Undeleted " + product.name);
+    }
+
+    @Override
+    public void onClick(ListView listView, View view) {
+        int position = listView.getPositionForView(view);
+        DataDB.Product pp = mAdapter.shop.products.get(position);
+        pp.done = !pp.done;
+
+        animateAdd(new Runnable() {
+            @Override
+            public void run() {
+                DataDB.sort(mAdapter.shop.products);
+                Utilities.notifyListeners();
+            }
+        });
+    }
+
+    @Override
+    public void onLongClick(ListView listView, View view) {
+        final int position = listView.getPositionForView(view);
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -337,55 +388,18 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             }
         });
         builder.create().show();
-
-        return true;
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        DataDB.Product pp = mAdapter.shop.products.get(position);
-        pp.done = !pp.done;
-
+    public void onSwipeOut(ListView listView, View view) {
+        final int position = listView.getPositionForView(view);
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                DataDB.sort(mAdapter.shop.products);
+                undo.add(mAdapter.shop.products.get(position));
+                mAdapter.shop.products.remove(position);
                 Utilities.notifyListeners();
             }
-        });
-    }
-
-
-    private void animateAdd(Runnable action, int added){
-        ListAnimations.animateAdd(mAdapter, mListView, action, added);
-    }
-
-    private void animateAdd(Runnable action){
-        ListAnimations.animateAdd(mAdapter, mListView, action, -1);
-    }
-
-    private void animateDelete(Runnable andThen, int... deletes){
-        ListAnimations.animateDelete(mAdapter, mListView, andThen, deletes);
-    }
-
-    @Override
-    public void onShake() {
-        if (undo.isEmpty()) { //FIXME string constants
-            Utilities.popUp(getActivity(), "Nothing to undo.");
-            return;
-        }
-
-        final DataDB.Product product = undo.remove(0);
-
-        animateAdd(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.shop.products.add(product);
-                DataDB.sort(mAdapter.shop.products);
-                Utilities.notifyListeners();
-            }
-        }, product.id);
-
-        Utilities.popUp(getActivity(), "Undeleted " + product.name);
+        }, -1);
     }
 }

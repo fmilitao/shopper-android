@@ -18,11 +18,13 @@ public class ProductsListAdapter extends BaseAdapter {
     final int pos;
     final DataDB.Shop shop;
     final LayoutInflater mInflater;
+    final View.OnTouchListener mTouchListener;
 
-    public ProductsListAdapter(Context context, int position) {
+    public ProductsListAdapter(Context context, int position, View.OnTouchListener listener) {
         mInflater = LayoutInflater.from(context);
         pos = position;
         shop = sData.list.get(position);
+        mTouchListener = listener;
     }
 
     @Override
@@ -60,6 +62,8 @@ public class ProductsListAdapter extends BaseAdapter {
             holder.flags = holder.name.getPaintFlags();
 
             view.setTag(holder);
+
+            view.setOnTouchListener(mTouchListener);
         } else {
             view = convertView;
             holder = (ViewHolder)view.getTag();
