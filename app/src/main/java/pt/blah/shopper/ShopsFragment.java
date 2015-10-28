@@ -206,7 +206,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
         final View root = inflater.inflate(R.layout.shop_edit_dialog, null);
 
         final EditText text = (EditText) root.findViewById(R.id.dialog_shop_name);
-        final Button delete = (Button) root.findViewById(R.id.dialog_delete_shop);
+        //final Button delete = (Button) root.findViewById(R.id.dialog_delete_shop);
 
         builder.setTitle(R.string.EDIT_LIST).setView(root);
 
@@ -233,25 +233,25 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
 
         final Dialog dialog = builder.create();
 
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                DataDB.Shop s = sData.list.get(position);
-                dialog.dismiss();
-                undo.add(s);
-
-                animateDelete(new Runnable() {
-                    @Override
-                    public void run() {
-                        sData.list.remove(position);
-                        Utilities.notifyListeners();
-                    }
-                }, s.id);
-
-                Utilities.popUp(getActivity(), format(R.string.LIST_DELETED, shop.name));
-            }
-        });
+//        delete.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                DataDB.Shop s = sData.list.get(position);
+//                dialog.dismiss();
+//                undo.add(s);
+//
+//                animateDelete(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        sData.list.remove(position);
+//                        Utilities.notifyListeners();
+//                    }
+//                }, s.id);
+//
+//                Utilities.popUp(getActivity(), format(R.string.LIST_DELETED, shop.name));
+//            }
+//        });
 
         dialog.show();
     }

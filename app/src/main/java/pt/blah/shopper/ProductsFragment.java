@@ -364,27 +364,27 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             }
         });
 
-        builder.setNegativeButton(R.string.DELETE, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                DataDB.Product p = sData.list.get(mAdapter.pos).products.get(position);
-                undo.add(p);
-
-                animateDelete(new Runnable() {
-                    @Override
-                    public void run() {
-                        animateAdd(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.shop.products.remove(position);
-                                DataDB.sort(mAdapter.shop.products);
-                                Utilities.notifyListeners();
-                            }
-                        });
-                    }
-                }, p.id);
-
-                Utilities.popUp(getActivity(), format(R.string.ITEM_DELETED, product.name));
+//                DataDB.Product p = sData.list.get(mAdapter.pos).products.get(position);
+//                undo.add(p);
+//
+//                animateDelete(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        animateAdd(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                mAdapter.shop.products.remove(position);
+//                                DataDB.sort(mAdapter.shop.products);
+//                                Utilities.notifyListeners();
+//                            }
+//                        });
+//                    }
+//                }, p.id);
+//
+//                Utilities.popUp(getActivity(), format(R.string.ITEM_DELETED, product.name));
             }
         });
         builder.create().show();
