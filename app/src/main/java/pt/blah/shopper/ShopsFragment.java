@@ -3,8 +3,13 @@ package pt.blah.shopper;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -19,6 +24,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,25 +36,55 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
 
     ShopsListAdapter mAdapter;
     ListView mListView;
+    ShakeSensor mShakeSensor;
+    List<DataDB.Shop> undo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        undo = new LinkedList<>();
+        mShakeSensor = new ShakeSensor(new Runnable() {
+            @Override
+            public void run() {
+                if( undo.isEmpty() ){
+                    Utilities.popUp(getActivity(),"Nothing to undo.");
+                    return;
+                }
+
+                final DataDB.Shop shop = undo.remove(0);
+
+                animateAdd(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utilities.sData.list.add(shop);
+                        Utilities.notifyListeners();
+                    }
+                }, shop.id);
+
+                Utilities.popUp(getActivity(), "Undeleted "+shop.name);
+            }
+        });
+        mShakeSensor.onCreate(getActivity());
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Utilities.addListener(this, mAdapter);
+
+        mShakeSensor.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+
         // Note: listener cannot be removed or it will miss events.
         //Utilities.removeListener(this);
         Utilities.save();
+        mShakeSensor.onPause();
     }
 
     @Override
@@ -201,6 +237,7 @@ public class ShopsFragment extends Fragment implements AdapterView.OnItemClickLi
 
                 DataDB.Shop s = sData.list.get(position);
                 dialog.dismiss();
+                undo.add(s);
 
                 animateDelete(new Runnable() {
                     @Override

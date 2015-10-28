@@ -19,6 +19,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static pt.blah.shopper.Utilities.format;
 import static pt.blah.shopper.Utilities.sData;
 
@@ -27,17 +30,46 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
 
     ProductsListAdapter mAdapter;
     ListView mListView;
+    ShakeSensor mShakeSensor;
+    List<DataDB.Product> undo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        undo = new LinkedList<>();
+        mShakeSensor = new ShakeSensor(new Runnable() {
+            @Override
+            public void run() {
+                if( undo.isEmpty() ){
+                    Utilities.popUp(getActivity(),"Nothing to undo.");
+                    return;
+                }
+
+                final DataDB.Product product = undo.remove(0);
+
+                animateAdd(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.shop.products.add(product);
+                        DataDB.sort(mAdapter.shop.products);
+                        Utilities.notifyListeners();
+                    }
+                }, product.id);
+
+                Utilities.popUp(getActivity(), "Undeleted "+product.name);
+            }
+        });
+        mShakeSensor.onCreate(getActivity());
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Utilities.addListener(this, mAdapter);
+
+        mShakeSensor.onResume();
     }
 
     @Override
@@ -45,6 +77,8 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
         super.onPause();
         Utilities.removeListener(this);
         Utilities.save();
+
+        mShakeSensor.onPause();
     }
 
     @Override
@@ -304,6 +338,7 @@ public class ProductsFragment extends Fragment implements AdapterView.OnItemLong
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 DataDB.Product p = sData.list.get(mAdapter.pos).products.get(position);
+                undo.add(p);
 
                 animateDelete(new Runnable() {
                     @Override
