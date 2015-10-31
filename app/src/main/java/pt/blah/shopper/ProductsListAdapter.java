@@ -49,6 +49,7 @@ public class ProductsListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         View view;
         ViewHolder holder;
         if(convertView == null) {

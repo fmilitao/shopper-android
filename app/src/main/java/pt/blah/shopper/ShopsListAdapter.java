@@ -53,7 +53,8 @@ public class ShopsListAdapter extends BaseAdapter {
 
             holder = new ViewHolder();
             holder.name = (TextView)view.findViewById(R.id.list_name);
-            holder.size = (TextView)view.findViewById(R.id.list_size);
+            holder.size = (TextView)view.findViewById(R.id.list_pending);
+            holder.total = (TextView)view.findViewById(R.id.list_size);
 
             view.setTag(holder);
 
@@ -65,14 +66,12 @@ public class ShopsListAdapter extends BaseAdapter {
 
         DataDB.Shop pair = sData.list.get(position);
         holder.name.setText(pair.name);
-        holder.size.setText(
-                format(R.string.PENDING_ITEMS,
-                    pair.getPending(),pair.products.size()) );
-
+        holder.size.setText( ""+pair.getPending() );
+        holder.total.setText( ""+pair.products.size() );
         return view;
     }
 
     private class ViewHolder {
-        public TextView name, size;
+        public TextView name, size, total, lastUsed;
     }
 }
