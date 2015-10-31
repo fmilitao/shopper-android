@@ -1,6 +1,6 @@
 # Shopper
 
-![icon](https://raw.githubusercontent.com/fmilitao/shopper-android/master/web_hi_res_256.png )
+![icon](https://raw.githubusercontent.com/fmilitao/shopper-android/master/icons/web_hi_res_256.png )
 
 Experimental project to play with Android SDK.
 Will eventually become a usable shopping list app... maybe.
