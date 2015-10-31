@@ -35,3 +35,5 @@ captures/
 # IDE stuff
 .idea/
 *.iml
+
+.DS_Store
