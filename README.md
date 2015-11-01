@@ -5,7 +5,7 @@
 Experimental project to play with Android SDK.
 Will eventually become a usable shopping list app... maybe.
 
-Tasks:
+###Tasks
 
 - [x] basic activity layout and functionality
 - [x] fix animations and auto-sorting, refactor code instead of current mess
@@ -13,10 +13,12 @@ Tasks:
 - [X] add swipe to delete
 - [x] shake to undo delete
 - [x] export list to clipboard
-- [ ] prettify lists, etc
+- [ ] prettify lists, etc (idea: show background fill as percentage of list completion)
 - [ ] switch to using SQLite for persistent stuff http://developer.android.com/training/basics/data-storage/databases.html
 - [ ] fix double tap on any button
 
-Notes:
+###Notes
 
  * icon done using https://romannurik.github.io/AndroidAssetStudio/
+ * ListView animation tutorial https://www.youtube.com/watch?v=YCHNAi9kJI4
+ 
