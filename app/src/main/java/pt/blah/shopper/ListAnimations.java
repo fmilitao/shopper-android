@@ -25,46 +25,44 @@ public class ListAnimations {
             final int... deletedItems
     ) {
 
-        // nothing to animate but still has 'andThen' action
-        if( ( deletedItems == null || deletedItems.length == 0 ) && andThen != null ){
-            andThen.run();
-            return;
-        }
-
         boolean foundFirst = false;
-        int firstVisiblePosition = listView.getFirstVisiblePosition();
 
-        for (int i = 0; i < listView.getChildCount(); ++i) {
-            final View child = listView.getChildAt(i);
-            final int position = firstVisiblePosition + i;
-            final long itemId = mAdapter.getItemId(position);
+        if( deletedItems != null ){
+            int firstVisiblePosition = listView.getFirstVisiblePosition();
 
-            for (int j = 0; j < deletedItems.length; ++j) {
-                if (deletedItems[j] == itemId) {
-                    // found deleted item!
-                    ViewPropertyAnimator anim = child.animate().setDuration(MOVE_SPEED)
-                            .alpha(0)
-                            .translationX(child.getWidth());
+            for (int i = 0; i < listView.getChildCount(); ++i) {
+                final View child = listView.getChildAt(i);
+                final int position = firstVisiblePosition + i;
+                final long itemId = mAdapter.getItemId(position);
 
-                    if (!foundFirst) {
-                        anim.withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                child.setAlpha(1);
-                                child.setTranslationX(0);
-                                // now do the 'andThen' action
-                                andThen.run();
-                            }
-                        });
-                        foundFirst = true;
-                    } else {
-                        anim.withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                child.setAlpha(1);
-                                child.setTranslationX(0);
-                            }
-                        });
+                for (int deletedItem : deletedItems) {
+                    if (deletedItem == itemId) {
+                        // found deleted item!
+                        ViewPropertyAnimator anim = child.animate().setDuration(MOVE_SPEED)
+                                .alpha(0)
+                                .translationX(child.getWidth());
+
+                        if (!foundFirst) {
+                            anim.withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    child.setAlpha(1);
+                                    child.setTranslationX(0);
+                                    // now do the 'andThen' action
+                                    if (andThen != null)
+                                        andThen.run();
+                                }
+                            });
+                            foundFirst = true;
+                        } else {
+                            anim.withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    child.setAlpha(1);
+                                    child.setTranslationX(0);
+                                }
+                            });
+                        }
                     }
                 }
             }

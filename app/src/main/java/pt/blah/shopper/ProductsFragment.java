@@ -1,6 +1,7 @@
 package pt.blah.shopper;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -70,6 +71,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
+        @SuppressLint("InflateParams")
         final View root = inflater.inflate(R.layout.product_dialog, null);
 
         builder.setTitle(R.string.NEW_ITEM);
@@ -86,7 +88,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                 int p_quantity = 1;
 
                 // nothing to add
-                if( p_name == null || p_name.length() == 0 )
+                if( p_name.length() == 0 )
                     return;
 
                 try {
@@ -148,6 +150,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             final LayoutInflater inflater = getActivity().getLayoutInflater();
 
+            @SuppressLint("InflateParams")
             final View root = inflater.inflate(R.layout.move_dialog, null);
 
             // SPINNER
@@ -287,8 +290,8 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
 
     @Override
     public void onShake() {
-        if (undo.isEmpty()) { //FIXME string constants
-            Utilities.popUp(getActivity(), "Nothing to undo.");
+        if (undo.isEmpty()) {
+            Utilities.popUp(getActivity(), getString(R.string.SHAKE_FAIL));
             return;
         }
 
@@ -303,7 +306,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             }
         }, product.id);
 
-        Utilities.popUp(getActivity(), "Undeleted " + product.name);
+        Utilities.popUp(getActivity(), format(R.string.SHAKE_UNDO, product.name));
     }
 
     @Override
@@ -327,7 +330,9 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
+        @SuppressLint("InflateParams")
         final View root = inflater.inflate(R.layout.product_dialog, null);
+
         final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
@@ -335,7 +340,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
 
         n.setText(product.name);
         n.setSelection(n.getText().length());
-        q.setText(Integer.toString(product.quantity));
+        q.setText(format(R.string.NUMBER, product.quantity));
         q.setSelection(q.getText().length());
 
         builder.setTitle(R.string.UPDATE);
@@ -367,24 +372,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-//                DataDB.Product p = sData.list.get(mAdapter.pos).products.get(position);
-//                undo.add(p);
-//
-//                animateDelete(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        animateAdd(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                mAdapter.shop.products.remove(position);
-//                                DataDB.sort(mAdapter.shop.products);
-//                                Utilities.notifyListeners();
-//                            }
-//                        });
-//                    }
-//                }, p.id);
-//
-//                Utilities.popUp(getActivity(), format(R.string.ITEM_DELETED, product.name));
+                // does nothing
             }
         });
         builder.create().show();

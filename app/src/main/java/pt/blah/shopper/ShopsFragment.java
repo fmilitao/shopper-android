@@ -1,6 +1,7 @@
 package pt.blah.shopper;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -74,7 +75,9 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             final LayoutInflater inflater = getActivity().getLayoutInflater();
 
+            @SuppressLint("InflateParams")
             final View root = inflater.inflate(R.layout.shop_create_dialog, null);
+
             final CheckBox box = (CheckBox) root.findViewById(R.id.dialog_shop_clipboard);
             final EditText text = (EditText) root.findViewById(R.id.dialog_shop_name);
 
@@ -197,6 +200,8 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        @SuppressLint("InflateParams")
         final View root = inflater.inflate(R.layout.shop_edit_dialog, null);
 
         final EditText text = (EditText) root.findViewById(R.id.dialog_shop_name);

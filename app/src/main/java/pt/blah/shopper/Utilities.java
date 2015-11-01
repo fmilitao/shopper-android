@@ -2,14 +2,12 @@ package pt.blah.shopper;
 
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
-import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import android.widget.Toast;
 
@@ -92,7 +90,10 @@ public class Utilities {
     static public String stringifyProductList(List<DataDB.Product> products){
         StringBuilder builder = new StringBuilder();
         for(DataDB.Product p : products ){
-            builder.append(p.name+" "+p.quantity+"\n");
+            builder.append(p.name);
+            builder.append(" ");
+            builder.append(p.quantity);
+            builder.append("\n");
         }
         return builder.toString();
     }
@@ -156,14 +157,12 @@ public class Utilities {
             ObjectInputStream o = new ObjectInputStream(new FileInputStream(file));
             sData.load(o);
             o.close();
+            Log.v(LOG_TG, "file loaded");
         } catch (Exception e) {
             e.printStackTrace();
-
-            // FIXME warn on deleting data!
-            file.delete();
-            Log.v(LOG_TG, "fail to load. delete corrupted file");
+            // file will be overwritten anyway, even if with empty content
+            Log.v(LOG_TG, "fail to load.");
         }
-        Log.v(LOG_TG,"file loaded");
 
     }
 
@@ -197,7 +196,7 @@ public class Utilities {
                 break;
             }
         }
-        listeners.add( new Pair<Object, BaseAdapter>(a,b));
+        listeners.add( new Pair<>(a,b));
     }
 
     static final DataDB sData = new DataDB();
