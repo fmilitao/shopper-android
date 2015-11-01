@@ -8,6 +8,9 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.annotation.NonNull;
 
+// code based off:
+// http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it
+// http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
 public class ShakeSensor implements SensorEventListener {
 
     static final int SHAKE_THRESHOLD = 5;
@@ -27,8 +30,6 @@ public class ShakeSensor implements SensorEventListener {
     }
 
     public void onSensorChanged(SensorEvent se) {
-        // http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it
-        // http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
 
         long curTime = System.currentTimeMillis();
         if ((curTime - lastUpdate) > MIN_INTERVAL) {

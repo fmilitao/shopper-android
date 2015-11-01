@@ -36,4 +36,12 @@
     <string name="ITEM_TRANSFERRED">Transferred %1$s item(s) from %2$s to %3$s</string>
     <string name="NEXT">Create Another</string>
     <string name="ITEM_UPDATED">Item updated: %1$s %2$d</string>
+    <string name="COPY_TO_CLIPBOARD">Copy To Clipboard</string>
+    <string name="ITEMS_COPIED">Copied \'%1$s\' to clipboard ( %2$d item(s) )</string>
+    <string name="SHAKE_FAIL">Nothing to undo.</string>
+    <string name="SHAKE_UNDO">Undid deletetion of \'%1$s\'</string>
+
+
+    <!-- TODO is this the correct way to format numbers? -->
+    <string name="NUMBER">%1$d</string>
 </resources>

@@ -6,11 +6,11 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.ListView;
 
+// code based off https://www.youtube.com/watch?v=YCHNAi9kJI4 tutorial
 public class TouchAndClickListener implements View.OnTouchListener {
 
     private static final int SWIPE_DURATION = 250;
 
-    //based on https://www.youtube.com/watch?v=YCHNAi9kJI4
     final int SWIPE_SLOP;
     final int LONG_TIMEOUT;
 
@@ -45,9 +45,13 @@ public class TouchAndClickListener implements View.OnTouchListener {
         mOnSwipeOut = onSwipeOut;
     }
 
-    //
-    //
-    //
+    /*
+        Using 'onTouch' breaks onItemClick and onItemLongClick events. To simulate the
+        long click event we launch a timer (using 'handler') that will trigger the on long
+        click event, unless stopped. Stopping occurs when we switch to the swipe state or when
+        we are sure it is just a simple (short) click.
+        'longClick' is the old handler to be removed.
+     */
 
     final Handler handler = new Handler();
     Runnable longClick = null;
@@ -56,7 +60,7 @@ public class TouchAndClickListener implements View.OnTouchListener {
     @Override
     public boolean onTouch(final View v, MotionEvent event) {
 
-        android.util.Log.v("DEBUG", "EVENT: " + event.toString());
+//        android.util.Log.v("DEBUG", "EVENT: " + event.toString());
 
         switch (event.getAction()) {
 
@@ -70,7 +74,7 @@ public class TouchAndClickListener implements View.OnTouchListener {
                 mDownX = event.getX();
 
                 // start time out for long click
-                android.util.Log.v("DEBUG","ADDED TIMEOUT - DOWN");
+//                android.util.Log.v("DEBUG","ADDED TIMEOUT - DOWN");
                 longClick = new Runnable() {
                     @Override
                     public void run() {
@@ -84,7 +88,7 @@ public class TouchAndClickListener implements View.OnTouchListener {
                 v.setAlpha(1);
                 v.setTranslationX(0);
                 mItemPressed = false;
-                android.util.Log.v("DEBUG", "REMOVED TIMEOUT - CANCELED");
+//                android.util.Log.v("DEBUG", "REMOVED TIMEOUT - CANCELED");
                 handler.removeCallbacks(longClick); // abort long click
                 break;
 
@@ -95,7 +99,7 @@ public class TouchAndClickListener implements View.OnTouchListener {
                     if (deltaXAbs > SWIPE_SLOP) {
                         mSwiping = true;
                         mListView.requestDisallowInterceptTouchEvent(true);
-                        android.util.Log.v("DEBUG", "REMOVED TIMEOUT - MOVED");
+//                        android.util.Log.v("DEBUG", "REMOVED TIMEOUT - MOVED");
                         handler.removeCallbacks(longClick); // abort long click
                     }
                 }
@@ -161,7 +165,7 @@ public class TouchAndClickListener implements View.OnTouchListener {
                 } else {
                     long diff = System.currentTimeMillis() - mDownTime;
                     if (diff < LONG_TIMEOUT) {
-                        android.util.Log.v("DEBUG","REMOVED TIMEOUT - CLICK");
+//                        android.util.Log.v("DEBUG","REMOVED TIMEOUT - CLICK");
                         handler.removeCallbacks(longClick);
                         mOnClick.onClick(mListView, v);
                     }

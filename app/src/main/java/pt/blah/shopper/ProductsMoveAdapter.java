@@ -63,7 +63,7 @@ public class ProductsMoveAdapter extends BaseAdapter {
         }
 
         holder.name.setOnClickListener(null);
-        holder.name.setChecked( set[position] );
+        holder.name.setChecked(set[position]);
         holder.name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +74,8 @@ public class ProductsMoveAdapter extends BaseAdapter {
 
         DataDB.Product product = shop.products.get(position);
         holder.name.setText(product.name);
-        holder.quantity.setText(Integer.toString(product.quantity));
+        holder.quantity.setText( Utilities.format(R.string.NUMBER, product.quantity) );
+
 
         if( product.done ){
             holder.name.setPaintFlags(holder.name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);

@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import static pt.blah.shopper.Utilities.sData;
 import static pt.blah.shopper.Utilities.format;
+import static pt.blah.shopper.Utilities.sData;
 
 public class ShopsListAdapter extends BaseAdapter {
 
@@ -36,7 +36,7 @@ public class ShopsListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return ((DataDB.Shop)getItem(position)).id;
+        return ((DataDB.Shop) getItem(position)).id;
     }
 
     @Override
@@ -48,30 +48,30 @@ public class ShopsListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
         ViewHolder holder;
-        if(convertView == null) {
+        if (convertView == null) {
             view = mInflater.inflate(R.layout.shop_row, parent, false);
 
             holder = new ViewHolder();
-            holder.name = (TextView)view.findViewById(R.id.list_name);
-            holder.size = (TextView)view.findViewById(R.id.list_pending);
-            holder.total = (TextView)view.findViewById(R.id.list_size);
+            holder.name = (TextView) view.findViewById(R.id.list_name);
+            holder.size = (TextView) view.findViewById(R.id.list_pending);
+            holder.total = (TextView) view.findViewById(R.id.list_size);
 
             view.setTag(holder);
 
             view.setOnTouchListener(mTouchListener);
         } else {
             view = convertView;
-            holder = (ViewHolder)view.getTag();
+            holder = (ViewHolder) view.getTag();
         }
 
         DataDB.Shop pair = sData.list.get(position);
         holder.name.setText(pair.name);
-        holder.size.setText( ""+pair.getPending() );
-        holder.total.setText( ""+pair.products.size() );
+        holder.size.setText(format(R.string.NUMBER, pair.getPending()));
+        holder.total.setText(format(R.string.NUMBER, pair.products.size()));
         return view;
     }
 
     private class ViewHolder {
-        public TextView name, size, total, lastUsed;
+        public TextView name, size, total;
     }
 }

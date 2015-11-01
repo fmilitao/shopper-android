@@ -20,5 +20,5 @@ Will eventually become a usable shopping list app... maybe.
 ###Notes
 
  * icon done using https://romannurik.github.io/AndroidAssetStudio/
- * ListView animation tutorial https://www.youtube.com/watch?v=YCHNAi9kJI4
- 
+ * ListView animation/swipe tutorial https://www.youtube.com/watch?v=YCHNAi9kJI4
+ * ShakeSensor http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it and  http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android

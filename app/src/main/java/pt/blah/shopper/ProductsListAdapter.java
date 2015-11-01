@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import static pt.blah.shopper.Utilities.format;
 import static pt.blah.shopper.Utilities.sData;
 
 public class ProductsListAdapter extends BaseAdapter {
@@ -72,7 +73,7 @@ public class ProductsListAdapter extends BaseAdapter {
 
         DataDB.Product product = shop.products.get(position);
         holder.name.setText(product.name);
-        holder.quantity.setText(Integer.toString(product.quantity));
+        holder.quantity.setText(format(R.string.NUMBER, product.quantity));
 
         if( product.done ){
             holder.name.setPaintFlags(holder.name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);

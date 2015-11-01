@@ -2,7 +2,6 @@ package pt.blah.shopper;
 
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -160,14 +158,10 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
         ListAnimations.animateAdd(mAdapter, mListView, action, added);
     }
 
-    private void animateDelete(Runnable andThen, int delete){
-        ListAnimations.animateDelete(mAdapter, mListView, andThen, delete);
-    }
-
     @Override
     public void onShake() {
-        if (undo.isEmpty()) { //FIXME string constants
-            Utilities.popUp(getActivity(), "Nothing to undo.");
+        if (undo.isEmpty()) {
+            Utilities.popUp(getActivity(), getString(R.string.SHAKE_FAIL));
             return;
         }
 
@@ -181,7 +175,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             }
         }, shop.id);
 
-        Utilities.popUp(getActivity(), "Undeleted " + shop.name);
+        Utilities.popUp(getActivity(), format(R.string.SHAKE_UNDO, shop.name));
     }
 
     @Override
@@ -206,7 +200,6 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
         final View root = inflater.inflate(R.layout.shop_edit_dialog, null);
 
         final EditText text = (EditText) root.findViewById(R.id.dialog_shop_name);
-        //final Button delete = (Button) root.findViewById(R.id.dialog_delete_shop);
 
         builder.setTitle(R.string.EDIT_LIST).setView(root);
 
@@ -221,14 +214,14 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             }
         });
 
-        builder.setNeutralButton("Copy To Clipboard", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(R.string.COPY_TO_CLIPBOARD, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String name = shop.name;
                 String text = Utilities.stringifyProductList(shop.products);
 
-                Utilities.setClipboardString(getActivity(),name,text);
-                Utilities.popUp(getActivity(),"Copied "+name+" to clipboard ("+shop.products.size()+" item(s)).");
+                Utilities.setClipboardString(getActivity(), name, text);
+                Utilities.popUp(getActivity(), format(R.string.ITEMS_COPIED, name, shop.products.size()));
             }
         });
 
@@ -242,29 +235,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
         text.setText(shop.name);
         text.setSelection(text.getText().length());
 
-        final Dialog dialog = builder.create();
-
-//        delete.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                DataDB.Shop s = sData.list.get(position);
-//                dialog.dismiss();
-//                undo.add(s);
-//
-//                animateDelete(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        sData.list.remove(position);
-//                        Utilities.notifyListeners();
-//                    }
-//                }, s.id);
-//
-//                Utilities.popUp(getActivity(), format(R.string.LIST_DELETED, shop.name));
-//            }
-//        });
-
-        dialog.show();
+        builder.create().show();
     }
 
     @Override
