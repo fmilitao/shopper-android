@@ -93,7 +93,6 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
                         List<DataDB.Product> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
                         if (tmp != null) {
                             list.addAll(tmp);
-                            DataDB.sort(list);
                             box.setText(String.format(getString(R.string.INCLUDE_ITEMS), tmp.size()));
                         }
                     } else {
@@ -109,8 +108,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
                 public void onClick(DialogInterface dialog, int which) {
                     String name = text.getText().toString();
                     if (name.length() > 0) {
-                        final DataDB.Shop shop = sData.newShop(name);
-                        shop.products = list;
+                        final DataDB.Shop shop = sData.newShop(name,list);
 
                         animateAdd(new Runnable() {
                             @Override
@@ -181,7 +179,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             }
         }, shop.id);
 
-        Utilities.popUp(getActivity(), format(R.string.SHAKE_UNDO, shop.name));
+        Utilities.popUp(getActivity(), format(R.string.SHAKE_UNDO, shop.getName()));
     }
 
     @Override
@@ -214,22 +212,22 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
         builder.setPositiveButton(R.string.UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String old = shop.name;
-                shop.name = text.getText().toString();
+                String old = shop.getName();
+                shop.rename( text.getText().toString() );
                 Utilities.notifyListeners();
 
-                Utilities.popUp(getActivity(), format(R.string.LIST_RENAMED, old, shop.name));
+                Utilities.popUp(getActivity(), format(R.string.LIST_RENAMED, old, shop.getName()));
             }
         });
 
         builder.setNeutralButton(R.string.COPY_TO_CLIPBOARD, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String name = shop.name;
-                String text = Utilities.stringifyProductList(shop.products);
+                String name = shop.getName();
+                String text = Utilities.stringifyProductList(shop.forEachProduct());
 
                 Utilities.setClipboardString(getActivity(), name, text);
-                Utilities.popUp(getActivity(), format(R.string.ITEMS_COPIED, name, shop.products.size()));
+                Utilities.popUp(getActivity(), format(R.string.ITEMS_COPIED, name, shop.getProductCount()));
             }
         });
 
@@ -240,7 +238,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             }
         });
 
-        text.setText(shop.name);
+        text.setText(shop.getName());
         text.setSelection(text.getText().length());
 
         builder.create().show();

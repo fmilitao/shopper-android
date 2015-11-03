@@ -30,12 +30,12 @@ public class ProductsListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return shop.products.size();
+        return shop.getProductCount();
     }
 
     @Override
     public Object getItem(int position) {
-        return shop.products.get(position);
+        return shop.getProduct(position);
     }
 
     @Override
@@ -71,11 +71,11 @@ public class ProductsListAdapter extends BaseAdapter {
             holder = (ViewHolder)view.getTag();
         }
 
-        DataDB.Product product = shop.products.get(position);
-        holder.name.setText(product.name);
-        holder.quantity.setText(format(R.string.NUMBER, product.quantity));
+        DataDB.Product product = shop.getProduct(position);
+        holder.name.setText(product.getName());
+        holder.quantity.setText(format(R.string.NUMBER, product.getQuantity()));
 
-        if( product.done ){
+        if( product.isDone() ){
             holder.name.setPaintFlags(holder.name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             holder.name.setTextColor(Color.GRAY);
 

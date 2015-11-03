@@ -87,12 +87,12 @@ public class Utilities {
         return list;
     }
 
-    static public String stringifyProductList(List<DataDB.Product> products){
+    static public String stringifyProductList(Iterable<DataDB.Product> products){
         StringBuilder builder = new StringBuilder();
         for(DataDB.Product p : products ){
-            builder.append(p.name);
+            builder.append(p.getName());
             builder.append(" ");
-            builder.append(p.quantity);
+            builder.append(p.getQuantity());
             builder.append("\n");
         }
         return builder.toString();

@@ -65,9 +65,9 @@ public class ShopsListAdapter extends BaseAdapter {
         }
 
         DataDB.Shop pair = sData.getShop(position);
-        holder.name.setText(pair.name);
+        holder.name.setText(pair.getName());
         holder.size.setText(format(R.string.NUMBER, pair.getPending()));
-        holder.total.setText(format(R.string.NUMBER, pair.products.size()));
+        holder.total.setText(format(R.string.NUMBER, pair.getProductCount()));
         return view;
     }
 

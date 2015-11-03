@@ -19,16 +19,17 @@ public class DataDB implements Serializable {
 
     public class Shop implements Serializable {
         final public int id;
-        public String name;
-        public List<Product> products;
 
-        Shop(String n){
+        private String name;
+        private List<Product> products;
+
+        private Shop(String n){
             name = n;
             products = new ArrayList<>();
             id = count++;
         }
 
-        int getPending(){
+        public int getPending(){
             int i=0;
             for(Product p : products){
                 if(!p.done)
@@ -36,19 +37,77 @@ public class DataDB implements Serializable {
             }
             return i;
         }
+
+        public String getName(){
+            return name;
+        }
+
+        public void rename(String newName){
+            name = newName;
+        }
+
+        public int getProductCount(){
+            return products.size();
+        }
+
+        public Iterable<Product> forEachProduct(){
+            return products;
+        }
+
+        public void addProduct(Product p){
+            products.add(p);
+            sort(products);
+        }
+
+        public Product getProduct(int productId){
+            return products.get(productId);
+        }
+
+        public Product removeProduct(int productId){
+            return products.remove(productId);
+        }
+
+        public void sortProducts(){
+            sort(products);
+        }
     }
 
     public class Product implements Serializable {
         final public int id;
-        public String name;
-        public int quantity;
-        public boolean done;
 
-        Product(String n, int q){
+        private String name;
+        private int quantity;
+        private boolean done;
+
+        private Product(String n, int q){
             name = n;
             quantity = q;
             done = false;
             id = count++;
+        }
+
+        public String getName(){
+            return name;
+        }
+
+        public void setName(String newName){
+            this.name = newName;
+        }
+
+        public int getQuantity(){
+            return quantity;
+        }
+
+        public void setQuantity(int newQuantity){
+            this.quantity = newQuantity;
+        }
+
+        public boolean isDone(){
+            return done;
+        }
+
+        public void flipDone(){
+            done = !done;
         }
     }
 
@@ -64,39 +123,47 @@ public class DataDB implements Serializable {
     // Shop
     //
 
-    int getShopCount(){
+    public int getShopCount(){
         return list.size();
     }
 
-    Shop getShop(int shopId){
+    public Shop getShop(int shopId){
         return list.get(shopId);
     }
 
-    void addShop(Shop shop){
+    public void addShop(Shop shop){
         list.add(shop);
     }
 
-    Shop deleteShop(int shopId){
+    public Shop deleteShop(int shopId){
         return list.remove(shopId);
     }
 
-    Iterable<Shop> forEachShop(){
+    public Iterable<Shop> forEachShop(){
         return list;
     }
 
-    Shop newShop(String n){
-        return new Shop(n);
+    public Shop newShop(String n, List<Product> products){
+        Shop tmp = new Shop(n);
+        tmp.products = products;
+        // ensure sorted
+        tmp.sortProducts();
+        return tmp;
     }
 
     //
     // Product
     //
 
-    Product newProduct(String n, int q){
+    public Product newProduct(String n, int q){
         return new Product(n,q);
     }
 
-    static void sort(List<Product> products){
+    //
+    // Static Utils
+    //
+
+    private static void sort(List<Product> products){
         Collections.sort(products, new Comparator<Product>() {
             @Override
             public int compare(Product lhs, Product rhs) {
@@ -110,6 +177,29 @@ public class DataDB implements Serializable {
             }
         });
     }
+
+    static void transfer(Shop from, Shop to, boolean[] set){
+        // first copy
+        for (int j = 0; j < set.length; ++j) {
+            if (set[j]) {
+                to.products.add(from.products.get(j));
+            }
+        }
+
+        // only needs to sort added stuff
+        sort(to.products);
+
+        // then remove
+        for (int j = set.length - 1; j >= 0; --j) {
+            if (set[j]) {
+                from.products.remove(j);
+            }
+        }
+    }
+
+    //
+    // I/O stuff
+    //
 
     public void load(ObjectInputStream in) throws IOException, ClassNotFoundException {
         this.list = (List<DataDB.Shop>) in.readObject();

@@ -101,8 +101,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                 animateAdd(new Runnable() {
                     @Override
                     public void run() {
-                        mAdapter.shop.products.add(p);
-                        DataDB.sort(mAdapter.shop.products);
+                        mAdapter.shop.addProduct(p);
                         Utilities.notifyListeners();
                     }
                 }, p.id);
@@ -157,7 +156,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             String[] shops = new String[sData.getShopCount()];
             int i =0;
             for(DataDB.Shop s : sData.forEachShop()){
-                shops[i++] = s.name;
+                shops[i++] = s.getName();
             }
 
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
@@ -199,37 +198,21 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                         int[] transfers = new int[count];
                         for(int x=0,y=0; x < set.length; ++x ){
                             if( set[x] ){
-                                transfers[y++] = from.products.get(x).id;
+                                transfers[y++] = from.getProduct(x).id;
                             }
                         }
 
                         animateDelete(new Runnable() {
                             @Override
                             public void run() {
-
-                                // first copy
-                                for (int j = 0; j < set.length; ++j) {
-                                    if (set[j]) {
-                                        to.products.add(from.products.get(j));
-                                    }
-                                }
-                                // only needs to sort added stuff
-                                DataDB.sort(to.products);
-
-                                // then remove
-                                for (int j = set.length - 1; j >= 0; --j) {
-                                    if (set[j]) {
-                                        from.products.remove(j);
-                                    }
-                                }
-
+                                DataDB.transfer(from,to,set);
                                 // no need to animate since order did not change
                                 Utilities.notifyListeners();
                             }
                         }, transfers);
 
                         Utilities.notifyListeners();
-                        Utilities.popUp(getActivity(), format(R.string.ITEM_TRANSFERRED, count, from.name, to.name));
+                        Utilities.popUp(getActivity(), format(R.string.ITEM_TRANSFERRED, count, from.getName(), to.getName()));
                     }
                 }
             });
@@ -271,7 +254,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         mListView.setAdapter(mAdapter);
 
         DataDB.Shop shop = sData.getShop(pos);
-        getActivity().setTitle(shop.name);
+        getActivity().setTitle(shop.getName());
         return rootView;
     }
 
@@ -299,25 +282,24 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                mAdapter.shop.products.add(product);
-                DataDB.sort(mAdapter.shop.products);
+                mAdapter.shop.addProduct(product);
                 Utilities.notifyListeners();
             }
         }, product.id);
 
-        Utilities.popUp(getActivity(), format(R.string.SHAKE_UNDO, product.name));
+        Utilities.popUp(getActivity(), format(R.string.SHAKE_UNDO, product.getName()));
     }
 
     @Override
     public void onClick(ListView listView, View view) {
         int position = listView.getPositionForView(view);
-        DataDB.Product pp = mAdapter.shop.products.get(position);
-        pp.done = !pp.done;
+        DataDB.Product pp = mAdapter.shop.getProduct(position);
+        pp.flipDone();
 
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                DataDB.sort(mAdapter.shop.products);
+                mAdapter.shop.sortProducts();
                 Utilities.notifyListeners();
             }
         });
@@ -335,11 +317,11 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
-        final DataDB.Product product = mAdapter.shop.products.get(position);
+        final DataDB.Product product = mAdapter.shop.getProduct(position);
 
-        n.setText(product.name);
+        n.setText(product.getName());
         n.setSelection(n.getText().length());
-        q.setText(format(R.string.NUMBER, product.quantity));
+        q.setText(format(R.string.NUMBER, product.getQuantity()));
         q.setSelection(q.getText().length());
 
         builder.setTitle(R.string.UPDATE);
@@ -351,14 +333,14 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                 final String p_name = n.getText().toString();
                 final int p_quantity = Integer.parseInt(q.getText().toString());
 
-                if (p_name.length() > 0 && (!p_name.equals(product.name) || p_quantity != product.quantity)) {
+                if (p_name.length() > 0 && (!p_name.equals(product.getName()) || p_quantity != product.getQuantity())) {
 
                     animateAdd(new Runnable() {
                         @Override
                         public void run() {
-                            product.name = p_name;
-                            product.quantity = p_quantity;
-                            DataDB.sort(mAdapter.shop.products);
+                            product.setName( p_name );
+                            product.setQuantity( p_quantity );
+                            mAdapter.shop.sortProducts();
                             Utilities.notifyListeners();
                         }
                     });
@@ -383,8 +365,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                undo.push(mAdapter.shop.products.get(position));
-                mAdapter.shop.products.remove(position);
+                undo.push(mAdapter.shop.removeProduct(position));
                 Utilities.notifyListeners();
             }
         }, -1);
