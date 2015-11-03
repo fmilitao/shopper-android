@@ -21,6 +21,7 @@ import android.widget.ListView;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 import static pt.blah.shopper.Utilities.format;
 import static pt.blah.shopper.Utilities.sData;
@@ -31,14 +32,14 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
     ShopsListAdapter mAdapter;
     ListView mListView;
     ShakeSensor mShakeSensor;
-    List<DataDB.Shop> undo;
+    Stack<DataDB.Shop> undo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        undo = new LinkedList<>();
+        undo = new Stack<>();
         mShakeSensor = new ShakeSensor(this);
         mShakeSensor.onCreate(getActivity());
     }
@@ -47,6 +48,8 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
     public void onResume() {
         super.onResume();
         Utilities.addListener(this, mAdapter);
+        // FIXME: addListener is unnecessary, we can just force 'notifyListener' on the Adapter
+        // FIXME: also move save to DataDB and control version
 
         mShakeSensor.onResume();
     }
@@ -112,7 +115,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
                         animateAdd(new Runnable() {
                             @Override
                             public void run() {
-                                Utilities.sData.list.add(shop);
+                                Utilities.sData.addShop(shop);
                                 Utilities.notifyListeners();
                             }
                         }, shop.id);
@@ -168,12 +171,12 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             return;
         }
 
-        final DataDB.Shop shop = undo.remove(0);
+        final DataDB.Shop shop = undo.pop();
 
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                Utilities.sData.list.add(shop);
+                Utilities.sData.addShop(shop);
                 Utilities.notifyListeners();
             }
         }, shop.id);
@@ -196,7 +199,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
     @Override
     public void onLongClick(ListView listView, View view) {
         final int position = mListView.getPositionForView(view);
-        final DataDB.Shop shop = Utilities.sData.list.get(position);
+        final DataDB.Shop shop = Utilities.sData.getShop(position);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -249,8 +252,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                undo.add(sData.list.get(position));
-                sData.list.remove(position);
+                undo.push(sData.deleteShop(position));
                 Utilities.notifyListeners();
             }
         }, -1);

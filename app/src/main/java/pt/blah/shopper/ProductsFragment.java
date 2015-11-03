@@ -20,8 +20,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Stack;
 
 import static pt.blah.shopper.Utilities.format;
 import static pt.blah.shopper.Utilities.sData;
@@ -33,14 +32,14 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
     ProductsListAdapter mAdapter;
     ListView mListView;
     ShakeSensor mShakeSensor;
-    List<DataDB.Product> undo;
+    Stack<DataDB.Product> undo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        undo = new LinkedList<>();
+        undo = new Stack<>();
         mShakeSensor = new ShakeSensor(this);
         mShakeSensor.onCreate(getActivity());
     }
@@ -155,9 +154,9 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
 
             // SPINNER
             final Spinner spinner = (Spinner) root.findViewById(R.id.shop_pick);
-            String[] shops = new String[sData.list.size()];
+            String[] shops = new String[sData.getShopCount()];
             int i =0;
-            for(DataDB.Shop s : sData.list){
+            for(DataDB.Shop s : sData.forEachShop()){
                 shops[i++] = s.name;
             }
 
@@ -194,7 +193,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                         Utilities.popUp(getActivity(), getString(R.string.TRANSFER_FAIL));
                     } else {
                         final DataDB.Shop from = moveAdapter.shop;
-                        final DataDB.Shop to = sData.list.get(i);
+                        final DataDB.Shop to = sData.getShop(i);
 
                         // pick elements for transfer
                         int[] transfers = new int[count];
@@ -271,7 +270,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
 
         mListView.setAdapter(mAdapter);
 
-        DataDB.Shop shop = sData.list.get(pos);
+        DataDB.Shop shop = sData.getShop(pos);
         getActivity().setTitle(shop.name);
         return rootView;
     }
@@ -295,7 +294,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             return;
         }
 
-        final DataDB.Product product = undo.remove(0);
+        final DataDB.Product product = undo.pop();
 
         animateAdd(new Runnable() {
             @Override
@@ -384,7 +383,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                undo.add(mAdapter.shop.products.get(position));
+                undo.push(mAdapter.shop.products.get(position));
                 mAdapter.shop.products.remove(position);
                 Utilities.notifyListeners();
             }

@@ -24,7 +24,7 @@ public class ProductsListAdapter extends BaseAdapter {
     public ProductsListAdapter(Context context, int position, View.OnTouchListener listener) {
         mInflater = LayoutInflater.from(context);
         pos = position;
-        shop = sData.list.get(position);
+        shop = sData.getShop(position);
         mTouchListener = listener;
     }
 

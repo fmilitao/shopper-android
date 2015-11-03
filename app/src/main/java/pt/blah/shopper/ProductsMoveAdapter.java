@@ -23,7 +23,7 @@ public class ProductsMoveAdapter extends BaseAdapter {
     public ProductsMoveAdapter(Context context, int position) {
         mInflater = LayoutInflater.from(context);
         pos = position;
-        shop = sData.list.get(position);
+        shop = sData.getShop(position);
         set = new boolean[shop.products.size()];
     }
 

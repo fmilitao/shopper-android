@@ -26,12 +26,12 @@ public class ShopsListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return sData.list.size();
+        return sData.getShopCount();
     }
 
     @Override
     public Object getItem(int position) {
-        return sData.list.get(position);
+        return sData.getShop(position);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ShopsListAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
 
-        DataDB.Shop pair = sData.list.get(position);
+        DataDB.Shop pair = sData.getShop(position);
         holder.name.setText(pair.name);
         holder.size.setText(format(R.string.NUMBER, pair.getPending()));
         holder.total.setText(format(R.string.NUMBER, pair.products.size()));

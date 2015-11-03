@@ -11,6 +11,10 @@ import java.util.Comparator;
 import java.util.List;
 
 // FIXME hacky class. will fix when switched to using SQLite.
+
+// Probably a bit tricky to switch?
+// Build unified interface to better sense what is needed, rather than expose all
+
 public class DataDB implements Serializable {
 
     public class Shop implements Serializable {
@@ -20,7 +24,7 @@ public class DataDB implements Serializable {
 
         Shop(String n){
             name = n;
-            products = new ArrayList<Product>();
+            products = new ArrayList<>();
             id = count++;
         }
 
@@ -48,17 +52,45 @@ public class DataDB implements Serializable {
         }
     }
 
-    public List<Shop> list;
+    private List<Shop> list;
     private int count;
 
     DataDB(){
-        list = new ArrayList<Shop>();
+        list = new ArrayList<>();
         count = 0;
+    }
+
+    //
+    // Shop
+    //
+
+    int getShopCount(){
+        return list.size();
+    }
+
+    Shop getShop(int shopId){
+        return list.get(shopId);
+    }
+
+    void addShop(Shop shop){
+        list.add(shop);
+    }
+
+    Shop deleteShop(int shopId){
+        return list.remove(shopId);
+    }
+
+    Iterable<Shop> forEachShop(){
+        return list;
     }
 
     Shop newShop(String n){
         return new Shop(n);
     }
+
+    //
+    // Product
+    //
 
     Product newProduct(String n, int q){
         return new Product(n,q);
