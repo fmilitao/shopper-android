@@ -47,9 +47,10 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
     @Override
     public void onResume() {
         super.onResume();
-        Utilities.addListener(this, mAdapter);
-        // FIXME: addListener is unnecessary, we can just force 'notifyListener' on the Adapter
-        // FIXME: also move save to DataDB and control version
+
+        // this may be unnecessary, but we just force the notification to recompute
+        // each list's done and total counts
+        mAdapter.notifyDataSetChanged();
 
         mShakeSensor.onResume();
     }
@@ -58,9 +59,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
     public void onPause() {
         super.onPause();
 
-        // Note: listener cannot be removed or it will miss events.
-        //Utilities.removeListener(this);
-        Utilities.save();
+        sData.save();
         mShakeSensor.onPause();
     }
 
@@ -114,7 +113,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
                             @Override
                             public void run() {
                                 Utilities.sData.addShop(shop);
-                                Utilities.notifyListeners();
+                                mAdapter.notifyDataSetChanged();
                             }
                         }, shop.id);
 
@@ -175,7 +174,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             @Override
             public void run() {
                 Utilities.sData.addShop(shop);
-                Utilities.notifyListeners();
+                mAdapter.notifyDataSetChanged();
             }
         }, shop.id);
 
@@ -213,8 +212,8 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String old = shop.getName();
-                shop.rename( text.getText().toString() );
-                Utilities.notifyListeners();
+                shop.rename(text.getText().toString());
+                mAdapter.notifyDataSetChanged();
 
                 Utilities.popUp(getActivity(), format(R.string.LIST_RENAMED, old, shop.getName()));
             }
@@ -251,7 +250,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             @Override
             public void run() {
                 undo.push(sData.deleteShop(position));
-                Utilities.notifyListeners();
+                mAdapter.notifyDataSetChanged();
             }
         }, -1);
     }

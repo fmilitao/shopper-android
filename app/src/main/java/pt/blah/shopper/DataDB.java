@@ -1,6 +1,12 @@
 package pt.blah.shopper;
 
 
+import android.support.annotation.NonNull;
+import android.util.Log;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,9 +17,6 @@ import java.util.Comparator;
 import java.util.List;
 
 // FIXME hacky class. will fix when switched to using SQLite.
-
-// Probably a bit tricky to switch?
-// Build unified interface to better sense what is needed, rather than expose all
 
 public class DataDB implements Serializable {
 
@@ -43,6 +46,7 @@ public class DataDB implements Serializable {
         }
 
         public void rename(String newName){
+            ++version;
             name = newName;
         }
 
@@ -55,6 +59,7 @@ public class DataDB implements Serializable {
         }
 
         public void addProduct(Product p){
+            ++version;
             products.add(p);
             sort(products);
         }
@@ -64,10 +69,12 @@ public class DataDB implements Serializable {
         }
 
         public Product removeProduct(int productId){
+            ++version;
             return products.remove(productId);
         }
 
         public void sortProducts(){
+            ++version;
             sort(products);
         }
     }
@@ -91,6 +98,7 @@ public class DataDB implements Serializable {
         }
 
         public void setName(String newName){
+            ++version;
             this.name = newName;
         }
 
@@ -99,6 +107,7 @@ public class DataDB implements Serializable {
         }
 
         public void setQuantity(int newQuantity){
+            ++version;
             this.quantity = newQuantity;
         }
 
@@ -107,6 +116,7 @@ public class DataDB implements Serializable {
         }
 
         public void flipDone(){
+            ++version;
             done = !done;
         }
     }
@@ -114,9 +124,71 @@ public class DataDB implements Serializable {
     private List<Shop> list;
     private int count;
 
-    DataDB(){
+    private int version = 0, last_saved = -1;
+    private File file;
+
+    DataDB(@NonNull File f){
+        file = f;
+        // yes, potential redundant initialization...
         list = new ArrayList<>();
         count = 0;
+
+        load();
+    }
+
+    //
+    // I/O
+    //
+
+    static final String LOG_TG = DataDB.class.toString();
+
+    public void save(){
+
+        if( version <= last_saved ){
+            Log.v(LOG_TG, "already saved.");
+            return;
+        }
+
+        Log.v(LOG_TG,file.getAbsolutePath());
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+            out.writeObject(this.list);
+            out.writeInt(this.count);
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.v(LOG_TG,"file saved.");
+
+        last_saved = version;
+    }
+
+    private void load(){
+
+        if( !file.exists() ) {
+            Log.v(LOG_TG,"file does not exist");
+            return;
+        }
+
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+            this.list = (List<DataDB.Shop>) in.readObject();
+            this.count = in.readInt();
+
+            //TODO ensures sorted, better with sorted set but also needs to index element
+            for(DataDB.Shop s : this.list){
+                DataDB.sort( s.products );
+            }
+            in.close();
+            Log.v(LOG_TG, "file loaded");
+        } catch (Exception e) {
+            e.printStackTrace();
+            if( file.delete() )
+                Log.v(LOG_TG, "file deleted.");
+            // file will be overwritten anyway, even if with empty content
+            Log.v(LOG_TG, "fail to load.");
+        }
+
     }
 
     //
@@ -132,10 +204,12 @@ public class DataDB implements Serializable {
     }
 
     public void addShop(Shop shop){
+        ++version;
         list.add(shop);
     }
 
     public Shop deleteShop(int shopId){
+        ++version;
         return list.remove(shopId);
     }
 
@@ -195,25 +269,10 @@ public class DataDB implements Serializable {
                 from.products.remove(j);
             }
         }
+
+        // FIXME: hack!
+        Utilities.sData.version++;
     }
 
-    //
-    // I/O stuff
-    //
-
-    public void load(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        this.list = (List<DataDB.Shop>) in.readObject();
-        this.count = in.readInt();
-
-        //TODO ensures sorted, better with sorted set but also needs to index element
-        for(DataDB.Shop s : this.list){
-            DataDB.sort( s.products );
-        }
-    }
-
-    public void save(ObjectOutputStream out) throws IOException {
-        out.writeObject(this.list);
-        out.writeInt(this.count);
-    }
 
 }

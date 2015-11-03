@@ -47,7 +47,6 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
     @Override
     public void onResume() {
         super.onResume();
-        Utilities.addListener(this, mAdapter);
 
         mShakeSensor.onResume();
     }
@@ -55,8 +54,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
     @Override
     public void onPause() {
         super.onPause();
-        Utilities.removeListener(this);
-        Utilities.save();
+        sData.save();
 
         mShakeSensor.onPause();
     }
@@ -102,7 +100,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                     @Override
                     public void run() {
                         mAdapter.shop.addProduct(p);
-                        Utilities.notifyListeners();
+                        mAdapter.notifyDataSetChanged();
                     }
                 }, p.id);
 
@@ -205,13 +203,12 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                         animateDelete(new Runnable() {
                             @Override
                             public void run() {
-                                DataDB.transfer(from,to,set);
+                                DataDB.transfer(from, to, set);
                                 // no need to animate since order did not change
-                                Utilities.notifyListeners();
+                                mAdapter.notifyDataSetChanged();
                             }
                         }, transfers);
 
-                        Utilities.notifyListeners();
                         Utilities.popUp(getActivity(), format(R.string.ITEM_TRANSFERRED, count, from.getName(), to.getName()));
                     }
                 }
@@ -283,7 +280,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             @Override
             public void run() {
                 mAdapter.shop.addProduct(product);
-                Utilities.notifyListeners();
+                mAdapter.notifyDataSetChanged();
             }
         }, product.id);
 
@@ -300,7 +297,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             @Override
             public void run() {
                 mAdapter.shop.sortProducts();
-                Utilities.notifyListeners();
+                mAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -341,7 +338,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                             product.setName( p_name );
                             product.setQuantity( p_quantity );
                             mAdapter.shop.sortProducts();
-                            Utilities.notifyListeners();
+                            mAdapter.notifyDataSetChanged();
                         }
                     });
 
@@ -366,7 +363,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             @Override
             public void run() {
                 undo.push(mAdapter.shop.removeProduct(position));
-                Utilities.notifyListeners();
+                mAdapter.notifyDataSetChanged();
             }
         }, -1);
     }
