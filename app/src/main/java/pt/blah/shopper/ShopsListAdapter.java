@@ -5,20 +5,20 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import static pt.blah.shopper.utils.Utilities.format;
+import pt.blah.shopper.utils.UtilAdapter;
+
 import static pt.blah.shopper.utils.Utilities.sData;
 
-public class ShopsListAdapter extends BaseAdapter {
+public class ShopsListAdapter extends UtilAdapter {
 
     final LayoutInflater mInflater;
     final Context mContext;
     final View.OnTouchListener mTouchListener;
 
     public ShopsListAdapter(Context context, View.OnTouchListener listener) {
-        super();
+        super(context);
         mContext = context;
         mInflater = LayoutInflater.from(context);
         mTouchListener = listener;

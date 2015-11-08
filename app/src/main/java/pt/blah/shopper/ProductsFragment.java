@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,13 +24,13 @@ import java.util.Stack;
 import pt.blah.shopper.utils.ListAnimations;
 import pt.blah.shopper.utils.ShakeSensor;
 import pt.blah.shopper.utils.TouchAndClickListener;
+import pt.blah.shopper.utils.UtilFragment;
 import pt.blah.shopper.utils.Utilities;
 
-import static pt.blah.shopper.utils.Utilities.format;
 import static pt.blah.shopper.utils.Utilities.sData;
 
 
-public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListener,
+public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
         TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener {
 
     ProductsListAdapter mAdapter;
@@ -109,7 +108,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                     }
                 }, p.id);
 
-                Utilities.popUp(getActivity(), format(R.string.ITEM_ADDED, p_name, p_quantity));
+                popUp( format(R.string.ITEM_ADDED, p_name, p_quantity) );
 
             }
         };
@@ -192,7 +191,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                     }
 
                     if( i == mAdapter.pos || count == 0 ) {
-                        Utilities.popUp(getActivity(), getString(R.string.TRANSFER_FAIL));
+                        popUp(getString(R.string.TRANSFER_FAIL));
                     } else {
                         final DataDB.Shop from = moveAdapter.shop;
                         final DataDB.Shop to = sData.getShop(i);
@@ -214,7 +213,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                             }
                         }, transfers);
 
-                        Utilities.popUp(getActivity(), format(R.string.ITEM_TRANSFERRED, count, from.getName(), to.getName()));
+                        popUp( format(R.string.ITEM_TRANSFERRED, count, from.getName(), to.getName()) );
                     }
                 }
             });
@@ -275,7 +274,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
     @Override
     public void onShake() {
         if (undo.isEmpty()) {
-            Utilities.popUp(getActivity(), getString(R.string.SHAKE_FAIL));
+            popUp(getString(R.string.SHAKE_FAIL));
             return;
         }
 
@@ -289,7 +288,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
             }
         }, product.id);
 
-        Utilities.popUp(getActivity(), format(R.string.SHAKE_UNDO, product.getName()));
+        popUp(format(R.string.SHAKE_UNDO, product.getName()));
     }
 
     @Override
@@ -347,7 +346,7 @@ public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListe
                         }
                     });
 
-                    Utilities.popUp(getActivity(), format(R.string.ITEM_UPDATED, p_name, p_quantity));
+                    popUp(format(R.string.ITEM_UPDATED, p_name, p_quantity));
                 }
             }
         });

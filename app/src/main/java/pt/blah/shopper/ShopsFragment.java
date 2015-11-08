@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,12 +25,12 @@ import java.util.Stack;
 import pt.blah.shopper.utils.ListAnimations;
 import pt.blah.shopper.utils.ShakeSensor;
 import pt.blah.shopper.utils.TouchAndClickListener;
+import pt.blah.shopper.utils.UtilFragment;
 import pt.blah.shopper.utils.Utilities;
 
-import static pt.blah.shopper.utils.Utilities.format;
 import static pt.blah.shopper.utils.Utilities.sData;
 
-public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener,
+public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
         TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener{
 
     ShopsListAdapter mAdapter;
@@ -122,7 +121,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
                             }
                         }, shop.id);
 
-                        Utilities.popUp(getActivity(), format(R.string.LIST_ADDED, name));
+                        popUp(format(R.string.LIST_ADDED, name));
                     }
 
                 }
@@ -169,7 +168,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
     @Override
     public void onShake() {
         if (undo.isEmpty()) {
-            Utilities.popUp(getActivity(), getString(R.string.SHAKE_FAIL));
+            popUp(getString(R.string.SHAKE_FAIL));
             return;
         }
 
@@ -183,7 +182,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
             }
         }, shop.id);
 
-        Utilities.popUp(getActivity(), format(R.string.SHAKE_UNDO, shop.getName()));
+        popUp(format(R.string.SHAKE_UNDO, shop.getName()));
     }
 
     @Override
@@ -220,7 +219,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
                 shop.rename(text.getText().toString());
                 mAdapter.notifyDataSetChanged();
 
-                Utilities.popUp(getActivity(), format(R.string.LIST_RENAMED, old, shop.getName()));
+                popUp(format(R.string.LIST_RENAMED, old, shop.getName()));
             }
         });
 
@@ -231,7 +230,7 @@ public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener
                 String text = Utilities.stringifyProductList(shop.forEachProduct());
 
                 Utilities.setClipboardString(getActivity(), name, text);
-                Utilities.popUp(getActivity(), format(R.string.ITEMS_COPIED, name, shop.getProductCount()));
+                popUp(format(R.string.ITEMS_COPIED, name, shop.getProductCount()));
             }
         });
 

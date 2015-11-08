@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.ListView;
 
-/*
+/**
  * Implements a basic listener of touch and click events.
  * Only supports 'swipe' movement and 'single' or 'long' clicks.
  * Code based off tutorial: https://www.youtube.com/watch?v=YCHNAi9kJI4

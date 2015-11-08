@@ -8,7 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.annotation.NonNull;
 
-/*
+/**
  * Sensor to listen to device 'shakes'.
  * Code based off:
  * http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it

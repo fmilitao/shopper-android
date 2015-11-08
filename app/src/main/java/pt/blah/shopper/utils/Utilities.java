@@ -20,7 +20,6 @@ public class Utilities {
 
     static public void init(Activity main){
         File  file = new File(main.getFilesDir(), Utilities.FILENAME);
-        context = main.getApplicationContext();
 
         sData = new DataDB(file);
     }
@@ -116,21 +115,4 @@ public class Utilities {
         return true;
     }
 
-    //
-    // format
-    //
-
-    static public Context context;
-
-    static public String format(int id, Object... args){
-        return String.format(context.getResources().getString(id),args);
-    }
-
-    static public void popUp(Activity activity,String notification) {
-        Toast t = Toast.makeText(activity.getApplicationContext(),
-                notification,
-                Toast.LENGTH_SHORT);
-        t.setGravity(Gravity.TOP,0,0);
-        t.show();
-    }
 }

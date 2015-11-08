@@ -11,11 +11,12 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import pt.blah.shopper.utils.UtilAdapter;
 import pt.blah.shopper.utils.Utilities;
 
 import static pt.blah.shopper.utils.Utilities.sData;
 
-public class ProductsMoveAdapter extends BaseAdapter {
+public class ProductsMoveAdapter extends UtilAdapter {
 
     final int pos;
     final DataDB.Shop shop;
@@ -23,6 +24,7 @@ public class ProductsMoveAdapter extends BaseAdapter {
     final boolean[] set;
 
     public ProductsMoveAdapter(Context context, int position) {
+        super(context);
         mInflater = LayoutInflater.from(context);
         pos = position;
         shop = sData.getShop(position);
@@ -76,7 +78,7 @@ public class ProductsMoveAdapter extends BaseAdapter {
 
         DataDB.Product product = shop.getProduct(position);
         holder.name.setText(product.getName());
-        holder.quantity.setText( Utilities.format(R.string.NUMBER, product.getQuantity()) );
+        holder.quantity.setText( format(R.string.NUMBER, product.getQuantity()) );
 
 
         if( product.isDone() ){
@@ -86,7 +88,7 @@ public class ProductsMoveAdapter extends BaseAdapter {
             holder.quantity.setPaintFlags(holder.name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             holder.quantity.setTextColor(Color.GRAY);
 
-            view.setBackgroundColor(ContextCompat.getColor(Utilities.context, R.color.GRAY_BACK));
+            view.setBackgroundColor(ContextCompat.getColor(mContext, R.color.GRAY_BACK));
         }else{
             holder.name.setPaintFlags(holder.flags);
             holder.name.setTextColor(holder.color);
@@ -94,7 +96,7 @@ public class ProductsMoveAdapter extends BaseAdapter {
             holder.quantity.setPaintFlags(holder.flags);
             holder.quantity.setTextColor(holder.color);
 
-            view.setBackgroundColor(ContextCompat.getColor(Utilities.context, R.color.NORMAL_BACK));
+            view.setBackgroundColor(ContextCompat.getColor(mContext, R.color.NORMAL_BACK));
         }
 
         return view;

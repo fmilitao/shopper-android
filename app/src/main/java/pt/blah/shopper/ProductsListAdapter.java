@@ -8,15 +8,13 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import pt.blah.shopper.utils.Utilities;
+import pt.blah.shopper.utils.UtilAdapter;
 
-import static pt.blah.shopper.utils.Utilities.format;
 import static pt.blah.shopper.utils.Utilities.sData;
 
-public class ProductsListAdapter extends BaseAdapter {
+public class ProductsListAdapter extends UtilAdapter {
 
     final int pos;
     final DataDB.Shop shop;
@@ -24,6 +22,7 @@ public class ProductsListAdapter extends BaseAdapter {
     final View.OnTouchListener mTouchListener;
 
     public ProductsListAdapter(Context context, int position, View.OnTouchListener listener) {
+        super(context);
         mInflater = LayoutInflater.from(context);
         pos = position;
         shop = sData.getShop(position);
@@ -84,7 +83,7 @@ public class ProductsListAdapter extends BaseAdapter {
             holder.quantity.setPaintFlags(holder.name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             holder.quantity.setTextColor(Color.GRAY);
 
-            view.setBackgroundColor(ContextCompat.getColor(Utilities.context, R.color.GRAY_BACK));
+            view.setBackgroundColor(ContextCompat.getColor(mContext, R.color.GRAY_BACK));
         }else{
             holder.name.setPaintFlags(holder.flags);
             holder.name.setTextColor(holder.color);
@@ -92,7 +91,7 @@ public class ProductsListAdapter extends BaseAdapter {
             holder.quantity.setPaintFlags(holder.flags);
             holder.quantity.setTextColor(holder.color);
 
-            view.setBackgroundColor(ContextCompat.getColor(Utilities.context, R.color.NORMAL_BACK));
+            view.setBackgroundColor(ContextCompat.getColor(mContext, R.color.NORMAL_BACK));
         }
 
         return view;
