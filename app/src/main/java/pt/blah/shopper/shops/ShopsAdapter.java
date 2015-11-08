@@ -1,4 +1,4 @@
-package pt.blah.shopper.sql;
+package pt.blah.shopper.shops;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -28,8 +28,12 @@ public class ShopsAdapter extends CursorAdapter {
         }
     }
 
-    public ShopsAdapter(Context context, Cursor c, int flags) {
+    final View.OnTouchListener mTouchListener;
+
+    public ShopsAdapter(Context context, Cursor c, int flags, View.OnTouchListener listener) {
         super(context, c, flags);
+
+        mTouchListener = listener;
     }
 
     @Override
@@ -37,7 +41,9 @@ public class ShopsAdapter extends CursorAdapter {
         View view = LayoutInflater.from(context).inflate(R.layout.shop_list_row, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(view);
+
         view.setTag(viewHolder);
+        view.setOnTouchListener(mTouchListener);
 
         return view;
     }

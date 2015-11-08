@@ -1,4 +1,4 @@
-package pt.blah.shopper.sql;
+package pt.blah.shopper.items;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -16,6 +16,7 @@ import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
 import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
 import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
 
+// FIXME use this instead of 'ItemsListAdapter' also build equivalent for 'ItemsMoveAdapter'
 public class ItemsAdapter extends CursorAdapter {
 
     private static class ViewHolder {

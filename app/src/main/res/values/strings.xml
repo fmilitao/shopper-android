@@ -25,6 +25,7 @@
     <string name="LIST_ADDED">List added: %1$s</string>
     <string name="LIST_DELETED">List deleted: %1$s</string>
     <string name="LIST_RENAMED">Renamed %1$s to %2$s</string>
+    <string name="LIST_RENAME_FAILED">Failed to renamed %1$s</string>
 
     <string name="LIST_SORTED">List sorted</string>
 
@@ -37,9 +38,9 @@
     <string name="NEXT">Create Another</string>
     <string name="ITEM_UPDATED">Item updated: %1$s %2$d</string>
     <string name="COPY_TO_CLIPBOARD">Copy To Clipboard</string>
-    <string name="ITEMS_COPIED">Copied \'%1$s\' to clipboard ( %2$d item(s) )</string>
+    <string name="ITEMS_COPIED">Copied \'%1$s\' to clipboard</string>
     <string name="SHAKE_FAIL">Nothing to undo.</string>
-    <string name="SHAKE_UNDO">Undid deletetion of \'%1$s\'</string>
+    <string name="SHAKE_UNDO">Undid deletion of \'%1$s\'.</string>
 
 
     <!-- TODO is this the correct way to format numbers? -->

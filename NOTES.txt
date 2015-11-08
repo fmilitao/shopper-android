@@ -12,7 +12,8 @@ NOTES AND USEFUL LINKS
 
  CREATE TABLE shops(
    _id INTEGER NOT NULL PRIMARY KEY,
-   name TEXT NOT NULL
+   name TEXT NOT NULL,
+   deleted BOOLEAN NOT NULL
  );
 
  CREATE TABLE items(
@@ -21,25 +22,27 @@ NOTES AND USEFUL LINKS
    shop_id INTEGER NOT NULL,
    done BOOLEAN NOT NULL,
    quantity INTEGER NOT NULL,
+   deleted BOOLEAN NOT NULL,
    FOREIGN KEY ( shop_id ) REFERENCES shops ( _id )
  );
 
- INSERT INTO shops VALUES (1,'JUMBO');
- INSERT INTO shops VALUES (2,'LIDL');
+ INSERT INTO shops VALUES (1,'JUMBO','FALSE');
+ INSERT INTO shops VALUES (2,'LIDL','FALSE');
+ INSERT INTO shops VALUES (3,'ALDI','FALSE');
 
- INSERT INTO items VALUES (1,'MACA',2,'TRUE',23);
- INSERT INTO items VALUES (2,'CHEESE',2,'FALSE',1);
- INSERT INTO items VALUES (3,'APPLE',2,'FALSE',1);
- INSERT INTO items VALUES (4,'MACA PRETA',1,'TRUE',1);
+ INSERT INTO items VALUES (1,'MACA',2,'TRUE',23,'FALSE');
+ INSERT INTO items VALUES (2,'CHEESE',2,'FALSE',1,'FALSE');
+ INSERT INTO items VALUES (3,'APPLE',2,'FALSE',1,'TRUE');
+ INSERT INTO items VALUES (4,'MACA PRETA',1,'TRUE',1,'FALSE');
 
- SELECT * FROM shops;
+ SELECT * FROM shops WHERE deleted = 'FALSE';
  SELECT * FROM items ORDER BY items.done, items.name;
 
  SELECT shops._id, shops.name,
-   count(items._id) as AllItems,
-   SUM(CASE WHEN items.done='TRUE' THEN 1 ELSE 0 END) as DoneItems,
-   SUM(CASE WHEN items.done='FALSE' THEN 1 ELSE 0 END) as NotDoneItems
-   FROM shops LEFT JOIN items ON shops._id = items.shop_id GROUP BY shops._id;
+    count(items._id) as AllItems,
+    SUM(CASE WHEN items.done='TRUE' THEN 1 ELSE 0 END) as DoneItems,
+    SUM(CASE WHEN items.done='FALSE' THEN 1 ELSE 0 END) as NotDoneItems
+    FROM shops LEFT JOIN items ON shops._id = items.shop_id WHERE shops.deleted = 'FALSE' AND items.deleted = 'FALSE' GROUP BY shops._id;
 
  DELETE FROM items WHERE items.done = 'TRUE';
  SELECT * FROM items ORDER BY items.done, items.name;

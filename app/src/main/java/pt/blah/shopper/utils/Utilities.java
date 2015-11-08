@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.util.Pair;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -27,15 +28,15 @@ public class Utilities {
 
     static public DataDB sData;
 
-    static public final String INTENT_TAG = "POS_TAG";
+    static public final String INTENT_TAG = "POS_TAG"; //TODO this looks wrongly placed.
     static final String FILENAME = "SHOPPER.DAT";
 
     //
     // Import from clipboard
     //
 
-    static public List<DataDB.Product> parseProductList(String txt){
-        List<DataDB.Product> list = new LinkedList<>();
+    static public List<Pair<String,Integer>> parseProductList(String txt){
+        List<Pair<String,Integer>> list = new LinkedList<>();
         if( txt == null )
             return list;
 
@@ -77,21 +78,10 @@ public class Utilities {
             }
 
             //Log.v("PARSER RESULT:", name+" :: "+left+" || "+quantity);
-            list.add(sData.newProduct(left, quantity));
+            list.add(new Pair<>(left, quantity));
         }
 
         return list;
-    }
-
-    static public String stringifyProductList(Iterable<DataDB.Product> products){
-        StringBuilder builder = new StringBuilder();
-        for(DataDB.Product p : products ){
-            builder.append(p.getName());
-            builder.append(" ");
-            builder.append(p.getQuantity());
-            builder.append("\n");
-        }
-        return builder.toString();
     }
 
     static public String getClipboardString(Activity activity){

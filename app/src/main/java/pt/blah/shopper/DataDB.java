@@ -18,6 +18,7 @@ import java.util.List;
 import pt.blah.shopper.utils.Utilities;
 
 // FIXME hacky class. will fix when switched to using SQLite.
+// FIXME: remove requirement for file system permission
 
 @Deprecated
 public class DataDB implements Serializable {

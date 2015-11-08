@@ -6,12 +6,13 @@ import android.provider.BaseColumns;
 public interface DBContract {
 
     String DATABASE_NAME = "shopper.db";
-    int DATABASE_VERSION = 11;
+    int DATABASE_VERSION = 12;
 
     interface ShopEntry extends BaseColumns {
         String TABLE_NAME = "shops";
 
         String COLUMN_SHOP_NAME = "shop_name";
+        String COLUMN_DELETED = "deleted";
     }
 
     interface ItemEntry extends BaseColumns {
@@ -20,8 +21,8 @@ public interface DBContract {
         String COLUMN_ITEM_NAME = "item_name";
         String COLUMN_ITEM_QUANTITY = "item_quantity";
         String COLUMN_ITEM_DONE = "item_done";
-
         String COLUMN_ITEM_SHOP_ID_FK = "shop_id";
+        String COLUMN_DELETED = "deleted";
     }
 
     interface JoinShopItemQuery extends BaseColumns {
@@ -39,6 +40,8 @@ public interface DBContract {
                 "IFNULL( SUM( NOT " + ItemEntry.COLUMN_ITEM_DONE +" ), 0 ) AS " + JoinShopItemQuery.COLUMN_NOT_DONE_ITEMS_COUNT +
                 " FROM " + ShopEntry.TABLE_NAME+ " LEFT JOIN " + ItemEntry.TABLE_NAME +" ON " +
                 (ShopEntry.TABLE_NAME+"."+ ShopEntry._ID) +"  = " + (ItemEntry.TABLE_NAME+"."+ ItemEntry.COLUMN_ITEM_SHOP_ID_FK) +
+                " WHERE " +
+                (ShopEntry.TABLE_NAME+"."+ ShopEntry.COLUMN_DELETED) +" = 0 " +
                 " GROUP BY " + (ShopEntry.TABLE_NAME+"."+ ShopEntry._ID)+" ;";
 
         // indexes, assumed using the same order as the query above
@@ -57,6 +60,7 @@ public interface DBContract {
                 ItemEntry.COLUMN_ITEM_QUANTITY+", "+
                 ItemEntry.COLUMN_ITEM_DONE+" "+
                 " FROM " + ItemEntry.TABLE_NAME + " WHERE " +
+                ItemEntry.COLUMN_DELETED + " = 0 AND " +
                 ItemEntry.COLUMN_ITEM_SHOP_ID_FK + "=? ORDER BY " +
                 ItemEntry.COLUMN_ITEM_DONE + ", " + ItemEntry.COLUMN_ITEM_DONE + ";";
 
@@ -73,7 +77,8 @@ public interface DBContract {
 
     String CREATE_SHOPS = "CREATE TABLE " + ShopEntry.TABLE_NAME + " ( " +
             ShopEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            ShopEntry.COLUMN_SHOP_NAME+ " TEXT NOT NULL" +
+            ShopEntry.COLUMN_SHOP_NAME+ " TEXT NOT NULL, " +
+            ShopEntry.COLUMN_DELETED + " BOOLEAN NOT NULL " +
             " );";
 
     String CREATE_ITEMS = "CREATE TABLE " + ItemEntry.TABLE_NAME + " ( " +
@@ -82,6 +87,7 @@ public interface DBContract {
             ItemEntry.COLUMN_ITEM_NAME + " TEXT NOT NULL, " +
             ItemEntry.COLUMN_ITEM_QUANTITY + " INTEGER NOT NULL, " +
             ItemEntry.COLUMN_ITEM_DONE + " BOOLEAN NOT NULL, " +
+            ItemEntry.COLUMN_DELETED + " BOOLEAN NOT NULL, " +
             "FOREIGN KEY (" + ItemEntry.COLUMN_ITEM_SHOP_ID_FK + ") REFERENCES " +
             ShopEntry.TABLE_NAME + " (" + ShopEntry._ID + ") " +
             " );";
