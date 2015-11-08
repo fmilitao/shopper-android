@@ -16,9 +16,3 @@ Will eventually become a usable shopping list app... maybe.
 - [ ] prettify lists, etc (idea: show background fill as percentage of list completion)
 - [ ] switch to using SQLite for persistent stuff http://developer.android.com/training/basics/data-storage/databases.html
 - [ ] fix double tap on any button
-
-###Notes
-
- * icon done using https://romannurik.github.io/AndroidAssetStudio/
- * ListView animation/swipe tutorial https://www.youtube.com/watch?v=YCHNAi9kJI4
- * ShakeSensor http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it and  http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
