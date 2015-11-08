@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package pt.blah.shopper.utils;
 
 
 import android.app.Activity;
@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pt.blah.shopper.DataDB;
+
 public class Utilities {
 
     static public void init(Activity main){
@@ -23,9 +25,9 @@ public class Utilities {
         sData = new DataDB(file);
     }
 
-    static DataDB sData;
+    static public DataDB sData;
 
-    static final String INTENT_TAG = "POS_TAG";
+    static public final String INTENT_TAG = "POS_TAG";
     static final String FILENAME = "SHOPPER.DAT";
 
     //
@@ -118,13 +120,13 @@ public class Utilities {
     // format
     //
 
-    static Context context;
+    static public Context context;
 
-    static String format(int id, Object... args){
+    static public String format(int id, Object... args){
         return String.format(context.getResources().getString(id),args);
     }
 
-    static void popUp(Activity activity,String notification) {
+    static public void popUp(Activity activity,String notification) {
         Toast t = Toast.makeText(activity.getApplicationContext(),
                 notification,
                 Toast.LENGTH_SHORT);

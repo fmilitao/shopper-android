@@ -3,7 +3,7 @@ package pt.blah.shopper;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import java.io.File;
+import pt.blah.shopper.utils.Utilities;
 
 public class ShopsActivity extends AppCompatActivity {
 

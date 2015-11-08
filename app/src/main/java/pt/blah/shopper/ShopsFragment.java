@@ -23,8 +23,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import static pt.blah.shopper.Utilities.format;
-import static pt.blah.shopper.Utilities.sData;
+import pt.blah.shopper.utils.ListAnimations;
+import pt.blah.shopper.utils.ShakeSensor;
+import pt.blah.shopper.utils.TouchAndClickListener;
+import pt.blah.shopper.utils.Utilities;
+
+import static pt.blah.shopper.utils.Utilities.format;
+import static pt.blah.shopper.utils.Utilities.sData;
 
 public class ShopsFragment extends Fragment implements ShakeSensor.ShakeListener,
         TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener{

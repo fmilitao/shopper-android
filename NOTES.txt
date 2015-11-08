@@ -4,4 +4,42 @@ NOTES AND USEFUL LINKS
 
  * icon done using https://romannurik.github.io/AndroidAssetStudio/
  * ListView animation/swipe tutorial https://www.youtube.com/watch?v=YCHNAi9kJI4
- * ShakeSensor http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it and  http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
+ * ShakeSensor http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it and http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
+ * Play with sql online: https://kripken.github.io/sql.js/GUI/
+
+ DROP TABLE IF EXISTS shops;
+ DROP TABLE IF EXISTS items;
+
+ CREATE TABLE shops(
+   _id INTEGER NOT NULL PRIMARY KEY,
+   name TEXT NOT NULL
+ );
+
+ CREATE TABLE items(
+   _id INTEGER NOT NULL PRIMARY KEY,
+   name TEXT NOT NULL,
+   shop_id INTEGER NOT NULL,
+   done BOOLEAN NOT NULL,
+   quantity INTEGER NOT NULL,
+   FOREIGN KEY ( shop_id ) REFERENCES shops ( _id )
+ );
+
+ INSERT INTO shops VALUES (1,'JUMBO');
+ INSERT INTO shops VALUES (2,'LIDL');
+
+ INSERT INTO items VALUES (1,'MACA',2,'TRUE',23);
+ INSERT INTO items VALUES (2,'CHEESE',2,'FALSE',1);
+ INSERT INTO items VALUES (3,'APPLE',2,'FALSE',1);
+ INSERT INTO items VALUES (4,'MACA PRETA',1,'TRUE',1);
+
+ SELECT * FROM shops;
+ SELECT * FROM items ORDER BY items.done, items.name;
+
+ SELECT shops._id, shops.name,
+   count(items._id) as AllItems,
+   SUM(CASE WHEN items.done='TRUE' THEN 1 ELSE 0 END) as DoneItems,
+   SUM(CASE WHEN items.done='FALSE' THEN 1 ELSE 0 END) as NotDoneItems
+   FROM shops LEFT JOIN items ON shops._id = items.shop_id GROUP BY shops._id;
+
+ DELETE FROM items WHERE items.done = 'TRUE';
+ SELECT * FROM items ORDER BY items.done, items.name;

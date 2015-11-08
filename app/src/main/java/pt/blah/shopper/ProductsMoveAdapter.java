@@ -11,7 +11,9 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import static pt.blah.shopper.Utilities.sData;
+import pt.blah.shopper.utils.Utilities;
+
+import static pt.blah.shopper.utils.Utilities.sData;
 
 public class ProductsMoveAdapter extends BaseAdapter {
 

@@ -22,8 +22,13 @@ import android.widget.Spinner;
 
 import java.util.Stack;
 
-import static pt.blah.shopper.Utilities.format;
-import static pt.blah.shopper.Utilities.sData;
+import pt.blah.shopper.utils.ListAnimations;
+import pt.blah.shopper.utils.ShakeSensor;
+import pt.blah.shopper.utils.TouchAndClickListener;
+import pt.blah.shopper.utils.Utilities;
+
+import static pt.blah.shopper.utils.Utilities.format;
+import static pt.blah.shopper.utils.Utilities.sData;
 
 
 public class ProductsFragment extends Fragment implements ShakeSensor.ShakeListener,

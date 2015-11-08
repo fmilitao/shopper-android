@@ -16,3 +16,4 @@ Will eventually become a usable shopping list app... maybe.
 - [ ] prettify lists, etc (idea: show background fill as percentage of list completion)
 - [ ] switch to using SQLite for persistent stuff http://developer.android.com/training/basics/data-storage/databases.html
 - [ ] fix double tap on any button
+- [ ] rename horrible namesapce

@@ -7,7 +7,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -16,8 +15,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import pt.blah.shopper.utils.Utilities;
+
 // FIXME hacky class. will fix when switched to using SQLite.
 
+@Deprecated
 public class DataDB implements Serializable {
 
     public class Shop implements Serializable {
@@ -127,7 +129,7 @@ public class DataDB implements Serializable {
     private int version = 0, last_saved = -1;
     private File file;
 
-    DataDB(@NonNull File f){
+    public DataDB(@NonNull File f){
         file = f;
         // yes, potential redundant initialization...
         list = new ArrayList<>();

@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package pt.blah.shopper.utils;
 
 import android.view.View;
 import android.view.ViewPropertyAnimator;
@@ -12,13 +12,13 @@ import java.util.Map;
 
 public class ListAnimations {
 
-    static final int MOVE_SPEED = 250;
+    private static final int MOVE_SPEED = 250;
 
     //
     // fades and moves row to the right
     //
 
-    static void animateDelete(
+    public static void animateDelete(
             final ListAdapter mAdapter,
             final ListView listView,
             final Runnable andThen,
@@ -77,7 +77,7 @@ public class ListAnimations {
     // re-arranges old items and pushes new row in from the left
     //
 
-    static void animateAdd(
+    public static void animateAdd(
             final ListAdapter mAdapter,
             final ListView listview,
             final Runnable action,

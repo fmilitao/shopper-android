@@ -11,8 +11,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import static pt.blah.shopper.Utilities.format;
-import static pt.blah.shopper.Utilities.sData;
+import pt.blah.shopper.utils.Utilities;
+
+import static pt.blah.shopper.utils.Utilities.format;
+import static pt.blah.shopper.utils.Utilities.sData;
 
 public class ProductsListAdapter extends BaseAdapter {
 

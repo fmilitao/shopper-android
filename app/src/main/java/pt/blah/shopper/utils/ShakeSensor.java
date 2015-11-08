@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package pt.blah.shopper.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,9 +8,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.annotation.NonNull;
 
-// code based off:
-// http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it
-// http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
+/*
+ * Sensor to listen to device 'shakes'.
+ * Code based off:
+ * http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it
+ * http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
+ */
 public class ShakeSensor implements SensorEventListener {
 
     static final int SHAKE_THRESHOLD = 5;
@@ -25,7 +28,7 @@ public class ShakeSensor implements SensorEventListener {
 
     ShakeListener mOnShake;
 
-    ShakeSensor(@NonNull ShakeListener onShakeAction){
+    public ShakeSensor(@NonNull ShakeListener onShakeAction) {
         mOnShake = onShakeAction;
     }
 
@@ -57,7 +60,7 @@ public class ShakeSensor implements SensorEventListener {
     // Attach the following as appropriate
     //
 
-    public void onCreate(Activity a){
+    public void onCreate(Activity a) {
         mSensorManager = (SensorManager) a.getSystemService(Context.SENSOR_SERVICE);
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
         mAccel = 0.00f;
@@ -65,11 +68,11 @@ public class ShakeSensor implements SensorEventListener {
         mAccelLast = SensorManager.GRAVITY_EARTH;
     }
 
-    public void onPause(){
+    public void onPause() {
         mSensorManager.unregisterListener(this);
     }
 
-    public void onResume(){
+    public void onResume() {
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
@@ -77,7 +80,7 @@ public class ShakeSensor implements SensorEventListener {
     // Listener Interface
     //
 
-    interface ShakeListener {
+    public interface ShakeListener {
         void onShake();
     }
 

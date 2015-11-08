@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package pt.blah.shopper.utils;
 
 import android.os.Handler;
 import android.view.MotionEvent;
@@ -6,7 +6,14 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.ListView;
 
-// code based off https://www.youtube.com/watch?v=YCHNAi9kJI4 tutorial
+/*
+ * Implements a basic listener of touch and click events.
+ * Only supports 'swipe' movement and 'single' or 'long' clicks.
+ * Code based off tutorial: https://www.youtube.com/watch?v=YCHNAi9kJI4
+ *
+ * Note: we must launch a timer event for the 'long' click since we did not
+ * find a better way to trigger an event after a continuous touch state.
+ */
 public class TouchAndClickListener implements View.OnTouchListener {
 
     private static final int SWIPE_DURATION = 250;
@@ -25,7 +32,7 @@ public class TouchAndClickListener implements View.OnTouchListener {
     LongClickListener mOnLongClick;
     SwipeOutListener mOnSwipeOut;
 
-    TouchAndClickListener(ViewConfiguration cf, ListView listView) {
+    public TouchAndClickListener(ViewConfiguration cf, ListView listView) {
         SWIPE_SLOP = cf.getScaledTouchSlop();
         LONG_TIMEOUT = ViewConfiguration.getLongPressTimeout();
         mSwiping = false;
