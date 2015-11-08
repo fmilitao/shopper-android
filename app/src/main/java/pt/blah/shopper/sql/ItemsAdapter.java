@@ -24,8 +24,8 @@ public class ItemsAdapter extends CursorAdapter {
         public final int mTextColor, mFlags;
 
         public ViewHolder(View view) {
-            mItemName = (TextView) view.findViewById(R.id.product_name);
-            mItemQuantity = (TextView) view.findViewById(R.id.product_quantity);
+            mItemName = (TextView) view.findViewById(R.id.item_name);
+            mItemQuantity = (TextView) view.findViewById(R.id.item_quantity);
 
             mTextColor  = mItemName.getCurrentTextColor();
             mFlags = mItemName.getPaintFlags();
@@ -38,7 +38,7 @@ public class ItemsAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.product_row, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_list_row, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);

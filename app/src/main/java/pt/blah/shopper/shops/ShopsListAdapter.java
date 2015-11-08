@@ -49,7 +49,7 @@ public class ShopsListAdapter extends UtilAdapter {
         View view;
         ViewHolder holder;
         if (convertView == null) {
-            view = mInflater.inflate(R.layout.shop_row, parent, false);
+            view = mInflater.inflate(R.layout.shop_list_row, parent, false);
 
             holder = new ViewHolder();
             holder.name = (TextView) view.findViewById(R.id.list_name);

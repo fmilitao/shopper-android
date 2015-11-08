@@ -18,6 +18,7 @@ import pt.blah.shopper.DataDB;
 
 public class Utilities {
 
+    @Deprecated
     static public void init(Activity main){
         File  file = new File(main.getFilesDir(), Utilities.FILENAME);
 

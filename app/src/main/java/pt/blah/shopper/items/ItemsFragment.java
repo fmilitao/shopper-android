@@ -32,10 +32,10 @@ import pt.blah.shopper.utils.Utilities;
 import static pt.blah.shopper.utils.Utilities.sData;
 
 
-public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
+public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
         TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener {
 
-    ProductsListAdapter mAdapter;
+    ItemsListAdapter mAdapter;
     ListView mListView;
     ShakeSensor mShakeSensor;
     Stack<DataDB.Product> undo;
@@ -75,7 +75,7 @@ public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeL
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
         @SuppressLint("InflateParams")
-        final View root = inflater.inflate(R.layout.product_dialog, null);
+        final View root = inflater.inflate(R.layout.item_create_dialog, null);
 
         builder.setTitle(R.string.NEW_ITEM);
         builder.setView(root);
@@ -153,7 +153,7 @@ public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeL
             final LayoutInflater inflater = getActivity().getLayoutInflater();
 
             @SuppressLint("InflateParams")
-            final View root = inflater.inflate(R.layout.move_dialog, null);
+            final View root = inflater.inflate(R.layout.item_move_dialog, null);
 
             // SPINNER
             final Spinner spinner = (Spinner) root.findViewById(R.id.shop_pick);
@@ -164,7 +164,7 @@ public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeL
             }
 
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
-                    this.getActivity(), R.layout.move_spinner, shops);
+                    this.getActivity(), R.layout.item_move_spinner, shops);
                      //selected item will look like a spinner set from XML
             spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(spinnerArrayAdapter);
@@ -172,7 +172,7 @@ public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeL
             // SPINNER
 
             // LIST
-            final ProductsMoveAdapter moveAdapter = new ProductsMoveAdapter(getActivity(),mAdapter.pos);
+            final ItemsMoveAdapter moveAdapter = new ItemsMoveAdapter(getActivity(),mAdapter.pos);
             final ListView listView = (ListView) root.findViewById(R.id.product_list);
             listView.setAdapter(moveAdapter);
             // LIST
@@ -245,11 +245,11 @@ public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeL
             pos = intent.getIntExtra(Utilities.INTENT_TAG, 0);
         }
 
-        View rootView = inflater.inflate(R.layout.product_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.item_list_fragment, container, false);
         mListView = (ListView) rootView.findViewById(R.id.product_list);
 
         TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(this.getContext()),mListView);
-        mAdapter = new ProductsListAdapter(getActivity(),pos, t);
+        mAdapter = new ItemsListAdapter(getActivity(),pos, t);
         t.setOnClick(this);
         t.setOnLongClick(this);
         t.setOnSwipeOut(this);
@@ -315,7 +315,7 @@ public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeL
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
         @SuppressLint("InflateParams")
-        final View root = inflater.inflate(R.layout.product_dialog, null);
+        final View root = inflater.inflate(R.layout.item_create_dialog, null);
 
         final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);

@@ -6,17 +6,17 @@ import android.view.MenuItem;
 
 import pt.blah.shopper.R;
 
-public class ProductsActivity extends AppCompatActivity {
+public class ItemsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.product_activity);
+        setContentView(R.layout.item_activity);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.product_container, new ProductsFragment())
+                    .add(R.id.product_container, new ItemsFragment())
                     .commit();
         }
     }

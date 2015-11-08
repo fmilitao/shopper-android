@@ -24,7 +24,7 @@ import java.util.Stack;
 
 import pt.blah.shopper.DataDB;
 import pt.blah.shopper.R;
-import pt.blah.shopper.items.ProductsActivity;
+import pt.blah.shopper.items.ItemsActivity;
 import pt.blah.shopper.utils.ListAnimations;
 import pt.blah.shopper.utils.ShakeSensor;
 import pt.blah.shopper.utils.TouchAndClickListener;
@@ -99,7 +99,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
                         List<DataDB.Product> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
                         if (tmp != null) {
                             list.addAll(tmp);
-                            box.setText(String.format(getString(R.string.INCLUDE_ITEMS), tmp.size()));
+                            box.setText(format(R.string.INCLUDE_ITEMS, tmp.size()));
                         }
                     } else {
                         list.clear();
@@ -150,7 +150,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.shop_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.shop_list_fragment, container, false);
         mListView = (ListView) rootView.findViewById(R.id.shops_list);
 
         TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(this.getContext()),mListView);
@@ -191,7 +191,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
     @Override
     public void onClick(ListView listView, View view) {
         int position = mListView.getPositionForView(view);
-        Intent intent = new Intent(getActivity(), ProductsActivity.class);
+        Intent intent = new Intent(getActivity(), ItemsActivity.class);
         // links to position in the DB
         intent.putExtra(Utilities.INTENT_TAG, position);
         startActivity(intent);

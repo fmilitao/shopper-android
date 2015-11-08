@@ -24,7 +24,7 @@
         <!-- TODO setOnClickListener(null) onResume() restore it-->
         <!-- TODO intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); -->
         <activity
-            android:name=".items.ProductsActivity"
+            android:name=".items.ItemsActivity"
             android:label="List Detail"
             android:launchMode="singleTop"
             android:parentActivityName=".shops.ShopsActivity" >
