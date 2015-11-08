@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package pt.blah.shopper.shops;
 
 
 import android.annotation.SuppressLint;
@@ -22,6 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import pt.blah.shopper.DataDB;
+import pt.blah.shopper.R;
+import pt.blah.shopper.items.ProductsActivity;
 import pt.blah.shopper.utils.ListAnimations;
 import pt.blah.shopper.utils.ShakeSensor;
 import pt.blah.shopper.utils.TouchAndClickListener;

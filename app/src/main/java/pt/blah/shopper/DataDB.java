@@ -254,7 +254,7 @@ public class DataDB implements Serializable {
         });
     }
 
-    static void transfer(Shop from, Shop to, boolean[] set){
+    public static void transfer(Shop from, Shop to, boolean[] set){
         // first copy
         for (int j = 0; j < set.length; ++j) {
             if (set[j]) {

@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package pt.blah.shopper.shops;
 
 
 import android.content.Context;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import pt.blah.shopper.DataDB;
+import pt.blah.shopper.R;
 import pt.blah.shopper.utils.UtilAdapter;
 
 import static pt.blah.shopper.utils.Utilities.sData;
@@ -14,12 +16,10 @@ import static pt.blah.shopper.utils.Utilities.sData;
 public class ShopsListAdapter extends UtilAdapter {
 
     final LayoutInflater mInflater;
-    final Context mContext;
     final View.OnTouchListener mTouchListener;
 
     public ShopsListAdapter(Context context, View.OnTouchListener listener) {
         super(context);
-        mContext = context;
         mInflater = LayoutInflater.from(context);
         mTouchListener = listener;
     }

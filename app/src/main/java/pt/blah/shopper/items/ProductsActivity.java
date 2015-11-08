@@ -1,8 +1,10 @@
-package pt.blah.shopper;
+package pt.blah.shopper.items;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+
+import pt.blah.shopper.R;
 
 public class ProductsActivity extends AppCompatActivity {
 

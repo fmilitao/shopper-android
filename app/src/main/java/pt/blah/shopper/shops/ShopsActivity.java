@@ -1,8 +1,9 @@
-package pt.blah.shopper;
+package pt.blah.shopper.shops;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import pt.blah.shopper.R;
 import pt.blah.shopper.utils.Utilities;
 
 public class ShopsActivity extends AppCompatActivity {

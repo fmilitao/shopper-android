@@ -17,3 +17,4 @@ Will eventually become a usable shopping list app... maybe.
 - [ ] switch to using SQLite for persistent stuff http://developer.android.com/training/basics/data-storage/databases.html
 - [ ] fix double tap on any button
 - [ ] pick sensible company name
+- [ ] add tests to sqlite db

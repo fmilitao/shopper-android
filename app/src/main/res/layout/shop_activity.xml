@@ -4,5 +4,5 @@
     android:id="@+id/shops_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="pt.blah.shopper.ShopsFragment"
+    tools:context="pt.blah.shopper.shops.ShopsFragment"
     tools:ignore="MergeRootFrame" />

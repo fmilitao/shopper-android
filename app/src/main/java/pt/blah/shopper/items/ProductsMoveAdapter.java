@@ -1,5 +1,4 @@
-package pt.blah.shopper;
-
+package pt.blah.shopper.items;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -8,25 +7,28 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
+import pt.blah.shopper.DataDB;
+import pt.blah.shopper.R;
 import pt.blah.shopper.utils.UtilAdapter;
 
 import static pt.blah.shopper.utils.Utilities.sData;
 
-public class ProductsListAdapter extends UtilAdapter {
+public class ProductsMoveAdapter extends UtilAdapter {
 
     final int pos;
     final DataDB.Shop shop;
     final LayoutInflater mInflater;
-    final View.OnTouchListener mTouchListener;
+    final boolean[] set;
 
-    public ProductsListAdapter(Context context, int position, View.OnTouchListener listener) {
+    public ProductsMoveAdapter(Context context, int position) {
         super(context);
         mInflater = LayoutInflater.from(context);
         pos = position;
         shop = sData.getShop(position);
-        mTouchListener = listener;
+        set = new boolean[shop.getProductCount()];
     }
 
     @Override
@@ -41,40 +43,43 @@ public class ProductsListAdapter extends UtilAdapter {
 
     @Override
     public long getItemId(int position) {
-        return ((DataDB.Product)getItem(position)).id;
+        return position;
     }
 
     @Override
-    public boolean hasStableIds() {
-        return true;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View view;
         ViewHolder holder;
         if(convertView == null) {
-            view = mInflater.inflate(R.layout.product_row, parent, false);
+            view = mInflater.inflate(R.layout.move_row, parent, false);
 
             holder = new ViewHolder();
-            holder.name = (TextView)view.findViewById(R.id.product_name);
+            holder.name = (CheckBox)view.findViewById(R.id.product_name);
             holder.quantity = (TextView)view.findViewById(R.id.product_quantity);
 
             holder.color = holder.name.getCurrentTextColor();
             holder.flags = holder.name.getPaintFlags();
 
             view.setTag(holder);
-
-            view.setOnTouchListener(mTouchListener);
         } else {
             view = convertView;
             holder = (ViewHolder)view.getTag();
         }
 
+        holder.name.setOnClickListener(null);
+        holder.name.setChecked(set[position]);
+        holder.name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CheckBox cb = (CheckBox) v;
+                set[position] = cb.isChecked();
+            }
+        });
+
         DataDB.Product product = shop.getProduct(position);
         holder.name.setText(product.getName());
-        holder.quantity.setText(format(R.string.NUMBER, product.getQuantity()));
+        holder.quantity.setText( format(R.string.NUMBER, product.getQuantity()) );
+
 
         if( product.isDone() ){
             holder.name.setPaintFlags(holder.name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -97,8 +102,13 @@ public class ProductsListAdapter extends UtilAdapter {
         return view;
     }
 
+    public boolean[] getSelected(){
+        return set;
+    }
+
     private class ViewHolder {
-        public TextView quantity, name;
+        public CheckBox name;
+        public TextView quantity;
         public int color;
         public int flags;
     }

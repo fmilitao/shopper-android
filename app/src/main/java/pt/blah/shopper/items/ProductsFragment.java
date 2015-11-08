@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package pt.blah.shopper.items;
 
 
 import android.annotation.SuppressLint;
@@ -21,6 +21,8 @@ import android.widget.Spinner;
 
 import java.util.Stack;
 
+import pt.blah.shopper.DataDB;
+import pt.blah.shopper.R;
 import pt.blah.shopper.utils.ListAnimations;
 import pt.blah.shopper.utils.ShakeSensor;
 import pt.blah.shopper.utils.TouchAndClickListener;
@@ -108,7 +110,7 @@ public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeL
                     }
                 }, p.id);
 
-                popUp( format(R.string.ITEM_ADDED, p_name, p_quantity) );
+                popUp(format(R.string.ITEM_ADDED, p_name, p_quantity));
 
             }
         };
@@ -213,7 +215,7 @@ public class ProductsFragment extends UtilFragment implements ShakeSensor.ShakeL
                             }
                         }, transfers);
 
-                        popUp( format(R.string.ITEM_TRANSFERRED, count, from.getName(), to.getName()) );
+                        popUp(format(R.string.ITEM_TRANSFERRED, count, from.getName(), to.getName()));
                     }
                 }
             });
