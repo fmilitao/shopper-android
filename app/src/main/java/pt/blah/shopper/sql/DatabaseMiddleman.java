@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.util.Pair;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import pt.blah.shopper.sql.DBContract.ItemEntry;
@@ -16,6 +15,7 @@ import pt.blah.shopper.sql.DBContract.JoinShopItemQuery;
 import pt.blah.shopper.sql.DBContract.SelectItemQuery;
 import pt.blah.shopper.sql.DBContract.ShopEntry;
 import pt.blah.shopper.sql.DBContract.TransferItemQuery;
+import pt.blah.shopper.sql.DBContract.ShopsQuery;
 
 public class DatabaseMiddleman {
 
@@ -179,17 +179,17 @@ public class DatabaseMiddleman {
         return true;
     }
 
-    // FIXME simplify query to not need join here
+    // FIXME log garbage collection stuff to see if working OK.
     public Pair<Long,String>[] makeAllShopPair(){
-        Cursor c = fetchAllShops();
+        Cursor c = mDb.rawQuery(ShopsQuery.QUERY, null);
         c.moveToFirst();
 
         Pair<Long,String>[] res = new Pair[c.getCount()];
         int i=0;
         do{
             res[i++] = new Pair<>(
-                    c.getLong(JoinShopItemQuery.INDEX_ID),
-                    c.getString(JoinShopItemQuery.INDEX_NAME)
+                    c.getLong(ShopsQuery.INDEX_ID),
+                    c.getString(ShopsQuery.INDEX_NAME)
             );
         }while( c.moveToNext() );
         c.close();

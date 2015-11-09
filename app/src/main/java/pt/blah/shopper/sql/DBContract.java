@@ -87,6 +87,17 @@ public interface DBContract {
         int INDEX_IS_DONE = 3;
     }
 
+    interface ShopsQuery {
+        String QUERY = "SELECT " +
+                ShopEntry._ID+", "+
+                ShopEntry.COLUMN_SHOP_NAME +
+                " FROM  " + ShopEntry.TABLE_NAME + " WHERE " + ShopEntry.COLUMN_DELETED+ " = 0 ;";
+
+        // indexes of query above, if order above changes so must the values below
+        int INDEX_ID = 0;
+        int INDEX_NAME = 1;
+    }
+
     //
     // creation queries
     //
