@@ -12,7 +12,7 @@ Features:
 * short press on item to mark as done/undone
 * swipe left/right to delete list/item
 * import list from clipboard, export to clipboard
-* state sored in SQLite database
+* state stored in SQLite database
 
 ###Tasks
 
