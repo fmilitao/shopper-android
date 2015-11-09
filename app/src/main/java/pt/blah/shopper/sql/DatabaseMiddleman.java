@@ -8,14 +8,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.util.Pair;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import pt.blah.shopper.sql.DBContract.ItemEntry;
 import pt.blah.shopper.sql.DBContract.JoinShopItemQuery;
 import pt.blah.shopper.sql.DBContract.SelectItemQuery;
 import pt.blah.shopper.sql.DBContract.ShopEntry;
+import pt.blah.shopper.sql.DBContract.TransferItemQuery;
 
-// TODO undo/redo action with delete column.
 public class DatabaseMiddleman {
 
     private static final String TAG = DatabaseMiddleman.class.toString();
@@ -30,16 +31,20 @@ public class DatabaseMiddleman {
     }
 
     public void open() throws SQLException {
-        mDbHelper = new DatabaseHelper(mCtx);
-        // always uses the same writable database, even when reading
-        // FIXME this should be moved off the main thread, use AsyncTask?
-        mDb = mDbHelper.getWritableDatabase();
+        if( mDb == null && mDbHelper == null ) {
+            mDbHelper = new DatabaseHelper(mCtx);
+            // always uses the same writable database, even when reading
+            // FIXME this should be moved off the main thread, use AsyncTask?
+            mDb = mDbHelper.getWritableDatabase();
+        }
     }
 
     public void close() {
         if (mDbHelper != null) {
             mDbHelper.close();
             mDbHelper = null;
+            mDb.close();
+            mDb = null;
         }
     }
 
@@ -79,7 +84,7 @@ public class DatabaseMiddleman {
         doneDelete = mDb.delete(ItemEntry.TABLE_NAME, null, null);
         Log.v(TAG, Integer.toString(doneDelete));
 
-        doneDelete = mDb.delete(ShopEntry.TABLE_NAME, null, null);
+        doneDelete += mDb.delete(ShopEntry.TABLE_NAME, null, null);
         Log.v(TAG, Integer.toString(doneDelete));
 
         return doneDelete > 0;
@@ -90,23 +95,23 @@ public class DatabaseMiddleman {
 
         Log.v(TAG, JoinShopItemQuery.QUERY);
 
-        Cursor mCursor = mDb.rawQuery(JoinShopItemQuery.QUERY, null);
+        Cursor c = mDb.rawQuery(JoinShopItemQuery.QUERY, null);
 
-        if (mCursor != null) {
-            mCursor.moveToFirst();
+        if (c != null) {
+            c.moveToFirst();
         }
-        return mCursor;
+        return c;
     }
 
     public Cursor fetchShopItems(long shopId) {
         Log.v(TAG, SelectItemQuery.QUERY);
 
-        Cursor mCursor = mDb.rawQuery(SelectItemQuery.QUERY, new String[]{Long.toString(shopId)});
+        Cursor c = mDb.rawQuery(SelectItemQuery.QUERY, new String[]{Long.toString(shopId)});
 
-        if (mCursor != null) {
-            mCursor.moveToFirst();
+        if (c != null) {
+            c.moveToFirst();
         }
-        return mCursor;
+        return c;
     }
 
     public boolean gcShops() {
@@ -121,13 +126,13 @@ public class DatabaseMiddleman {
         return count > 0;
     }
 
-    public boolean flipItem(long rowid, int old) {
-        Log.v(TAG, "update " + rowid);
+    public boolean flipItem(long itemId, int old) {
+        Log.v(TAG, "update " + itemId);
 
         ContentValues args = new ContentValues();
         args.put(ItemEntry.COLUMN_ITEM_DONE, old == 0 ? 1 : 0);
 
-        return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + rowid, null) > 0;
+        return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
     }
 
     public String stringifyItemList(long shopId){
@@ -141,8 +146,55 @@ public class DatabaseMiddleman {
             builder.append(c.getString(SelectItemQuery.INDEX_QUANTITY));
             builder.append("\n");
         }while( c.moveToNext() );
+        c.close();
 
         return builder.toString();
+    }
+
+    public boolean transfer(long[] itemIds, long toShopId){
+        Log.v(TAG, TransferItemQuery.QUERY);
+
+        for(long id : itemIds ) {
+            Cursor c = mDb.rawQuery(TransferItemQuery.QUERY, new String[]{Long.toString(id)});
+
+            if( c == null )
+                continue;
+
+            c.moveToFirst();
+
+            createItem(
+                    c.getString(TransferItemQuery.INDEX_NAME),
+                    toShopId,
+                    c.getInt(TransferItemQuery.INDEX_QUANTITY),
+                    // recall 0 is false, 1 is true
+                    c.getInt(TransferItemQuery.INDEX_IS_DONE) == 1
+            );
+
+            // marks transferred item as deleted
+            updateItemDeleted(id, true);
+
+            c.close();
+        }
+
+        return true;
+    }
+
+    // FIXME simplify query to not need join here
+    public Pair<Long,String>[] makeAllShopPair(){
+        Cursor c = fetchAllShops();
+        c.moveToFirst();
+
+        Pair<Long,String>[] res = new Pair[c.getCount()];
+        int i=0;
+        do{
+            res[i++] = new Pair<>(
+                    c.getLong(JoinShopItemQuery.INDEX_ID),
+                    c.getString(JoinShopItemQuery.INDEX_NAME)
+            );
+        }while( c.moveToNext() );
+        c.close();
+
+        return res;
     }
 
     public boolean renameShop(long shopId, String newName) {
@@ -154,11 +206,26 @@ public class DatabaseMiddleman {
         return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
     }
 
+    public boolean updateItem(long itemId, String itemName, int itemQuantity) {
+        ContentValues args = new ContentValues();
+        args.put(ItemEntry.COLUMN_ITEM_NAME, itemName);
+        args.put(ItemEntry.COLUMN_ITEM_QUANTITY, itemQuantity);
+
+        return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
+    }
+
     public boolean updateShopDeleted(long shopId, boolean value) {
         ContentValues args = new ContentValues();
         args.put(ShopEntry.COLUMN_DELETED, value);
         Log.v(TAG, " deleted: " + shopId+ " << " + value);
         return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
+    }
+
+    public boolean updateItemDeleted(long itemId, boolean value) {
+        ContentValues args = new ContentValues();
+        args.put(ItemEntry.COLUMN_DELETED, value);
+        Log.v(TAG, " deleted: " + itemId+ " << " + value);
+        return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
     }
 
     //

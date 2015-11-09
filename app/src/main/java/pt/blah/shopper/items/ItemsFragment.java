@@ -5,7 +5,10 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.widget.CursorAdapter;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,35 +22,40 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import java.util.Set;
 import java.util.Stack;
 
-import pt.blah.shopper.DataDB;
 import pt.blah.shopper.R;
+import pt.blah.shopper.sql.DBContract;
+import pt.blah.shopper.sql.DatabaseMiddleman;
 import pt.blah.shopper.utils.ListAnimations;
 import pt.blah.shopper.utils.ShakeSensor;
 import pt.blah.shopper.utils.TouchAndClickListener;
 import pt.blah.shopper.utils.UtilFragment;
-import pt.blah.shopper.utils.Utilities;
-
-import static pt.blah.shopper.utils.Utilities.sData;
 
 
 public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
         TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener {
 
-    ItemsListAdapter mAdapter;
     ListView mListView;
     ShakeSensor mShakeSensor;
-    Stack<DataDB.Product> undo;
+
+    DatabaseMiddleman mDb;
+    CursorAdapter mAdapter;
+
+    long mShopId;
+    Stack<Pair<String,Long>> undo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        undo = new Stack<>();
+        undo = null;
         mShakeSensor = new ShakeSensor(this);
         mShakeSensor.onCreate(getActivity());
+
+        mDb = new DatabaseMiddleman(getContext());
     }
 
     @Override
@@ -60,8 +68,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     @Override
     public void onPause() {
         super.onPause();
-        sData.save();
 
+        mDb.close();
         mShakeSensor.onPause();
     }
 
@@ -87,28 +95,32 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
                 EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
-                String p_name = n.getText().toString();
-                int p_quantity = 1;
+                final String p_name = n.getText().toString();
 
                 // nothing to add
                 if( p_name.length() == 0 )
                     return;
 
+                int qt = 1; // default quantity is '1'
                 try {
-                    p_quantity = Integer.parseInt(q.getText().toString());
+                    qt = Integer.parseInt(q.getText().toString());
                 } catch (NumberFormatException e) {
                     // ignores error
                 }
 
-                final DataDB.Product p = sData.newProduct(p_name, p_quantity);
+                final int p_quantity = qt;
 
-                animateAdd(new Runnable() {
+                animateAdd(new ListAnimations.Runner() {
                     @Override
-                    public void run() {
-                        mAdapter.shop.addProduct(p);
-                        mAdapter.notifyDataSetChanged();
+                    public void run(Set<Long> set) {
+                        long newItem = mDb.createItem(p_name, mShopId, p_quantity, false);
+                        if( newItem > 0 ) {
+                            set.add(newItem);
+                            mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                            mAdapter.notifyDataSetChanged();
+                        }
                     }
-                }, p.id);
+                });
 
                 popUp(format(R.string.ITEM_ADDED, p_name, p_quantity));
 
@@ -148,31 +160,37 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         }
 
         if( id == R.id.transfer_products ){
-
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             final LayoutInflater inflater = getActivity().getLayoutInflater();
 
             @SuppressLint("InflateParams")
             final View root = inflater.inflate(R.layout.item_move_dialog, null);
 
-            // SPINNER
-            final Spinner spinner = (Spinner) root.findViewById(R.id.shop_pick);
-            String[] shops = new String[sData.getShopCount()];
+            // aux
+            final Pair<Long,String>[] shopArray = mDb.makeAllShopPair();
+            String[] shops = new String[shopArray.length];
             int i =0;
-            for(DataDB.Shop s : sData.forEachShop()){
-                shops[i++] = s.getName();
+            int pos = -1;
+            for(Pair<Long,String> p : shopArray){
+                if( p.first == mShopId )
+                    pos = i;
+                shops[i] = p.second;
+                ++i;
             }
 
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
-                    this.getActivity(), R.layout.item_move_spinner, shops);
-                     //selected item will look like a spinner set from XML
+            final int position = pos;
+
+            // SPINNER
+            final Spinner spinner = (Spinner) root.findViewById(R.id.shop_pick);
+
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.item_move_spinner, shops);
             spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(spinnerArrayAdapter);
-            spinner.setSelection(mAdapter.pos);
+            spinner.setSelection(pos);
             // SPINNER
 
             // LIST
-            final ItemsMoveAdapter moveAdapter = new ItemsMoveAdapter(getActivity(),mAdapter.pos);
+            final ItemsMoveAdapter moveAdapter = new ItemsMoveAdapter(getActivity(),mDb.fetchShopItems(mShopId),0);
             final ListView listView = (ListView) root.findViewById(R.id.product_list);
             listView.setAdapter(moveAdapter);
             // LIST
@@ -184,38 +202,41 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     // ...
-                    final boolean[] set = moveAdapter.getSelected();
+                    final Long[] set = moveAdapter.getSelectedItemIds();
                     final int i = spinner.getSelectedItemPosition();
 
                     int count = 0;
-                    for(boolean b : set ){
-                        count += b ? 1 : 0;
+                    for(Long b : set ){
+                        count += b != null ? 1 : 0;
                     }
 
-                    if( i == mAdapter.pos || count == 0 ) {
+                    if( i == position || count == 0 ) {
                         popUp(getString(R.string.TRANSFER_FAIL));
                     } else {
-                        final DataDB.Shop from = moveAdapter.shop;
-                        final DataDB.Shop to = sData.getShop(i);
+                        final long toShopId = shopArray[i].first;
+                        final String toShopName = shopArray[i].second;
+                        final String fromShopName = shopArray[position].second;
 
                         // pick elements for transfer
-                        int[] transfers = new int[count];
+                        final long[] transfers = new long[count];
                         for(int x=0,y=0; x < set.length; ++x ){
-                            if( set[x] ){
-                                transfers[y++] = from.getProduct(x).id;
+                            if( set[x] != null ){
+                                transfers[y++] = set[x];
                             }
                         }
 
                         animateDelete(new Runnable() {
                             @Override
                             public void run() {
-                                DataDB.transfer(from, to, set);
-                                // no need to animate since order did not change
-                                mAdapter.notifyDataSetChanged();
+                                if( mDb.transfer(transfers,toShopId) ) {
+                                    // no need to animate since order did not change
+                                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                                    mAdapter.notifyDataSetChanged();
+                                }
                             }
                         }, transfers);
 
-                        popUp(format(R.string.ITEM_TRANSFERRED, count, from.getName(), to.getName()));
+                        popUp(format(R.string.ITEM_TRANSFERRED, count, fromShopName, toShopName));
                     }
                 }
             });
@@ -239,37 +260,38 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        int pos = 0;
         Intent intent = getActivity().getIntent();
-        if (intent != null && intent.hasExtra(Utilities.INTENT_TAG)) {
-            pos = intent.getIntExtra(Utilities.INTENT_TAG, 0);
-        }
+        // intentionally let app crash if intent not provided (fatal error anyway)
+        String shopName = intent.getStringExtra(ItemsActivity.INTENT_SHOP_NAME_STRING);
+        mShopId = intent.getLongExtra(ItemsActivity.INTENT_SHOP_ID_LONG, 0);
+
 
         View rootView = inflater.inflate(R.layout.item_list_fragment, container, false);
         mListView = (ListView) rootView.findViewById(R.id.product_list);
 
-        TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(this.getContext()),mListView);
-        mAdapter = new ItemsListAdapter(getActivity(),pos, t);
+        mDb.open();
+        if( undo == null ) {
+            mDb.gcItems();
+            undo = new Stack<>();
+        }
+
+        TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(getContext()),mListView);
         t.setOnClick(this);
         t.setOnLongClick(this);
         t.setOnSwipeOut(this);
 
+        mAdapter = new ItemsAdapter(getActivity(),mDb.fetchShopItems(mShopId), 0, t);
         mListView.setAdapter(mAdapter);
 
-        DataDB.Shop shop = sData.getShop(pos);
-        getActivity().setTitle(shop.getName());
+        getActivity().setTitle(shopName);
         return rootView;
-    }
-
-    private void animateAdd(Runnable action, int added){
-        ListAnimations.animateAdd(mAdapter, mListView, action, added);
     }
 
     private void animateAdd(Runnable action){
         ListAnimations.animateAdd(mAdapter, mListView, action, -1);
     }
 
-    private void animateDelete(Runnable andThen, int... deletes){
+    private void animateDelete(Runnable andThen, long... deletes){
         ListAnimations.animateDelete(mAdapter, mListView, andThen, deletes);
     }
 
@@ -280,29 +302,36 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             return;
         }
 
-        final DataDB.Product product = undo.pop();
+        final Pair<String,Long> u = undo.pop();
+        final long itemId = u.second;
+        final String itemName = u.first;
 
-        animateAdd(new Runnable() {
+        animateAdd(new ListAnimations.Runner() {
             @Override
-            public void run() {
-                mAdapter.shop.addProduct(product);
-                mAdapter.notifyDataSetChanged();
+            public void run(Set<Long> set) {
+                if( mDb.updateItemDeleted(itemId, false) ) {
+                    set.add(itemId);
+                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                    mAdapter.notifyDataSetChanged();
+                }
             }
-        }, product.id);
+        });
 
-        popUp(format(R.string.SHAKE_UNDO, product.getName()));
+        popUp(format(R.string.SHAKE_UNDO,itemName));
     }
 
     @Override
     public void onClick(ListView listView, View view) {
         int position = listView.getPositionForView(view);
-        DataDB.Product pp = mAdapter.shop.getProduct(position);
-        pp.flipDone();
+        Cursor c = (Cursor) listView.getItemAtPosition(position);
+        final long itemId = c.getLong(DBContract.SelectItemQuery.INDEX_ID);
+        final int itemDone = c.getInt(DBContract.SelectItemQuery.INDEX_IS_DONE);
 
         animateAdd(new Runnable() {
             @Override
             public void run() {
-                mAdapter.shop.sortProducts();
+                mDb.flipItem(itemId, itemDone);
+                mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -311,6 +340,11 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     @Override
     public void onLongClick(ListView listView, View view) {
         final int position = listView.getPositionForView(view);
+        final Cursor c = (Cursor) listView.getItemAtPosition(position);
+        final long itemId = c.getLong(DBContract.SelectItemQuery.INDEX_ID);
+        final String itemName = c.getString(DBContract.SelectItemQuery.INDEX_NAME);
+        final int itemQuantity = c.getInt(DBContract.SelectItemQuery.INDEX_QUANTITY);
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -320,11 +354,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
-        final DataDB.Product product = mAdapter.shop.getProduct(position);
-
-        n.setText(product.getName());
+        n.setText(itemName);
         n.setSelection(n.getText().length());
-        q.setText(format(R.string.NUMBER, product.getQuantity()));
+        q.setText(format(R.string.NUMBER, itemQuantity));
         q.setSelection(q.getText().length());
 
         builder.setTitle(R.string.UPDATE);
@@ -336,14 +368,13 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 final String p_name = n.getText().toString();
                 final int p_quantity = Integer.parseInt(q.getText().toString());
 
-                if (p_name.length() > 0 && (!p_name.equals(product.getName()) || p_quantity != product.getQuantity())) {
+                if (p_name.length() > 0 && (!p_name.equals(itemName) || p_quantity != itemQuantity)) {
 
                     animateAdd(new Runnable() {
                         @Override
                         public void run() {
-                            product.setName( p_name );
-                            product.setQuantity( p_quantity );
-                            mAdapter.shop.sortProducts();
+                            mDb.updateItem(itemId,p_name,p_quantity);
+                            mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                             mAdapter.notifyDataSetChanged();
                         }
                     });
@@ -365,12 +396,23 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     @Override
     public void onSwipeOut(ListView listView, View view) {
         final int position = listView.getPositionForView(view);
-        animateAdd(new Runnable() {
+        final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
+        final long itemId = cursor.getLong(DBContract.SelectItemQuery.INDEX_ID);
+        final String itemName = cursor.getString(DBContract.SelectItemQuery.INDEX_NAME);
+
+        animateAdd(new ListAnimations.Runner() {
             @Override
-            public void run() {
-                undo.push(mAdapter.shop.removeProduct(position));
-                mAdapter.notifyDataSetChanged();
+            public void run(Set<Long> set) {
+                if( mDb.updateItemDeleted(itemId, true) ) {
+                    undo.push(new Pair<>(itemName,itemId));
+                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                    mAdapter.notifyDataSetChanged();
+                }
             }
-        }, -1);
+        });
+    }
+
+    private void animateAdd(ListAnimations.Runner action){
+        ListAnimations.animateAdd(mAdapter, mListView, action);
     }
 }

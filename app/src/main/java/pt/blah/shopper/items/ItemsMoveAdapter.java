@@ -1,115 +1,96 @@
 package pt.blah.shopper.items;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import pt.blah.shopper.DataDB;
 import pt.blah.shopper.R;
-import pt.blah.shopper.utils.UtilAdapter;
 
-import static pt.blah.shopper.utils.Utilities.sData;
+import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_ID;
+import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
+import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
+import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
 
-public class ItemsMoveAdapter extends UtilAdapter {
+public class ItemsMoveAdapter extends CursorAdapter {
 
-    final int pos;
-    final DataDB.Shop shop;
-    final LayoutInflater mInflater;
-    final boolean[] set;
+    final Long[] set;
 
-    public ItemsMoveAdapter(Context context, int position) {
-        super(context);
-        mInflater = LayoutInflater.from(context);
-        pos = position;
-        shop = sData.getShop(position);
-        set = new boolean[shop.getProductCount()];
+    public ItemsMoveAdapter(Context context, Cursor c, int flags) {
+        super(context, c, flags);
+        set = new Long[c.getCount()];
     }
 
     @Override
-    public int getCount() {
-        return shop.getProductCount();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return shop.getProduct(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View view;
-        ViewHolder holder;
-        if(convertView == null) {
-            view = mInflater.inflate(R.layout.item_move_row, parent, false);
-
-            holder = new ViewHolder();
-            holder.name = (CheckBox)view.findViewById(R.id.item_name);
-            holder.quantity = (TextView)view.findViewById(R.id.item_quantity);
-
-            holder.color = holder.name.getCurrentTextColor();
-            holder.flags = holder.name.getPaintFlags();
-
-            view.setTag(holder);
-        } else {
-            view = convertView;
-            holder = (ViewHolder)view.getTag();
-        }
-
-        holder.name.setOnClickListener(null);
-        holder.name.setChecked(set[position]);
-        holder.name.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CheckBox cb = (CheckBox) v;
-                set[position] = cb.isChecked();
-            }
-        });
-
-        DataDB.Product product = shop.getProduct(position);
-        holder.name.setText(product.getName());
-        holder.quantity.setText( format(R.string.NUMBER, product.getQuantity()) );
-
-
-        if( product.isDone() ){
-            holder.name.setPaintFlags(holder.name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            holder.name.setTextColor(Color.GRAY);
-
-            holder.quantity.setPaintFlags(holder.name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            holder.quantity.setTextColor(Color.GRAY);
-
-            view.setBackgroundColor(ContextCompat.getColor(mContext, R.color.GRAY_BACK));
-        }else{
-            holder.name.setPaintFlags(holder.flags);
-            holder.name.setTextColor(holder.color);
-
-            holder.quantity.setPaintFlags(holder.flags);
-            holder.quantity.setTextColor(holder.color);
-
-            view.setBackgroundColor(ContextCompat.getColor(mContext, R.color.NORMAL_BACK));
-        }
-
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_move_row, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        view.setTag(viewHolder);
         return view;
     }
 
-    public boolean[] getSelected(){
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        final int position = cursor.getPosition();
+
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+        viewHolder.mItemName.setText(cursor.getString(INDEX_NAME));
+        viewHolder.mItemQuantity.setText(cursor.getString(INDEX_QUANTITY));
+
+        final long itemId = cursor.getLong(INDEX_ID);
+        final boolean isDone = cursor.getInt(INDEX_IS_DONE) != 0;
+
+        if( isDone ){
+            viewHolder.mItemName.setPaintFlags(viewHolder.mItemName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            viewHolder.mItemName.setTextColor(Color.GRAY);
+
+            viewHolder.mItemQuantity.setPaintFlags(viewHolder.mItemQuantity.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            viewHolder.mItemQuantity.setTextColor(Color.GRAY);
+
+            view.setBackgroundColor(Color.LTGRAY);
+        }else{
+            viewHolder.mItemName.setPaintFlags(viewHolder.mFlags);
+            viewHolder.mItemName.setTextColor(viewHolder.mTextColor);
+
+            viewHolder.mItemQuantity.setPaintFlags(viewHolder.mFlags);
+            viewHolder.mItemQuantity.setTextColor(viewHolder.mTextColor);
+
+            view.setBackgroundColor(Color.WHITE);
+        }
+
+        viewHolder.mItemName.setOnClickListener(null);
+        viewHolder.mItemName.setChecked(set[position] != null);
+        viewHolder.mItemName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CheckBox cb = (CheckBox) v;
+                set[position] = cb.isChecked() ? itemId : null;
+            }
+        });
+    }
+
+    public Long[] getSelectedItemIds(){
         return set;
     }
 
-    private class ViewHolder {
-        public CheckBox name;
-        public TextView quantity;
-        public int color;
-        public int flags;
+    private static class ViewHolder {
+        public final CheckBox mItemName;
+        public final TextView mItemQuantity;
+        public final int mTextColor, mFlags;
+
+        public ViewHolder(View view) {
+            mItemName = (CheckBox) view.findViewById(R.id.item_name);
+            mItemQuantity = (TextView) view.findViewById(R.id.item_quantity);
+
+            mTextColor  = mItemName.getCurrentTextColor();
+            mFlags = mItemName.getPaintFlags();
+        }
     }
 }

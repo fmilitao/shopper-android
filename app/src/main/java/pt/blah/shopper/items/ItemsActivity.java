@@ -8,6 +8,9 @@ import pt.blah.shopper.R;
 
 public class ItemsActivity extends AppCompatActivity {
 
+    static public final String INTENT_SHOP_ID_LONG = "SHOP_ID";
+    static public final String INTENT_SHOP_NAME_STRING = "SHOP_NAME";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -6,30 +6,13 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.util.Pair;
-import android.view.Gravity;
-import android.widget.Toast;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import pt.blah.shopper.DataDB;
-
 public class Utilities {
-
-    @Deprecated
-    static public void init(Activity main){
-        File  file = new File(main.getFilesDir(), Utilities.FILENAME);
-
-        sData = new DataDB(file);
-    }
-
-    static public DataDB sData;
-
-    static public final String INTENT_TAG = "POS_TAG"; //TODO this looks wrongly placed.
-    static final String FILENAME = "SHOPPER.DAT";
 
     //
     // Import from clipboard

@@ -62,7 +62,23 @@ public interface DBContract {
                 " FROM " + ItemEntry.TABLE_NAME + " WHERE " +
                 ItemEntry.COLUMN_DELETED + " = 0 AND " +
                 ItemEntry.COLUMN_ITEM_SHOP_ID_FK + "=? ORDER BY " +
-                ItemEntry.COLUMN_ITEM_DONE + ", " + ItemEntry.COLUMN_ITEM_DONE + ";";
+                ItemEntry.COLUMN_ITEM_DONE + ", " + ItemEntry.COLUMN_ITEM_NAME + " COLLATE NOCASE ;";
+
+        // indexes of query above, if order above changes so must the values below
+        int INDEX_ID = 0;
+        int INDEX_NAME = 1;
+        int INDEX_QUANTITY = 2;
+        int INDEX_IS_DONE = 3;
+    }
+
+    interface TransferItemQuery {
+        String QUERY = "SELECT " +
+                ItemEntry._ID+", "+
+                ItemEntry.COLUMN_ITEM_NAME+", "+
+                ItemEntry.COLUMN_ITEM_QUANTITY+", "+
+                ItemEntry.COLUMN_ITEM_DONE+" "+
+                " FROM " + ItemEntry.TABLE_NAME + " WHERE " +
+                ItemEntry._ID+ " =? ;";
 
         // indexes of query above, if order above changes so must the values below
         int INDEX_ID = 0;

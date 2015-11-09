@@ -16,7 +16,6 @@ import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
 import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
 import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
 
-// FIXME use this instead of 'ItemsListAdapter' also build equivalent for 'ItemsMoveAdapter'
 public class ItemsAdapter extends CursorAdapter {
 
     private static class ViewHolder {
@@ -33,8 +32,12 @@ public class ItemsAdapter extends CursorAdapter {
         }
     }
 
-    public ItemsAdapter(Context context, Cursor c, int flags) {
+    final View.OnTouchListener mTouchListener;
+
+    public ItemsAdapter(Context context, Cursor c, int flags, View.OnTouchListener listener) {
         super(context, c, flags);
+
+        mTouchListener = listener;
     }
 
     @Override
@@ -43,6 +46,7 @@ public class ItemsAdapter extends CursorAdapter {
 
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
+        view.setOnTouchListener(mTouchListener);
 
         return view;
     }

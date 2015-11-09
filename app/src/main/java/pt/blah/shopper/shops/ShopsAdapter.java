@@ -41,7 +41,6 @@ public class ShopsAdapter extends CursorAdapter {
         View view = LayoutInflater.from(context).inflate(R.layout.shop_list_row, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(view);
-
         view.setTag(viewHolder);
         view.setOnTouchListener(mTouchListener);
 

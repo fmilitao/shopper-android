@@ -13,8 +13,8 @@ Will eventually become a usable shopping list app... maybe.
 - [X] add swipe to delete
 - [x] shake to undo delete
 - [x] export list to clipboard
-- [ ] prettify lists, etc (idea: show background fill as percentage of list completion)
-- [ ] switch to using SQLite for persistent stuff http://developer.android.com/training/basics/data-storage/databases.html
+- [ ] prettify lists, etc (idea: show background fill as percentage of list completion, also mess with item count)
+- [x] switch to using SQLite for persistent stuff
 - [ ] fix double tap on any button
 - [ ] pick sensible company name
 - [ ] add tests to sqlite db

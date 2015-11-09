@@ -66,7 +66,9 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
         // this may be unnecessary, but we just force the notification to recompute
         // each list's done and total counts
+        mDb.open();
         mDb.gcItems(); // remove deleted items now since undoing becomes impossible now
+        mAdapter.changeCursor(mDb.fetchAllShops());
         mAdapter.notifyDataSetChanged();
 
         mShakeSensor.onResume();
@@ -223,10 +225,14 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
     @Override
     public void onClick(ListView listView, View view) {
         int position = mListView.getPositionForView(view);
+        Cursor c = (Cursor) mListView.getItemAtPosition(position);
+        long shopId = c.getLong(DBContract.JoinShopItemQuery.INDEX_ID);
+        String shopName = c.getString(DBContract.JoinShopItemQuery.INDEX_NAME);
 
         Intent intent = new Intent(getActivity(), ItemsActivity.class);
         // links to position in the DB
-        intent.putExtra(Utilities.INTENT_TAG, position);
+        intent.putExtra(ItemsActivity.INTENT_SHOP_ID_LONG, shopId);
+        intent.putExtra(ItemsActivity.INTENT_SHOP_NAME_STRING, shopName);
         startActivity(intent);
 
         // for animation

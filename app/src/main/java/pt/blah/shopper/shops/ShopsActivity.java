@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import pt.blah.shopper.R;
-import pt.blah.shopper.utils.Utilities;
 
 public class ShopsActivity extends AppCompatActivity {
 
@@ -19,8 +18,6 @@ public class ShopsActivity extends AppCompatActivity {
                     .add(R.id.shops_container, new ShopsFragment())
                     .commit();
         }
-
-        Utilities.init(this);
     }
 
 }

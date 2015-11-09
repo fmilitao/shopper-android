@@ -24,7 +24,7 @@ public class ListAnimations {
             final ListAdapter mAdapter,
             final ListView listView,
             final Runnable andThen,
-            final int... deletedItems
+            final long... deletedItems
     ) {
 
         boolean foundFirst = false;
@@ -37,7 +37,7 @@ public class ListAnimations {
                 final int position = firstVisiblePosition + i;
                 final long itemId = mAdapter.getItemId(position);
 
-                for (int deletedItem : deletedItems) {
+                for (long deletedItem : deletedItems) {
                     if (deletedItem == itemId) {
                         // found deleted item!
                         ViewPropertyAnimator anim = child.animate().setDuration(MOVE_SPEED)
