@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package io.github.fmilitao.shopper;
 
 import org.junit.Test;
 
