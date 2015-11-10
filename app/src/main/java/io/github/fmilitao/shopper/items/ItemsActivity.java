@@ -1,10 +1,10 @@
-package pt.blah.shopper.items;
+package io.github.fmilitao.shopper.items;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import pt.blah.shopper.R;
+import io.github.fmilitao.shopper.R;
 
 public class ItemsActivity extends AppCompatActivity {
 

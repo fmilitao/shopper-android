@@ -1,4 +1,4 @@
-package pt.blah.shopper.items;
+package io.github.fmilitao.shopper.items;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,44 +8,43 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
-import pt.blah.shopper.R;
+import io.github.fmilitao.shopper.R;
 
-import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_ID;
-import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
-import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
-import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
 
-public class ItemsMoveAdapter extends CursorAdapter {
+public class ItemsAdapter extends CursorAdapter {
 
-    final Long[] set;
+    final View.OnTouchListener mTouchListener;
 
-    public ItemsMoveAdapter(Context context, Cursor c, int flags) {
+    public ItemsAdapter(Context context, Cursor c, int flags, View.OnTouchListener listener) {
         super(context, c, flags);
-        set = new Long[c.getCount()];
+
+        mTouchListener = listener;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_move_row, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_list_row, parent, false);
+
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
+        view.setOnTouchListener(mTouchListener);
+
         return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        final int position = cursor.getPosition();
-
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         viewHolder.mItemName.setText(cursor.getString(INDEX_NAME));
         viewHolder.mItemQuantity.setText(cursor.getString(INDEX_QUANTITY));
 
-        final long itemId = cursor.getLong(INDEX_ID);
-        final boolean isDone = cursor.getInt(INDEX_IS_DONE) != 0;
+        boolean isDone = cursor.getInt(INDEX_IS_DONE) != 0;
 
         if( isDone ){
             viewHolder.mItemName.setPaintFlags(viewHolder.mItemName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -64,29 +63,15 @@ public class ItemsMoveAdapter extends CursorAdapter {
 
             view.setBackgroundColor(Color.WHITE);
         }
-
-        viewHolder.mItemName.setOnClickListener(null);
-        viewHolder.mItemName.setChecked(set[position] != null);
-        viewHolder.mItemName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CheckBox cb = (CheckBox) v;
-                set[position] = cb.isChecked() ? itemId : null;
-            }
-        });
-    }
-
-    public Long[] getSelectedItemIds(){
-        return set;
     }
 
     private static class ViewHolder {
-        public final CheckBox mItemName;
+        public final TextView mItemName;
         public final TextView mItemQuantity;
         public final int mTextColor, mFlags;
 
         public ViewHolder(View view) {
-            mItemName = (CheckBox) view.findViewById(R.id.item_name);
+            mItemName = (TextView) view.findViewById(R.id.item_name);
             mItemQuantity = (TextView) view.findViewById(R.id.item_quantity);
 
             mTextColor  = mItemName.getCurrentTextColor();

@@ -1,4 +1,4 @@
-package pt.blah.shopper.items;
+package io.github.fmilitao.shopper.items;
 
 
 import android.annotation.SuppressLint;
@@ -25,13 +25,13 @@ import android.widget.Spinner;
 import java.util.Set;
 import java.util.Stack;
 
-import pt.blah.shopper.R;
-import pt.blah.shopper.sql.DBContract;
-import pt.blah.shopper.sql.DatabaseMiddleman;
-import pt.blah.shopper.utils.ListAnimations;
-import pt.blah.shopper.utils.ShakeSensor;
-import pt.blah.shopper.utils.TouchAndClickListener;
-import pt.blah.shopper.utils.UtilFragment;
+import io.github.fmilitao.shopper.R;
+import io.github.fmilitao.shopper.sql.DBContract;
+import io.github.fmilitao.shopper.sql.DatabaseMiddleman;
+import io.github.fmilitao.shopper.utils.ListAnimations;
+import io.github.fmilitao.shopper.utils.ShakeSensor;
+import io.github.fmilitao.shopper.utils.TouchAndClickListener;
+import io.github.fmilitao.shopper.utils.UtilFragment;
 
 
 public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeListener,

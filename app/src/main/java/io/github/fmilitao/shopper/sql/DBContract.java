@@ -1,4 +1,4 @@
-package pt.blah.shopper.sql;
+package io.github.fmilitao.shopper.sql;
 
 
 import android.provider.BaseColumns;

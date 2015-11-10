@@ -1,4 +1,4 @@
-package pt.blah.shopper;
+package io.github.fmilitao.shopper;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

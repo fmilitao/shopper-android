@@ -1,4 +1,4 @@
-package pt.blah.shopper.shops;
+package io.github.fmilitao.shopper.shops;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,11 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import pt.blah.shopper.R;
+import io.github.fmilitao.shopper.R;
 
-import static pt.blah.shopper.sql.DBContract.JoinShopItemQuery.INDEX_ALL_ITEMS_COUNT;
-import static pt.blah.shopper.sql.DBContract.JoinShopItemQuery.INDEX_NAME;
-import static pt.blah.shopper.sql.DBContract.JoinShopItemQuery.INDEX_NOT_DONE_ITEMS_COUNT;
+import static io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery.INDEX_ALL_ITEMS_COUNT;
+import static io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery.INDEX_NAME;
+import static io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery.INDEX_NOT_DONE_ITEMS_COUNT;
 
 public class ShopsAdapter extends CursorAdapter {
 

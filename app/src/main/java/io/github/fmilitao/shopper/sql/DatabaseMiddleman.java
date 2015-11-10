@@ -1,4 +1,4 @@
-package pt.blah.shopper.sql;
+package io.github.fmilitao.shopper.sql;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,12 +10,12 @@ import android.util.Pair;
 
 import java.util.List;
 
-import pt.blah.shopper.sql.DBContract.ItemEntry;
-import pt.blah.shopper.sql.DBContract.JoinShopItemQuery;
-import pt.blah.shopper.sql.DBContract.SelectItemQuery;
-import pt.blah.shopper.sql.DBContract.ShopEntry;
-import pt.blah.shopper.sql.DBContract.TransferItemQuery;
-import pt.blah.shopper.sql.DBContract.ShopsQuery;
+import io.github.fmilitao.shopper.sql.DBContract.ItemEntry;
+import io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery;
+import io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery;
+import io.github.fmilitao.shopper.sql.DBContract.ShopEntry;
+import io.github.fmilitao.shopper.sql.DBContract.TransferItemQuery;
+import io.github.fmilitao.shopper.sql.DBContract.ShopsQuery;
 
 //TODO: consider protecting against sql injections.
 public class DatabaseMiddleman {

@@ -1,4 +1,4 @@
-package pt.blah.shopper.utils;
+package io.github.fmilitao.shopper.utils;
 
 
 import android.support.v4.app.Fragment;

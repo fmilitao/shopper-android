@@ -1,9 +1,9 @@
-package pt.blah.shopper.shops;
+package io.github.fmilitao.shopper.shops;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import pt.blah.shopper.R;
+import io.github.fmilitao.shopper.R;
 
 public class ShopsActivity extends AppCompatActivity {
 
