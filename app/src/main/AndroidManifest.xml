@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pt.blah.shopper" >
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 
     <application
         android:allowBackup="true"
@@ -11,18 +11,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
 
-
         <activity android:name=".shops.ShopsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- TODO check "singleInstance" or "singleTop" ? avoids double launching activity. -->
-        <!-- TODO setOnClickListener(null) onResume() restore it-->
-        <!-- TODO intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); -->
         <activity
             android:name=".items.ItemsActivity"
             android:launchMode="singleTop"

@@ -17,6 +17,7 @@ import pt.blah.shopper.sql.DBContract.ShopEntry;
 import pt.blah.shopper.sql.DBContract.TransferItemQuery;
 import pt.blah.shopper.sql.DBContract.ShopsQuery;
 
+//TODO: consider protecting against sql injections.
 public class DatabaseMiddleman {
 
     private static final String TAG = DatabaseMiddleman.class.toString();
@@ -34,7 +35,7 @@ public class DatabaseMiddleman {
         if( mDb == null && mDbHelper == null ) {
             mDbHelper = new DatabaseHelper(mCtx);
             // always uses the same writable database, even when reading
-            // FIXME this should be moved off the main thread, use AsyncTask?
+            // FIXME: this should be moved off the main thread, use AsyncTask?
             mDb = mDbHelper.getWritableDatabase();
         }
     }
@@ -92,6 +93,7 @@ public class DatabaseMiddleman {
 
     public Cursor fetchAllShops() {
         // FIXME: this requires garbage collecting items of the shop or numbers will be wrong.
+        // FIXME: find a way to filter items as deleted = 0 (FALSE) when JOIN is used?
 
         Log.v(TAG, JoinShopItemQuery.QUERY);
 
@@ -179,11 +181,11 @@ public class DatabaseMiddleman {
         return true;
     }
 
-    // FIXME log garbage collection stuff to see if working OK.
     public Pair<Long,String>[] makeAllShopPair(){
         Cursor c = mDb.rawQuery(ShopsQuery.QUERY, null);
         c.moveToFirst();
 
+        @SuppressWarnings("unchecked")
         Pair<Long,String>[] res = new Pair[c.getCount()];
         int i=0;
         do{

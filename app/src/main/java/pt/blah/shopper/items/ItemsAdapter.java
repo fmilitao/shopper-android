@@ -18,20 +18,6 @@ import static pt.blah.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
 
 public class ItemsAdapter extends CursorAdapter {
 
-    private static class ViewHolder {
-        public final TextView mItemName;
-        public final TextView mItemQuantity;
-        public final int mTextColor, mFlags;
-
-        public ViewHolder(View view) {
-            mItemName = (TextView) view.findViewById(R.id.item_name);
-            mItemQuantity = (TextView) view.findViewById(R.id.item_quantity);
-
-            mTextColor  = mItemName.getCurrentTextColor();
-            mFlags = mItemName.getPaintFlags();
-        }
-    }
-
     final View.OnTouchListener mTouchListener;
 
     public ItemsAdapter(Context context, Cursor c, int flags, View.OnTouchListener listener) {
@@ -79,4 +65,17 @@ public class ItemsAdapter extends CursorAdapter {
         }
     }
 
+    private static class ViewHolder {
+        public final TextView mItemName;
+        public final TextView mItemQuantity;
+        public final int mTextColor, mFlags;
+
+        public ViewHolder(View view) {
+            mItemName = (TextView) view.findViewById(R.id.item_name);
+            mItemQuantity = (TextView) view.findViewById(R.id.item_quantity);
+
+            mTextColor  = mItemName.getCurrentTextColor();
+            mFlags = mItemName.getPaintFlags();
+        }
+    }
 }

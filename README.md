@@ -6,13 +6,15 @@ Shopping list app, experimental project to play with Android SDK.
 
 Features:
 
-* shake to undo
+* shake to undo deletion
 * long press to edit list/item
 * short press on list to open
 * short press on item to mark as done/undone
 * swipe left/right to delete list/item
+* transfer items between lists
 * import list from clipboard, export to clipboard
 * state stored in SQLite database
+* animations for sorting done/not done items & transition between activities
 
 ###Tasks
 

@@ -76,7 +76,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.product_menu, menu);
+        inflater.inflate(R.menu.items_menu, menu);
     }
 
     protected void addItem(){
@@ -288,10 +288,6 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         return rootView;
     }
 
-    private void animateAdd(Runnable action){
-        ListAnimations.animateAdd(mAdapter, mListView, action, -1);
-    }
-
     private void animateDelete(Runnable andThen, long... deletes){
         ListAnimations.animateDelete(mAdapter, mListView, andThen, deletes);
     }
@@ -328,9 +324,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final long itemId = c.getLong(DBContract.SelectItemQuery.INDEX_ID);
         final int itemDone = c.getInt(DBContract.SelectItemQuery.INDEX_IS_DONE);
 
-        animateAdd(new Runnable() {
+        animateAdd(new ListAnimations.Runner() {
             @Override
-            public void run() {
+            public void run(Set<Long> set) {
                 mDb.flipItem(itemId, itemDone);
                 mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                 mAdapter.notifyDataSetChanged();
@@ -371,9 +367,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                 if (p_name.length() > 0 && (!p_name.equals(itemName) || p_quantity != itemQuantity)) {
 
-                    animateAdd(new Runnable() {
+                    animateAdd(new ListAnimations.Runner() {
                         @Override
-                        public void run() {
+                        public void run(Set<Long> set) {
                             mDb.updateItem(itemId,p_name,p_quantity);
                             mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                             mAdapter.notifyDataSetChanged();

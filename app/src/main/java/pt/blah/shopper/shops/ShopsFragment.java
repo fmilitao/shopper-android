@@ -84,7 +84,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.shop_menu, menu);
+        inflater.inflate(R.menu.shops_menu, menu);
     }
 
     @Override
@@ -175,9 +175,9 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             mDb.gcShops();
             undo = new Stack<>();
 
-            //TODO: temp
-//        mDb.deleteAll();
-//        mDb.insertSomeValues();
+            // cleans tables and inserts some example values, for testing purposes
+//            mDb.deleteAll();
+//            mDb.insertSomeValues();
         }
 
 

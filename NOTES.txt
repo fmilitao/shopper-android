@@ -2,6 +2,9 @@
 NOTES AND USEFUL LINKS
 ======================
 
+<!-- TODO check "singleInstance" or "singleTop" ? avoids double launching activity. -->
+<!-- TODO setOnClickListener(null) onResume() restore it-->
+<!-- TODO intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); -->
  * icon done using https://romannurik.github.io/AndroidAssetStudio/
  * ListView animation/swipe tutorial https://www.youtube.com/watch?v=YCHNAi9kJI4
  * ShakeSensor http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it and http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
