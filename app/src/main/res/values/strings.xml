@@ -45,4 +45,5 @@
 
     <!-- TODO is this the correct way to format numbers? -->
     <string name="NUMBER">%1$d</string>
+    <string name="FILE_NAME">File name</string>
 </resources>

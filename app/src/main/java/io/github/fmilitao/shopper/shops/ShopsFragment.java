@@ -6,8 +6,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -311,5 +313,63 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 }
             }
         });
+    }
+
+    //
+    // TODO: proper way to save/load!
+    // TODO: also on the items? (i.e. save all lists, and save single list?)
+    //
+
+    protected void saveDialog(String path){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        // Get the layout inflater
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        View root = inflater.inflate(R.layout.file_dialog, null);
+        EditText txt = (EditText) root.findViewById(R.id.file_path);
+
+        if( path != null ){
+            txt.setText(path);
+        }
+        // Inflate and set the layout for the file_dialog
+        // Pass null as the parent view because its going in the file_dialog layout
+        builder.setView(root)
+                .setTitle("Testing")
+                        // Add action buttons
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // sign in the user ...
+                    }
+                })
+                .setNeutralButton("File Chooser", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // sign in the user ...
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("file/*");
+                        startActivityForResult(Intent.createChooser(intent, "Select File"), 1);
+
+                    }
+                })
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+        builder.create().show();
+
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if( requestCode == 1 && data != null ) {
+            Uri file = data.getData();
+            Log.w("FILE: ", file.getPath());
+            saveDialog(file.getPath());
+        }
+
     }
 }
