@@ -5,6 +5,8 @@
     <string name="CREATE">Create</string>
     <string name="UPDATE">Update</string>
     <string name="DELETE">Delete</string>
+    <string name="SAVE">Save</string>
+    <string name="LOAD">Load</string>
     <string name="TRANSFER">Transfer</string>
 
     <string name="NEW_ITEM">New Item</string>
@@ -43,7 +45,10 @@
     <string name="SHAKE_UNDO">Undid deletion of \'%1$s\'.</string>
 
 
-    <!-- TODO is this the correct way to format numbers? -->
-    <string name="NUMBER">%1$d</string>
     <string name="FILE_NAME">File name</string>
+    <string name="PICK_FILE">File Chooser</string>
+
+    <string name="SAVE_DIALOG">Save to file</string>
+    <string name="LOAD_DIALOG">Load from file</string>
+    <string name="SELECT_FILE">Select File</string>
 </resources>

@@ -256,6 +256,15 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             return true;
         }
 
+        if (id == R.id.load_items){
+            loadDialog(null);
+            return true;
+        }
+        if (id == R.id.save_items){
+            saveDialog(null);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -308,7 +317,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         animateAdd(new ListAnimations.Runner() {
             @Override
             public void run(Set<Long> set) {
-                if( mDb.updateItemDeleted(itemId, false) ) {
+                if (mDb.updateItemDeleted(itemId, false)) {
                     set.add(itemId);
                     mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                     mAdapter.notifyDataSetChanged();
@@ -316,7 +325,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             }
         });
 
-        popUp(format(R.string.SHAKE_UNDO,itemName));
+        popUp(format(R.string.SHAKE_UNDO, itemName));
     }
 
     @Override
@@ -343,6 +352,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final long itemId = c.getLong(DBContract.SelectItemQuery.INDEX_ID);
         final String itemName = c.getString(DBContract.SelectItemQuery.INDEX_NAME);
         final int itemQuantity = c.getInt(DBContract.SelectItemQuery.INDEX_QUANTITY);
+        final String itemQuantityStr = c.getString(DBContract.SelectItemQuery.INDEX_QUANTITY);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -355,7 +365,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
         n.setText(itemName);
         n.setSelection(n.getText().length());
-        q.setText(format(R.string.NUMBER, itemQuantity));
+        q.setText(itemQuantityStr); //FIXME test to make sure this work OK!
         q.setSelection(q.getText().length());
 
         builder.setTitle(R.string.UPDATE);
@@ -413,5 +423,16 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
     private void animateAdd(ListAnimations.Runner action){
         ListAnimations.animateAdd(mAdapter, mListView, action);
+    }
+
+    // TODO
+    protected void save(String file) {
+        popUp("Saved: " + file);
+    }
+
+
+    // TODO
+    protected void load(String file) {
+        popUp("Loaded: " + file);
     }
 }
