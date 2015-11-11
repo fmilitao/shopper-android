@@ -63,6 +63,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         super.onResume();
 
         mDb.open();
+        // assumes items never changed while we paused.
+
         mShakeSensor.onResume();
     }
 

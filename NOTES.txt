@@ -8,6 +8,8 @@ NOTES AND USEFUL LINKS
  * icon done using https://romannurik.github.io/AndroidAssetStudio/
  * ListView animation/swipe tutorial https://www.youtube.com/watch?v=YCHNAi9kJI4
  * ShakeSensor http://stackoverflow.com/questions/2317428/android-i-want-to-shake-it and http://stackoverflow.com/questions/5271448/how-to-detect-shake-event-with-android
+ * VIDEO: http://stackoverflow.com/questions/5382212/capture-video-of-androids-screen
+
  * Play with sql online: https://kripken.github.io/sql.js/GUI/
 
  DROP TABLE IF EXISTS shops;
@@ -49,3 +51,13 @@ NOTES AND USEFUL LINKS
 
  DELETE FROM items WHERE items.done = 'TRUE';
  SELECT * FROM items ORDER BY items.done, items.name;
+
+SELECT L._id, L.name,
+    count(R._id) as AllItems,
+    SUM(CASE WHEN R.done='TRUE' THEN 1 ELSE 0 END) as DoneItems,
+    SUM(CASE WHEN R.done='FALSE' THEN 1 ELSE 0 END) as NotDoneItems
+    FROM
+	(SELECT * FROM shops WHERE shops.deleted = 'FALSE') L
+	LEFT JOIN
+	(SELECT * FROM items WHERE items.deleted = 'FALSE') R
+	ON L._id = R.shop_id GROUP BY L._id;

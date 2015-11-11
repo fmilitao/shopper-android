@@ -4,6 +4,7 @@ package io.github.fmilitao.shopper.sql;
 import android.provider.BaseColumns;
 
 public interface DBContract {
+    // note in SQLite 'false' is '0' and 'true' is '1'
 
     String DATABASE_NAME = "shopper.db";
     int DATABASE_VERSION = 12;
@@ -33,16 +34,25 @@ public interface DBContract {
 
         // query
         String QUERY = "SELECT " +
-                (ShopEntry.TABLE_NAME+"."+ ShopEntry._ID) + " AS " + JoinShopItemQuery._ID + ", " +
-                ShopEntry.COLUMN_SHOP_NAME + " AS " + JoinShopItemQuery.COLUMN_NAME +", " +
-                "COUNT( " + (ItemEntry.TABLE_NAME+"."+ ItemEntry._ID) + " ) AS " + JoinShopItemQuery.COLUMN_ALL_ITEMS_COUNT + ", " +
-                "IFNULL( SUM( " + ItemEntry.COLUMN_ITEM_DONE +" ), 0 ) AS " + JoinShopItemQuery.COLUMN_DONE_ITEMS_COUNT +", " +
-                "IFNULL( SUM( NOT " + ItemEntry.COLUMN_ITEM_DONE +" ), 0 ) AS " + JoinShopItemQuery.COLUMN_NOT_DONE_ITEMS_COUNT +
-                " FROM " + ShopEntry.TABLE_NAME+ " LEFT JOIN " + ItemEntry.TABLE_NAME +" ON " +
-                (ShopEntry.TABLE_NAME+"."+ ShopEntry._ID) +"  = " + (ItemEntry.TABLE_NAME+"."+ ItemEntry.COLUMN_ITEM_SHOP_ID_FK) +
-                " WHERE " +
-                (ShopEntry.TABLE_NAME+"."+ ShopEntry.COLUMN_DELETED) +" = 0 " +
-                " GROUP BY " + (ShopEntry.TABLE_NAME+"."+ ShopEntry._ID)+" ;";
+                // shop_id
+                ("L."+ ShopEntry._ID) + " AS " + JoinShopItemQuery._ID + ", " +
+                // shop_name
+                ("L."+ ShopEntry.COLUMN_SHOP_NAME) + " AS " + JoinShopItemQuery.COLUMN_NAME +", " +
+                // all_items_count
+                "COUNT( R." + ItemEntry._ID + " ) AS " + JoinShopItemQuery.COLUMN_ALL_ITEMS_COUNT + ", " +
+                // items_done_sum
+                "IFNULL( SUM( R." + ItemEntry.COLUMN_ITEM_DONE +" ), 0 ) AS " + JoinShopItemQuery.COLUMN_DONE_ITEMS_COUNT +", " +
+                // items_not_done_sume
+                "IFNULL( SUM( NOT R." + ItemEntry.COLUMN_ITEM_DONE +" ), 0 ) AS " + JoinShopItemQuery.COLUMN_NOT_DONE_ITEMS_COUNT +
+                " FROM " +
+                // shops table where not deleted
+                "(SELECT * FROM " + ShopEntry.TABLE_NAME+ " WHERE "+ ShopEntry.COLUMN_DELETED + " = 0) L"+
+                " LEFT JOIN " +
+                // items table where not deleted
+                "(SELECT * FROM " + ItemEntry.TABLE_NAME+ " WHERE "+ ItemEntry.COLUMN_DELETED + " = 0) R"+
+                " ON " +
+                ("L."+ ShopEntry._ID) +" = " + ("R."+ ItemEntry.COLUMN_ITEM_SHOP_ID_FK) +
+                " GROUP BY " + ("L."+ ShopEntry._ID)+" ;";
 
         // indexes, assumed using the same order as the query above
         int INDEX_ID = 0;

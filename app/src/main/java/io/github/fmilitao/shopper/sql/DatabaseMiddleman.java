@@ -92,9 +92,6 @@ public class DatabaseMiddleman {
     }
 
     public Cursor fetchAllShops() {
-        // FIXME: this requires garbage collecting items of the shop or numbers will be wrong.
-        // FIXME: find a way to filter items as deleted = 0 (FALSE) when JOIN is used?
-
         Log.v(TAG, JoinShopItemQuery.QUERY);
 
         Cursor c = mDb.rawQuery(JoinShopItemQuery.QUERY, null);
@@ -250,9 +247,9 @@ public class DatabaseMiddleman {
         createItem("Pao", id, 1, false);
         createItem("Manteiga", id, 1, false);
 
-        id = createShop("Continente");
-        id = createShop("ALDI");
-        id = createShop("Test 123");
+        createShop("Continente");
+        createShop("ALDI");
+        createShop("Test 123");
 
         return first;
     }

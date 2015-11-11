@@ -67,7 +67,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         // this may be unnecessary, but we just force the notification to recompute
         // each list's done and total counts
         mDb.open();
-        mDb.gcItems(); // remove deleted items now since undoing becomes impossible now
+        // since items table may have changed while we paused.
         mAdapter.changeCursor(mDb.fetchAllShops());
         mAdapter.notifyDataSetChanged();
 
