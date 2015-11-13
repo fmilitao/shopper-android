@@ -273,15 +273,6 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             }
         });
 
-        builder.setNeutralButton(R.string.COPY_TO_CLIPBOARD, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String text = mDb.stringifyItemList(shopId);
-                Utilities.setClipboardString(getActivity(), oldName, text);
-                popUp(format(R.string.ITEMS_COPIED, oldName));
-            }
-        });
-
         builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

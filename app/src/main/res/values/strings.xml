@@ -41,6 +41,7 @@
     <string name="ITEM_UPDATED">Item updated: %1$s %2$d</string>
     <string name="COPY_TO_CLIPBOARD">Copy To Clipboard</string>
     <string name="ITEMS_COPIED">Copied \'%1$s\' to clipboard</string>
+    <string name="ITEMS_PASTED">Pasted \'%1$s\' from clipboard</string>
     <string name="SHAKE_FAIL">Nothing to undo.</string>
     <string name="SHAKE_UNDO">Undid deletion of \'%1$s\'.</string>
 
@@ -50,8 +51,10 @@
 
     <string name="SAVE_DIALOG">Save to file</string>
     <string name="LOAD_DIALOG">Load from file</string>
+    <string name="LOAD_CLIPBOARD">Load from clipboard</string>
+    <string name="SAVE_CLIPBOARD">Copy to clipboard</string>
     <string name="SELECT_FILE">Select File</string>
-    <string name="LOADED_FILE">"Loaded: \'%1$s\'"</string>
-    <string name="ERROR_FILE">"Error: \'%1$s\'"</string>
-    <string name="SAVED_FILE">"Saved to \'%1$s\'"</string>
+    <string name="LOADED_FILE">Loaded: \'%1$s\'</string>
+    <string name="ERROR_FILE">Error: \'%1$s\'</string>
+    <string name="SAVED_FILE">Saved to \'%1$s\'</string>
 </resources>

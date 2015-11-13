@@ -292,4 +292,14 @@ public class DatabaseMiddleman {
         }
     }
 
+    public void loadShopItems(List<Pair<String,Integer>> lst, long shopId, Set<Long> set){
+        for(Pair<String,Integer> p : lst ){
+            String name = p.first;
+            int quantity = p.second;
+            long res = createItem(name,shopId,quantity,false);
+            if( res != -1 )
+                set.add(res);
+        }
+    }
+
 }

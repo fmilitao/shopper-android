@@ -29,6 +29,7 @@ import android.widget.Spinner;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Stack;
@@ -40,6 +41,7 @@ import io.github.fmilitao.shopper.utils.ListAnimations;
 import io.github.fmilitao.shopper.utils.ShakeSensor;
 import io.github.fmilitao.shopper.utils.TouchAndClickListener;
 import io.github.fmilitao.shopper.utils.UtilFragment;
+import io.github.fmilitao.shopper.utils.Utilities;
 
 
 public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
@@ -271,6 +273,29 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         }
         if (id == R.id.save_items){
             saveDialog(mShopName);
+            return true;
+        }
+        if( id == R.id.save_clipboard){
+            String text = mDb.stringifyItemList(mShopId);
+            Utilities.setClipboardString(getActivity(), mShopName, text);
+            popUp(format(R.string.ITEMS_COPIED, mShopName));
+            return true;
+        }
+        if( id == R.id.load_clipboard ){
+            final List<Pair<String,Integer>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
+            if( tmp != null && !tmp.isEmpty()){
+
+                animateAdd(new ListAnimations.Runner() {
+                    @Override
+                    public void run(Set<Long> set) {
+                        mDb.loadShopItems(tmp, mShopId, set);
+                        mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                        mAdapter.notifyDataSetChanged();
+                        popUp(format(R.string.ITEMS_PASTED, tmp.size()) );
+                    }
+                });
+
+            }
             return true;
         }
 
