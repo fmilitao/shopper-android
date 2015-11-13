@@ -20,6 +20,5 @@ Features:
 ###Tasks
 
 - [ ] prettify lists/app (idea: show background fill as percentage of list completion, also mess with item count)
-- [ ] fix "double tap, double launch" bug on all buttons
 - [ ] capture simple video/gif to show functionality
 - [ ] build release .apk and add it to github releases page, [see](http://stackoverflow.com/questions/18460774/how-to-set-up-gradle-and-android-studio-to-do-release-build).

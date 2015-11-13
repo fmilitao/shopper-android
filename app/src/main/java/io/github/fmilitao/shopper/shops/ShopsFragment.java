@@ -88,8 +88,11 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         int id = item.getItemId();
+
+        // avoiding double tap on item menu
+        item.setEnabled(false);
 
         if (id == R.id.import_list) {
 
@@ -124,6 +127,9 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             builder.setPositiveButton(R.string.CREATE, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    // restores item use
+                    item.setEnabled(true);
+
                     final String name = text.getText().toString();
                     if (name.length() > 0) {
 
@@ -148,6 +154,9 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    // restores item use
+                    item.setEnabled(true);
+
                     // aborted, nothing to do
                 }
             });
@@ -159,6 +168,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             return true;
         }
 
+        item.setEnabled(true);
         return super.onOptionsItemSelected(item);
     }
 
@@ -212,7 +222,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         animateAdd(new ListAnimations.Runner() {
             @Override
             public void run(Set<Long> set) {
-                if( mDb.updateShopDeleted(shopId, false) ) {
+                if (mDb.updateShopDeleted(shopId, false)) {
                     set.add(shopId);
                     mAdapter.changeCursor(mDb.fetchAllShops());
                     mAdapter.notifyDataSetChanged();

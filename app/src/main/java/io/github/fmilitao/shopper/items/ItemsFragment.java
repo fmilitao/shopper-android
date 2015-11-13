@@ -92,7 +92,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         inflater.inflate(R.menu.items_menu, menu);
     }
 
-    protected void addItem(){
+    protected void addItem(final MenuItem item){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
 
@@ -128,7 +128,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                     @Override
                     public void run(Set<Long> set) {
                         long newItem = mDb.createItem(p_name, mShopId, p_quantity, false);
-                        if( newItem > 0 ) {
+                        if (newItem > 0) {
                             set.add(newItem);
                             mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                             mAdapter.notifyDataSetChanged();
@@ -136,6 +136,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                     }
                 });
 
+                // ok to re-enable on first create because item is not visible anyway
+                item.setEnabled(true);
                 popUp(format(R.string.ITEM_ADDED, p_name, p_quantity));
 
             }
@@ -147,13 +149,14 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 aux.onClick(dialog, which);
-                addItem();
+                addItem(item);
             }
         });
 
         builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                item.setEnabled(true);
                 // aborted, nothing to do
             }
         });
@@ -165,11 +168,13 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         int id = item.getItemId();
 
+        item.setEnabled(false);
+
         if (id == R.id.add_item) {
-            addItem();
+            addItem(item); // item must be re-enables in function
             return true;
         }
 
@@ -215,6 +220,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             builder.setPositiveButton(R.string.TRANSFER, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    item.setEnabled(true);
                     // ...
                     final Long[] set = moveAdapter.getSelectedItemIds();
                     final int i = spinner.getSelectedItemPosition();
@@ -258,6 +264,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    item.setEnabled(true);
                     // aborted, nothing to do
                 }
             });
@@ -266,6 +273,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
             return true;
         }
+
+        // all following should not need double-tap protection.
+        item.setEnabled(true);
 
         if (id == R.id.load_items){
             loadDialog(null);
