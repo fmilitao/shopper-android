@@ -6,10 +6,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -160,14 +158,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
             return true;
         }
-        if (id == R.id.load_list){
-            loadDialog(null);
-            return true;
-        }
-        if (id == R.id.save_list){
-            saveDialog(null);
-            return true;
-        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -321,16 +312,6 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 }
             }
         });
-    }
-
-    // TODO:
-    protected void save(String file) {
-        popUp("Saved: " + file);
-    }
-
-    // TODO:
-    protected void load(String file) {
-        popUp("Loaded: " + file);
     }
 
 }

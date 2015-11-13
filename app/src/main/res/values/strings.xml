@@ -51,4 +51,7 @@
     <string name="SAVE_DIALOG">Save to file</string>
     <string name="LOAD_DIALOG">Load from file</string>
     <string name="SELECT_FILE">Select File</string>
+    <string name="LOADED_FILE">"Loaded: \'%1$s\'"</string>
+    <string name="ERROR_FILE">"Error: \'%1$s\'"</string>
+    <string name="SAVED_FILE">"Saved to \'%1$s\'"</string>
 </resources>

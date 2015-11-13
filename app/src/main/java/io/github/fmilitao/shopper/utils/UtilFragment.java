@@ -5,9 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +18,7 @@ import io.github.fmilitao.shopper.R;
  * Extensions to 'Fragment' to include some convenient methods for formatting string resources
  * and showing pop-up toasts on the top of the screen.
  */
-abstract public class UtilFragment extends Fragment {
+public class UtilFragment extends Fragment {
 
     private static final int REQUEST_FILE_SAVE = 42;
     private static final int REQUEST_FILE_LOAD = 24;
@@ -100,7 +98,11 @@ abstract public class UtilFragment extends Fragment {
     }
 
 
-    abstract protected void save(String file);
+    protected void save(String file){
+        // does nothing
+    }
 
-    abstract protected void load(String file);
+    protected void load(String file){
+        // does nothing
+    }
 }

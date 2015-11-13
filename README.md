@@ -15,10 +15,10 @@ Features:
 * import list from clipboard, export to clipboard
 * state stored in SQLite database
 * animations for sorting done/not done items & transition between activities
+* export/import individual list to/from CSV file
 
 ###Tasks
 
-- [ ] export/import all state to CSV file for easy sharing via email (use sharing intent?)
 - [ ] prettify lists/app (idea: show background fill as percentage of list completion, also mess with item count)
 - [ ] fix "double tap, double launch" bug on all buttons
 - [ ] capture simple video/gif to show functionality

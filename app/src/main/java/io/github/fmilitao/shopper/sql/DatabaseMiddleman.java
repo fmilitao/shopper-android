@@ -8,7 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.util.Pair;
 
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 
 import io.github.fmilitao.shopper.sql.DBContract.ItemEntry;
 import io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery;
@@ -252,6 +255,41 @@ public class DatabaseMiddleman {
         createShop("Test 123");
 
         return first;
+    }
+
+    //
+    // I/O storing
+    //
+
+    public void saveShopItems(PrintWriter out,long shopId){
+        Cursor c = fetchShopItems(shopId);
+        if( c == null )
+            return;
+        c.moveToFirst();
+        do{
+            out.println(
+                    // removes any chance of collision with ','
+                    c.getString(SelectItemQuery.INDEX_NAME).replace(',', ' ')
+                    + "," +
+                    c.getString(SelectItemQuery.INDEX_QUANTITY)
+                    + "," +
+                    Boolean.toString( c.getInt(SelectItemQuery.INDEX_IS_DONE) != 0 )
+            );
+
+        }while( c.moveToNext() );
+        c.close();
+    }
+
+    public void loadShopItems(Scanner sc, long shopId, Set<Long> set){
+        sc.useDelimiter("(,)|(\\n+)");
+        while( sc.hasNext() ) {
+            String name = sc.next();
+            int quantity = Integer.parseInt(sc.next().trim());
+            boolean isDone = Boolean.parseBoolean( sc.next().trim() );
+            long res = createItem(name,shopId,quantity,isDone);
+            if( res != -1 )
+                set.add(res);
+        }
     }
 
 }

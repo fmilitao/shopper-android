@@ -3,11 +3,15 @@ package io.github.fmilitao.shopper.items;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +26,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.Stack;
 
@@ -44,6 +52,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     CursorAdapter mAdapter;
 
     long mShopId;
+    String mShopName;
     Stack<Pair<String,Long>> undo;
 
     @Override
@@ -261,7 +270,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             return true;
         }
         if (id == R.id.save_items){
-            saveDialog(null);
+            saveDialog(mShopName);
             return true;
         }
 
@@ -274,7 +283,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
         Intent intent = getActivity().getIntent();
         // intentionally let app crash if intent not provided (fatal error anyway)
-        String shopName = intent.getStringExtra(ItemsActivity.INTENT_SHOP_NAME_STRING);
+        mShopName = intent.getStringExtra(ItemsActivity.INTENT_SHOP_NAME_STRING);
         mShopId = intent.getLongExtra(ItemsActivity.INTENT_SHOP_ID_LONG, 0);
 
 
@@ -295,7 +304,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         mAdapter = new ItemsAdapter(getActivity(),mDb.fetchShopItems(mShopId), 0, t);
         mListView.setAdapter(mAdapter);
 
-        getActivity().setTitle(shopName);
+        getActivity().setTitle(mShopName);
         return rootView;
     }
 
@@ -365,7 +374,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
         n.setText(itemName);
         n.setSelection(n.getText().length());
-        q.setText(itemQuantityStr); //FIXME test to make sure this work OK!
+        q.setText(itemQuantityStr);
         q.setSelection(q.getText().length());
 
         builder.setTitle(R.string.UPDATE);
@@ -425,14 +434,75 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         ListAnimations.animateAdd(mAdapter, mListView, action);
     }
 
-    // TODO
-    protected void save(String file) {
-        popUp("Saved: " + file);
+    //
+    // List I/O
+    //
+
+    protected void save(String name) {
+        // either saves given file to downloads directory, or attempts given absolute path
+        try {
+            if( !name.endsWith(".txt") ) {
+                name = name + ".txt";
+            }
+
+            Context c = null;
+            File file;
+
+            if( !name.startsWith("/")){
+                c = getActivity();
+                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                file = new File(path, name);
+            }else{
+                // note that when given 'any' file name writing may fail due to filesystem permissions
+                file = new File(name);
+            }
+
+            Log.w(">>", file.getAbsolutePath());
+
+            PrintWriter pw = new PrintWriter(new FileOutputStream(file));
+            mDb.saveShopItems(pw, mShopId);
+            pw.close();
+
+            if( c != null ) {
+                // Tell the media scanner about the new file so that it is
+                // immediately available to the user.
+                MediaScannerConnection.scanFile(c, new String[]{file.toString()}, null, null);
+            }
+
+            popUp(format(R.string.SAVED_FILE, file.getAbsolutePath()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            popUp(format(R.string.ERROR_FILE,e));
+        }
     }
 
 
-    // TODO
-    protected void load(String file) {
-        popUp("Loaded: " + file);
+    protected void load(final String file) {
+        try {
+            File tmp = new File(file);
+            if( !tmp.exists() ){
+                // attempt download directory
+                tmp = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), file);
+            }
+
+            final Scanner sc = new Scanner(tmp);
+            final File finalTmp = tmp;
+
+            animateAdd(new ListAnimations.Runner() {
+                @Override
+                public void run(Set<Long> set) {
+                    mDb.loadShopItems(sc, mShopId, set);
+                    sc.close();
+
+                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                    mAdapter.notifyDataSetChanged();
+                    popUp(format(R.string.LOADED_FILE,finalTmp.getAbsolutePath()));
+                }
+            });
+
+        } catch(Exception e){
+            e.printStackTrace();
+            popUp(format(R.string.ERROR_FILE,e));
+        }
     }
 }
