@@ -34,7 +34,7 @@ public class Utilities {
             // we must cycle through all names until list, since some could be invalid
             // although the pattern should ensure that never occurs...
             String left = name;
-            for(String d : name.split("\\D+")){
+            for(String d : name.split("\\D+")){ //FIXME: support decimal numbers
                 if( d.length() <= 0 )
                     continue;
                 try {

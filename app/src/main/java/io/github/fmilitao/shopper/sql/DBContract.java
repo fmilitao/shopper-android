@@ -122,7 +122,7 @@ public interface DBContract {
             ItemEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             ItemEntry.COLUMN_ITEM_SHOP_ID_FK + " INTEGER NOT NULL, " +
             ItemEntry.COLUMN_ITEM_NAME + " TEXT NOT NULL, " +
-            ItemEntry.COLUMN_ITEM_QUANTITY + " INTEGER NOT NULL, " +
+            ItemEntry.COLUMN_ITEM_QUANTITY + " REAL NOT NULL, " +
             ItemEntry.COLUMN_ITEM_DONE + " BOOLEAN NOT NULL, " +
             ItemEntry.COLUMN_DELETED + " BOOLEAN NOT NULL, " +
             "FOREIGN KEY (" + ItemEntry.COLUMN_ITEM_SHOP_ID_FK + ") REFERENCES " +

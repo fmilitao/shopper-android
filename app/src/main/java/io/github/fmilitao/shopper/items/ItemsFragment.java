@@ -115,14 +115,14 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 if( p_name.length() == 0 )
                     return;
 
-                int qt = 1; // default quantity is '1'
+                float qt = 1; // default quantity is '1'
                 try {
-                    qt = Integer.parseInt(q.getText().toString());
+                    qt = Float.parseFloat(q.getText().toString());
                 } catch (NumberFormatException e) {
                     // ignores error
                 }
 
-                final int p_quantity = qt;
+                final float p_quantity = qt;
 
                 animateAdd(new ListAnimations.Runner() {
                     @Override
@@ -138,7 +138,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                 // ok to re-enable on first create because item is not visible anyway
                 item.setEnabled(true);
-                popUp(format(R.string.ITEM_ADDED, p_name, p_quantity));
+                popUp(format(R.string.ITEM_ADDED, p_name, Float.toString(p_quantity)));
 
             }
         };
@@ -202,6 +202,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             // SPINNER
             final Spinner spinner = (Spinner) root.findViewById(R.id.shop_pick);
 
+
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.item_move_spinner, shops);
             spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(spinnerArrayAdapter);
@@ -214,7 +215,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             listView.setAdapter(moveAdapter);
             // LIST
 
-            builder.setTitle(R.string.TRANSFER_ITEMS);
+            builder.setTitle(R.string.TRANSFER_TITLE);
             builder.setView(root);
 
             builder.setPositiveButton(R.string.TRANSFER, new DialogInterface.OnClickListener() {
@@ -395,7 +396,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final Cursor c = (Cursor) listView.getItemAtPosition(position);
         final long itemId = c.getLong(DBContract.SelectItemQuery.INDEX_ID);
         final String itemName = c.getString(DBContract.SelectItemQuery.INDEX_NAME);
-        final int itemQuantity = c.getInt(DBContract.SelectItemQuery.INDEX_QUANTITY);
+        final float itemQuantity = c.getFloat(DBContract.SelectItemQuery.INDEX_QUANTITY);
         final String itemQuantityStr = c.getString(DBContract.SelectItemQuery.INDEX_QUANTITY);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -419,7 +420,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             public void onClick(DialogInterface dialog, int which) {
 
                 final String p_name = n.getText().toString();
-                final int p_quantity = Integer.parseInt(q.getText().toString());
+                final float p_quantity = Float.parseFloat(q.getText().toString());
 
                 if (p_name.length() > 0 && (!p_name.equals(itemName) || p_quantity != itemQuantity)) {
 
@@ -432,7 +433,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                         }
                     });
 
-                    popUp(format(R.string.ITEM_UPDATED, p_name, p_quantity));
+                    popUp(format(R.string.ITEM_UPDATED, p_name, Float.toString(p_quantity)));
                 }
             }
         });

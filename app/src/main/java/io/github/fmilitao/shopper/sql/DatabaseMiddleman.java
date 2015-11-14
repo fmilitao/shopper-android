@@ -72,7 +72,7 @@ public class DatabaseMiddleman {
         return shopId;
     }
 
-    public long createItem(String name, long shopId, int quantity, boolean done) {
+    public long createItem(String name, long shopId, float quantity, boolean done) {
         ContentValues v = new ContentValues();
         v.put(ItemEntry.COLUMN_ITEM_NAME, name);
         v.put(ItemEntry.COLUMN_ITEM_SHOP_ID_FK, shopId);
@@ -208,7 +208,7 @@ public class DatabaseMiddleman {
         return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
     }
 
-    public boolean updateItem(long itemId, String itemName, int itemQuantity) {
+    public boolean updateItem(long itemId, String itemName, float itemQuantity) {
         ContentValues args = new ContentValues();
         args.put(ItemEntry.COLUMN_ITEM_NAME, itemName);
         args.put(ItemEntry.COLUMN_ITEM_QUANTITY, itemQuantity);

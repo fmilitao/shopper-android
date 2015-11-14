@@ -8,14 +8,14 @@
     <string name="SAVE">Save</string>
     <string name="LOAD">Load</string>
     <string name="TRANSFER">Transfer</string>
+    <string name="TRANSFER_TITLE">Transfer Item(s) To:</string>
 
     <string name="NEW_ITEM">New Item</string>
-    <string name="ITEM_QUANTITY">Quantity</string>
+    <string name="ITEM_QUANTITY">Quantity: 1</string>
     <string name="ITEM_NAME">Product Name</string>
 
     <string name="INCLUDE_CLIPBOARD">Include Clipboard</string>
     <string name="INCLUDE_ITEMS">Include %1$s Items</string>
-    <string name="PENDING_ITEMS">%1$d/%2$d</string>
 
     <string name="EDIT_LIST">Edit List Name</string>
     <string name="NEW_LIST">New List</string>
@@ -29,22 +29,23 @@
     <string name="LIST_RENAMED">Renamed %1$s to %2$s</string>
     <string name="LIST_RENAME_FAILED">Failed to renamed %1$s</string>
 
-    <string name="LIST_SORTED">List sorted</string>
-
     <string name="ITEM_TRANSFER">Transfer Item</string>
-    <string name="ITEM_ADDED">Item added: %1$s %2$d</string>
     <string name="ITEM_DELETED">Item deleted: %1$s</string>
+
+    <string name="ITEM_ADDED">Item added: %1$s %2$s</string>
+    <string name="ITEM_UPDATED">Item updated: %1$s %2$s</string>
 
     <string name="TRANSFER_FAIL">Nothing to transfer</string>
     <string name="ITEM_TRANSFERRED">Transferred %1$s item(s) from %2$s to %3$s</string>
     <string name="NEXT">Create Another</string>
-    <string name="ITEM_UPDATED">Item updated: %1$s %2$d</string>
+
+
     <string name="COPY_TO_CLIPBOARD">Copy To Clipboard</string>
     <string name="ITEMS_COPIED">Copied \'%1$s\' to clipboard</string>
     <string name="ITEMS_PASTED">Pasted \'%1$s\' from clipboard</string>
+
     <string name="SHAKE_FAIL">Nothing to undo.</string>
     <string name="SHAKE_UNDO">Undid deletion of \'%1$s\'.</string>
-
 
     <string name="FILE_NAME">File name</string>
     <string name="PICK_FILE">File Chooser</string>
@@ -53,7 +54,9 @@
     <string name="LOAD_DIALOG">Load from file</string>
     <string name="LOAD_CLIPBOARD">Load from clipboard</string>
     <string name="SAVE_CLIPBOARD">Copy to clipboard</string>
+
     <string name="SELECT_FILE">Select File</string>
+
     <string name="LOADED_FILE">Loaded: \'%1$s\'</string>
     <string name="ERROR_FILE">Error: \'%1$s\'</string>
     <string name="SAVED_FILE">Saved to \'%1$s\'</string>
