@@ -14,54 +14,68 @@ import java.util.regex.Pattern;
 
 public class Utilities {
 
+    static public final class Triple<A,B,C>{
+        final public A first;
+        final public B second;
+        final public C third;
+
+        public Triple(A a, B b, C c){
+            first = a;
+            second = b;
+            third = c;
+        }
+    }
+
+    // group numbers for pattern: "(1)(2(3))(4)"
+    static final Pattern PATTERN = Pattern.compile("(\\D+)(\\d+(\\.\\d+)?)(.*)");
+
     //
     // Import from clipboard
     //
 
-    static public List<Pair<String,Float>> parseProductList(String txt){
-        List<Pair<String,Float>> list = new LinkedList<>();
+    static public List<Triple<String,Float,String>> parseProductList(String txt){
+        List<Triple<String,Float,String>> list = new LinkedList<>();
         if( txt == null )
             return list;
 
         for(String s : txt.split("\n")){
             String name = s.trim();
             float quantity = 1;
+            String unit = null;
 
-            // ignores empty lines/strings
+            // ignores empty lines/strings, doesn't have a name
             if(name.length() <= 0)
                 continue;
 
-            // we must cycle through all names until list, since some could be invalid
-            // although the pattern should ensure that never occurs...
-            String left = name;
-            for(String d : name.split("\\D+")){ //FIXME: support decimal numbers
-                if( d.length() <= 0 )
-                    continue;
-                try {
-                    // cleans string
-                    d = d.trim();
-                    int tmp = Integer.parseInt(d);
-                    // ensures positive number
-                    quantity = Math.abs(tmp);
+            Matcher m = PATTERN.matcher(name);
 
-                    // attempts to remove number from string
-                    int last = name.lastIndexOf(d);
-                    String removed = name.substring(last,name.length());
-                    // if removed string contains words, better not remove it!
-                    Matcher matcher = Pattern.compile("[a-zA-Z]").matcher(removed);
-                    //Log.v("REMOVE", "\'"+removed + "\'" + matcher.find());
+            // if successful match
+            if( m.find() ) {
+                name = m.group(1).trim();
 
-                    if( !matcher.find() ){
-                        left = name.substring(0,last);
+                // does it have a quantity
+                if (m.groupCount() > 1) {
+                    try {
+                        quantity = Float.parseFloat(m.group(2).trim());
+                    } catch (NumberFormatException e) {
+                        // continues
                     }
 
-                }catch(NumberFormatException e){
-                    // continues to next one
+                    // does it have a unit?
+                    if (m.groupCount() > 3) {
+                        unit = m.group(4).trim();
+                        if( unit.length() == 0)
+                            unit = null;
+                    }
                 }
-            }
 
-            //Log.v("PARSER RESULT:", name+" :: "+left+" || "+quantity);
-            list.add(new Pair<>(left, quantity));
+                android.util.Log.v("PARSER ORIGINAL:", s);
+                android.util.Log.v("PARSER RESULT:", name + "|" + quantity + "|" + unit);
+
+                list.add(new Triple<>(name, quantity,unit));
+            }else {
+                android.util.Log.v("PARSER NO RESULT:", s);
+            }
         }
 
         return list;

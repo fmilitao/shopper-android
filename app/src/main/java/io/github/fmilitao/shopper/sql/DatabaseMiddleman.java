@@ -18,6 +18,7 @@ import io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery;
 import io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery;
 import io.github.fmilitao.shopper.sql.DBContract.ShopEntry;
 import io.github.fmilitao.shopper.sql.DBContract.ShopsQuery;
+import io.github.fmilitao.shopper.utils.Utilities;
 
 //TODO: consider protecting against sql injections.
 public class DatabaseMiddleman {
@@ -56,7 +57,7 @@ public class DatabaseMiddleman {
         return createShop(name,null);
     }
 
-    public long createShop(String name, List<Pair<String,Float>> items) {
+    public long createShop(String name, List<Utilities.Triple<String,Float,String>> items) {
         ContentValues v = new ContentValues();
         v.put(ShopEntry.COLUMN_SHOP_NAME, name);
         v.put(ShopEntry.COLUMN_DELETED, false);
@@ -64,8 +65,8 @@ public class DatabaseMiddleman {
 
         // creates items for the shop if provided
         if( items != null ) {
-            for (Pair<String, Float> item : items) {
-                createItem(item.first, shopId, item.second, false, null);
+            for (Utilities.Triple<String,Float,String> item : items) {
+                createItem(item.first, shopId, item.second, false, item.third);
             }
         }
 
@@ -145,11 +146,17 @@ public class DatabaseMiddleman {
         Cursor c = fetchShopItems(shopId);
         c.moveToFirst();
 
+        String unit;
         StringBuilder builder = new StringBuilder();
         do{
             builder.append(c.getString(SelectItemQuery.INDEX_NAME));
             builder.append(" ");
             builder.append(c.getString(SelectItemQuery.INDEX_QUANTITY));
+            unit = c.getString(SelectItemQuery.INDEX_UNIT);
+            if( unit != null ){
+                builder.append(" ");
+                builder.append(unit);
+            }
             builder.append("\n");
         }while( c.moveToNext() );
         c.close();
@@ -303,11 +310,12 @@ public class DatabaseMiddleman {
         }
     }
 
-    public void loadShopItems(List<Pair<String,Float>> lst, long shopId, Set<Long> set){
-        for(Pair<String,Float> p : lst ){
+    public void loadShopItems(List<Utilities.Triple<String,Float,String>> lst, long shopId, Set<Long> set){
+        for(Utilities.Triple<String,Float,String> p : lst ){
             String name = p.first;
             float quantity = p.second;
-            long res = createItem(name,shopId,quantity,false,null);
+            String unit = p.third;
+            long res = createItem(name,shopId,quantity,false,unit);
             if( res != -1 )
                 set.add(res);
         }

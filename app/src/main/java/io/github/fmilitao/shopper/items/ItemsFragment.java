@@ -304,7 +304,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             return true;
         }
         if( id == R.id.load_clipboard ){
-            final List<Pair<String,Float>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
+            final List<Utilities.Triple<String,Float,String>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
             if( tmp != null && !tmp.isEmpty()){
 
                 animateAdd(new ListAnimations.Runner() {
