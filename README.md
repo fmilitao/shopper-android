@@ -19,11 +19,8 @@ Features:
 
 ###Tasks
 
-- [x] allow decimal quantities
-- [ ] fix import/export of decimal quantities (Utilities), and units.
 - [ ] weird bug with some TextViews underlined red/blue ?!
 - [ ] allow tags, allow categories
-- [x] allow units
 - [ ] prettify lists/app (idea: show background fill as percentage of list completion, also mess with item count)
 - [ ] capture simple video/gif to show functionality
 - [ ] build release .apk and add it to github releases page, [see](http://stackoverflow.com/questions/18460774/how-to-set-up-gradle-and-android-studio-to-do-release-build).
