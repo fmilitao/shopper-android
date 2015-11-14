@@ -17,13 +17,12 @@ import io.github.fmilitao.shopper.sql.DBContract.ItemEntry;
 import io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery;
 import io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery;
 import io.github.fmilitao.shopper.sql.DBContract.ShopEntry;
-import io.github.fmilitao.shopper.sql.DBContract.SelectItemByIdQuery;
 import io.github.fmilitao.shopper.sql.DBContract.ShopsQuery;
 
 //TODO: consider protecting against sql injections.
 public class DatabaseMiddleman {
 
-    private static final String NONE = "none";
+    private static final String NONE = "<none>";
     private static final String TAG = DatabaseMiddleman.class.toString();
 
     private DatabaseHelper mDbHelper;

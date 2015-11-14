@@ -130,7 +130,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
                     // restores item use
                     item.setEnabled(true);
 
-                    final String name = text.getText().toString();
+                    final String name = text.getText().toString().trim();
                     if (name.length() > 0) {
 
                         animateAdd(new ListAnimations.Runner() {
@@ -271,7 +271,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         builder.setPositiveButton(R.string.UPDATE, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String newName = text.getText().toString();
+                String newName = text.getText().toString().trim();
                 if( mDb.renameShop(shopId,newName) ) {
                     mAdapter.changeCursor(mDb.fetchAllShops());
                     mAdapter.notifyDataSetChanged();

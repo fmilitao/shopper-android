@@ -117,8 +117,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
                 EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
-                final String p_name = n.getText().toString();
-                final String p_unit = u.getText().toString();
+                final String p_name = n.getText().toString().trim();
+                final String p_unit = u.getText().toString().trim();
 
                 // nothing to add
                 if( p_name.length() == 0 )
@@ -126,7 +126,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                 float qt = 1; // default quantity is '1'
                 try {
-                    qt = Float.parseFloat(q.getText().toString());
+                    qt = Float.parseFloat(q.getText().toString().trim());
                 } catch (NumberFormatException e) {
                     // ignores error
                 }
@@ -434,9 +434,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                final String p_name = n.getText().toString();
-                final float p_quantity = Float.parseFloat(q.getText().toString());
-                final String p_unit = u.getText().toString();
+                final String p_name = n.getText().toString().trim();
+                final float p_quantity = Float.parseFloat(q.getText().toString().trim());
+                final String p_unit = u.getText().toString().trim();
 
                 if (p_name.length() > 0 && (!p_name.equals(itemName) || p_quantity != itemQuantity
                         || !p_unit.equals(itemUnit)  )) {
