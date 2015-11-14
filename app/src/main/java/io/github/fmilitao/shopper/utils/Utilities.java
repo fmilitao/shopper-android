@@ -28,6 +28,8 @@ public class Utilities {
 
     // group numbers for pattern: "(1)(2(3))(4)"
     static final Pattern PATTERN = Pattern.compile("(\\D+)(\\d+(\\.\\d+)?)(.*)");
+    // indexes for 'name', 'quantity', 'unit'
+    static final int[] INDEX = {1,2,4};
 
     //
     // Import from clipboard
@@ -51,22 +53,25 @@ public class Utilities {
 
             // if successful match
             if( m.find() ) {
-                name = m.group(1).trim();
+
+                if( m.groupCount() >= INDEX[0] ) {
+                    name = m.group(INDEX[0]).trim();
+                }
 
                 // does it have a quantity
-                if (m.groupCount() > 1) {
+                if (m.groupCount() >= INDEX[1]) {
                     try {
-                        quantity = Float.parseFloat(m.group(2).trim());
+                        quantity = Float.parseFloat(m.group(INDEX[1]).trim());
                     } catch (NumberFormatException e) {
                         // continues
                     }
+                }
 
                     // does it have a unit?
-                    if (m.groupCount() > 3) {
-                        unit = m.group(4).trim();
-                        if( unit.length() == 0)
-                            unit = null;
-                    }
+                if (m.groupCount() >= INDEX[2]) {
+                    unit = m.group(INDEX[2]).trim();
+                    if( unit.length() == 0)
+                        unit = null;
                 }
 
                 android.util.Log.v("PARSER ORIGINAL:", s);

@@ -301,9 +301,11 @@ public class DatabaseMiddleman {
         sc.useDelimiter("(,)|(\\n+)");
         while( sc.hasNext() ) {
             String name = sc.next();
-            int quantity = Integer.parseInt(sc.next().trim());
+            float quantity = Float.parseFloat(sc.next().trim());
             boolean isDone = Boolean.parseBoolean(sc.next().trim());
             String unit = sc.next();
+            if( unit.equalsIgnoreCase("null") )
+                unit = null;
             long res = createItem(name,shopId,quantity,isDone,unit);
             if( res != -1 )
                 set.add(res);
