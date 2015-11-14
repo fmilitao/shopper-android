@@ -60,4 +60,5 @@
     <string name="LOADED_FILE">Loaded: \'%1$s\'</string>
     <string name="ERROR_FILE">Error: \'%1$s\'</string>
     <string name="SAVED_FILE">Saved to \'%1$s\'</string>
+    <string name="ITEM_UNIT">Unit: none</string>
 </resources>

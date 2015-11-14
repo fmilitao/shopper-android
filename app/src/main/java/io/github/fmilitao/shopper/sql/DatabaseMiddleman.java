@@ -17,12 +17,13 @@ import io.github.fmilitao.shopper.sql.DBContract.ItemEntry;
 import io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery;
 import io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery;
 import io.github.fmilitao.shopper.sql.DBContract.ShopEntry;
-import io.github.fmilitao.shopper.sql.DBContract.TransferItemQuery;
+import io.github.fmilitao.shopper.sql.DBContract.SelectItemByIdQuery;
 import io.github.fmilitao.shopper.sql.DBContract.ShopsQuery;
 
 //TODO: consider protecting against sql injections.
 public class DatabaseMiddleman {
 
+    private static final String NONE = "none";
     private static final String TAG = DatabaseMiddleman.class.toString();
 
     private DatabaseHelper mDbHelper;
@@ -56,7 +57,7 @@ public class DatabaseMiddleman {
         return createShop(name,null);
     }
 
-    public long createShop(String name, List<Pair<String,Integer>> items) {
+    public long createShop(String name, List<Pair<String,Float>> items) {
         ContentValues v = new ContentValues();
         v.put(ShopEntry.COLUMN_SHOP_NAME, name);
         v.put(ShopEntry.COLUMN_DELETED, false);
@@ -64,21 +65,25 @@ public class DatabaseMiddleman {
 
         // creates items for the shop if provided
         if( items != null ) {
-            for (Pair<String, Integer> item : items) {
-                createItem(item.first, shopId, item.second, false);
+            for (Pair<String, Float> item : items) {
+                createItem(item.first, shopId, item.second, false, null);
             }
         }
 
         return shopId;
     }
 
-    public long createItem(String name, long shopId, float quantity, boolean done) {
+    public long createItem(String name, long shopId, float quantity, boolean done, String unit) {
+        if( unit != null && ( NONE.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
+            unit = null;
+
         ContentValues v = new ContentValues();
         v.put(ItemEntry.COLUMN_ITEM_NAME, name);
         v.put(ItemEntry.COLUMN_ITEM_SHOP_ID_FK, shopId);
         v.put(ItemEntry.COLUMN_ITEM_QUANTITY, quantity);
         v.put(ItemEntry.COLUMN_ITEM_DONE, done);
         v.put(ItemEntry.COLUMN_DELETED, false);
+        v.put(ItemEntry.COLUMN_ITEM_UNIT, unit);
         return mDb.insert(ItemEntry.TABLE_NAME, null, v);
     }
 
@@ -154,10 +159,10 @@ public class DatabaseMiddleman {
     }
 
     public boolean transfer(long[] itemIds, long toShopId){
-        Log.v(TAG, TransferItemQuery.QUERY);
+        Log.v(TAG, SelectItemByIdQuery.QUERY);
 
         for(long id : itemIds ) {
-            Cursor c = mDb.rawQuery(TransferItemQuery.QUERY, new String[]{Long.toString(id)});
+            Cursor c = mDb.rawQuery(SelectItemByIdQuery.QUERY, new String[]{Long.toString(id)});
 
             if( c == null )
                 continue;
@@ -165,11 +170,12 @@ public class DatabaseMiddleman {
             c.moveToFirst();
 
             createItem(
-                    c.getString(TransferItemQuery.INDEX_NAME),
+                    c.getString(SelectItemByIdQuery.INDEX_NAME),
                     toShopId,
-                    c.getInt(TransferItemQuery.INDEX_QUANTITY),
+                    c.getInt(SelectItemByIdQuery.INDEX_QUANTITY),
                     // recall 0 is false, 1 is true
-                    c.getInt(TransferItemQuery.INDEX_IS_DONE) == 1
+                    c.getInt(SelectItemByIdQuery.INDEX_IS_DONE) == 1,
+                    c.getString(SelectItemByIdQuery.INDEX_UNIT)
             );
 
             // marks transferred item as deleted
@@ -203,15 +209,19 @@ public class DatabaseMiddleman {
         ContentValues args = new ContentValues();
         args.put(ShopEntry.COLUMN_SHOP_NAME, newName);
 
-        Log.v(TAG, " update: " + shopId + " "+ newName );
+        Log.v(TAG, " update: " + shopId + " " + newName);
 
         return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
     }
 
-    public boolean updateItem(long itemId, String itemName, float itemQuantity) {
+    public boolean updateItem(long itemId, String itemName, float itemQuantity, String unit) {
+        if( unit != null && ( NONE.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
+            unit = null;
+
         ContentValues args = new ContentValues();
         args.put(ItemEntry.COLUMN_ITEM_NAME, itemName);
         args.put(ItemEntry.COLUMN_ITEM_QUANTITY, itemQuantity);
+        args.put(ItemEntry.COLUMN_ITEM_UNIT, unit);
 
         return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
     }
@@ -219,7 +229,7 @@ public class DatabaseMiddleman {
     public boolean updateShopDeleted(long shopId, boolean value) {
         ContentValues args = new ContentValues();
         args.put(ShopEntry.COLUMN_DELETED, value);
-        Log.v(TAG, " deleted: " + shopId+ " << " + value);
+        Log.v(TAG, " deleted: " + shopId + " << " + value);
         return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
     }
 
@@ -228,6 +238,27 @@ public class DatabaseMiddleman {
         args.put(ItemEntry.COLUMN_DELETED, value);
         Log.v(TAG, " deleted: " + itemId+ " << " + value);
         return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
+    }
+
+    public String[] getAllUnits(){
+        Log.v(TAG, " Units: " + DBContract.UnitsQuery.QUERY);
+
+        Cursor c = mDb.rawQuery(DBContract.UnitsQuery.QUERY, null);
+        c.moveToFirst();
+
+        String[] res;
+        if( c.getCount() > 0 ) {
+            res = new String[c.getCount() + 1];
+            int i = 0;
+            res[i++] = NONE;
+            do {
+                res[i++] = c.getString(DBContract.UnitsQuery.INDEX_NAME);
+            } while (c.moveToNext());
+        }else{
+            res = new String[]{NONE};
+        }
+        c.close();
+        return res;
     }
 
     //
@@ -240,15 +271,15 @@ public class DatabaseMiddleman {
         long first;
 
         first = id = createShop("Jumbo");
-        createItem("Bananas", id, 10, false);
-        createItem("Batatas", id, 2, false);
-        createItem("Peixe", id, 7, true);
+        createItem("Bananas", id, 10, false,null);
+        createItem("Batatas", id, 2, false,null);
+        createItem("Peixe", id, 7, true,null);
 
         id = createShop("LIDL");
-        createItem("Queijo", id, 11, false);
-        createItem("Leite", id, 22, false);
-        createItem("Pao", id, 1, false);
-        createItem("Manteiga", id, 1, false);
+        createItem("Queijo", id, 11, false,null);
+        createItem("Leite", id, 22, false,null);
+        createItem("Pao", id, 1, false,null);
+        createItem("Manteiga", id, 1, false,null);
 
         createShop("Continente");
         createShop("ALDI");
@@ -273,7 +304,9 @@ public class DatabaseMiddleman {
                     + "," +
                     c.getString(SelectItemQuery.INDEX_QUANTITY)
                     + "," +
-                    Boolean.toString( c.getInt(SelectItemQuery.INDEX_IS_DONE) != 0 )
+                    Boolean.toString(c.getInt(SelectItemQuery.INDEX_IS_DONE) != 0)
+                    + "," +
+                    c.getString(SelectItemQuery.INDEX_UNIT)
             );
 
         }while( c.moveToNext() );
@@ -285,18 +318,19 @@ public class DatabaseMiddleman {
         while( sc.hasNext() ) {
             String name = sc.next();
             int quantity = Integer.parseInt(sc.next().trim());
-            boolean isDone = Boolean.parseBoolean( sc.next().trim() );
-            long res = createItem(name,shopId,quantity,isDone);
+            boolean isDone = Boolean.parseBoolean(sc.next().trim());
+            String unit = sc.next();
+            long res = createItem(name,shopId,quantity,isDone,unit);
             if( res != -1 )
                 set.add(res);
         }
     }
 
-    public void loadShopItems(List<Pair<String,Integer>> lst, long shopId, Set<Long> set){
-        for(Pair<String,Integer> p : lst ){
+    public void loadShopItems(List<Pair<String,Float>> lst, long shopId, Set<Long> set){
+        for(Pair<String,Float> p : lst ){
             String name = p.first;
-            int quantity = p.second;
-            long res = createItem(name,shopId,quantity,false);
+            float quantity = p.second;
+            long res = createItem(name,shopId,quantity,false,null);
             if( res != -1 )
                 set.add(res);
         }

@@ -18,14 +18,14 @@ public class Utilities {
     // Import from clipboard
     //
 
-    static public List<Pair<String,Integer>> parseProductList(String txt){
-        List<Pair<String,Integer>> list = new LinkedList<>();
+    static public List<Pair<String,Float>> parseProductList(String txt){
+        List<Pair<String,Float>> list = new LinkedList<>();
         if( txt == null )
             return list;
 
         for(String s : txt.split("\n")){
             String name = s.trim();
-            int quantity = 1;
+            float quantity = 1;
 
             // ignores empty lines/strings
             if(name.length() <= 0)

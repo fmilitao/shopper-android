@@ -2,30 +2,48 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:layout_gravity="center"
-    android:padding="15dp"
-    android:background="@color/NORMAL_BACK"
+    android:layout_marginBottom="5dp"
     android:layout_marginTop="5dp"
-    android:layout_marginBottom="5dp" >
+    android:background="@color/NORMAL_BACK"
+    android:orientation="horizontal"
+    android:padding="15dp">
 
     <TextView
         android:id="@+id/item_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:textColor="#000000"
-        android:textSize="16sp"
+        android:gravity="center_vertical"
         android:text="Potatos"
-        />
-
-    <TextView
-        android:id="@+id/item_quantity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="123"
         android:textColor="#000000"
-        android:textSize="16sp"
-        />
+        android:textSize="17sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/item_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="123"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/item_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bags"
+            android:textColor="#000000"
+            android:textSize="13sp"
+            android:visibility="gone"
+            android:textStyle="italic" />
+
+    </LinearLayout>
 
 </LinearLayout>

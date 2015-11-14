@@ -105,13 +105,13 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             final CheckBox box = (CheckBox) root.findViewById(R.id.dialog_shop_clipboard);
             final EditText text = (EditText) root.findViewById(R.id.dialog_shop_name);
 
-            final List<Pair<String,Integer>> list = new LinkedList<>();
+            final List<Pair<String,Float>> list = new LinkedList<>();
 
             box.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (box.isChecked()) {
-                        List<Pair<String,Integer>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
+                        List<Pair<String,Float>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
                         if (tmp != null) {
                             list.addAll(tmp);
                             box.setText(format(R.string.INCLUDE_ITEMS, tmp.size()));

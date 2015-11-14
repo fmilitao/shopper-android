@@ -19,4 +19,11 @@
         android:hint="@string/ITEM_QUANTITY"
         />
 
+    <io.github.fmilitao.shopper.utils.InstantAutoCompleteTextView
+        android:id="@+id/dialog_product_unit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/ITEM_UNIT"
+        />
+
 </LinearLayout>
