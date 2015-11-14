@@ -258,11 +258,13 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                         animateDelete(new Runnable() {
                             @Override
                             public void run() {
-                                if( mDb.transfer(transfers,toShopId) ) {
-                                    // no need to animate since order did not change
-                                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                                    mAdapter.notifyDataSetChanged();
+                                for(long id : transfers) {
+                                    mDb.updateItemShopId(id,toShopId);
                                 }
+
+                                // no need to animate since order did not change
+                                mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                                mAdapter.notifyDataSetChanged();
                             }
                         }, transfers);
 

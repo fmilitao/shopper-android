@@ -158,35 +158,6 @@ public class DatabaseMiddleman {
         return builder.toString();
     }
 
-    public boolean transfer(long[] itemIds, long toShopId){
-        Log.v(TAG, SelectItemByIdQuery.QUERY);
-
-        for(long id : itemIds ) {
-            Cursor c = mDb.rawQuery(SelectItemByIdQuery.QUERY, new String[]{Long.toString(id)});
-
-            if( c == null )
-                continue;
-
-            c.moveToFirst();
-
-            createItem(
-                    c.getString(SelectItemByIdQuery.INDEX_NAME),
-                    toShopId,
-                    c.getInt(SelectItemByIdQuery.INDEX_QUANTITY),
-                    // recall 0 is false, 1 is true
-                    c.getInt(SelectItemByIdQuery.INDEX_IS_DONE) == 1,
-                    c.getString(SelectItemByIdQuery.INDEX_UNIT)
-            );
-
-            // marks transferred item as deleted
-            updateItemDeleted(id, true);
-
-            c.close();
-        }
-
-        return true;
-    }
-
     public Pair<Long,String>[] makeAllShopPair(){
         Cursor c = mDb.rawQuery(ShopsQuery.QUERY, null);
         c.moveToFirst();
@@ -222,6 +193,13 @@ public class DatabaseMiddleman {
         args.put(ItemEntry.COLUMN_ITEM_NAME, itemName);
         args.put(ItemEntry.COLUMN_ITEM_QUANTITY, itemQuantity);
         args.put(ItemEntry.COLUMN_ITEM_UNIT, unit);
+
+        return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
+    }
+
+    public boolean updateItemShopId(long itemId, long shopId) {
+        ContentValues args = new ContentValues();
+        args.put(ItemEntry.COLUMN_ITEM_SHOP_ID_FK, shopId);
 
         return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
     }
