@@ -34,6 +34,7 @@ public class Utilities {
     static final Pattern PATTERN = Pattern.compile("(\\D+)(\\d+(\\.\\d+)?)(.*)");
     // indexes for 'name', 'quantity', 'unit'
     static final int[] INDEX = {1,2,4};
+    // FIXME: this is ready to include additional PATTERNs
 
 
     //TODO: alternative http://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors

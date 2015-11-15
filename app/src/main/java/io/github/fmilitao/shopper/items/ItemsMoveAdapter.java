@@ -18,6 +18,7 @@ import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_IS
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
 
+// FIXME: does not display units nor category
 public class ItemsMoveAdapter extends CursorAdapter {
 
     final Long[] set;

@@ -21,16 +21,18 @@ import io.github.fmilitao.shopper.sql.DBContract.ShopsQuery;
 import io.github.fmilitao.shopper.utils.Utilities;
 
 //TODO: consider protecting against sql injections.
+//FIXME: 'getWritableDatabase' should be moved off the main thread, use AsyncTask?
 public class DatabaseMiddleman {
 
     private static final String NONE = "<none>";
     private static final String DEFAULT = "<default>";
+    private static final String NULL_STR = "null";
     private static final String TAG = DatabaseMiddleman.class.toString();
 
-    private DatabaseHelper mDbHelper;
-    private SQLiteDatabase mDb;
 
     private final Context mCtx;
+    private DatabaseHelper mDbHelper;
+    private SQLiteDatabase mDb;
 
     public DatabaseMiddleman(Context ctx) {
         this.mCtx = ctx;
@@ -40,7 +42,6 @@ public class DatabaseMiddleman {
         if( mDb == null && mDbHelper == null ) {
             mDbHelper = new DatabaseHelper(mCtx);
             // always uses the same writable database, even when reading
-            // FIXME: this should be moved off the main thread, use AsyncTask?
             mDb = mDbHelper.getWritableDatabase();
         }
     }
@@ -54,9 +55,9 @@ public class DatabaseMiddleman {
         }
     }
 
-    public long createShop(String name) {
-        return createShop(name,null);
-    }
+    //
+    // Shops
+    //
 
     public long createShop(String name, List<Utilities.Triple<String,Float,String>> items) {
         ContentValues v = new ContentValues();
@@ -73,6 +74,43 @@ public class DatabaseMiddleman {
 
         return shopId;
     }
+
+    public boolean renameShop(long shopId, String newName) {
+        ContentValues args = new ContentValues();
+        args.put(ShopEntry.COLUMN_SHOP_NAME, newName);
+
+        Log.v(TAG, " update: " + shopId + " " + newName);
+
+        return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
+    }
+
+    public Cursor fetchAllShops() {
+        Log.v(TAG, JoinShopItemQuery.QUERY);
+
+        Cursor c = mDb.rawQuery(JoinShopItemQuery.QUERY, null);
+
+        if (c != null) {
+            c.moveToFirst();
+        }
+        return c;
+    }
+
+    public boolean gcShops() {
+        int count = mDb.delete(ShopEntry.TABLE_NAME, ShopEntry.COLUMN_DELETED + "= 1", null);
+        Log.v(TAG, "shops.gc=" + count);
+        return count > 0;
+    }
+
+    public boolean updateShopDeleted(long shopId, boolean value) {
+        ContentValues args = new ContentValues();
+        args.put(ShopEntry.COLUMN_DELETED, value);
+        Log.v(TAG, " deleted: " + shopId + " << " + value);
+        return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
+    }
+
+    //
+    // Items
+    //
 
     public long createItem(String name, long shopId, float quantity, boolean done, String unit, String category) {
         if( unit != null && ( NONE.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
@@ -91,29 +129,6 @@ public class DatabaseMiddleman {
         return mDb.insert(ItemEntry.TABLE_NAME, null, v);
     }
 
-    public boolean deleteAll() {
-        int doneDelete;
-
-        doneDelete = mDb.delete(ItemEntry.TABLE_NAME, null, null);
-        Log.v(TAG, Integer.toString(doneDelete));
-
-        doneDelete += mDb.delete(ShopEntry.TABLE_NAME, null, null);
-        Log.v(TAG, Integer.toString(doneDelete));
-
-        return doneDelete > 0;
-    }
-
-    public Cursor fetchAllShops() {
-        Log.v(TAG, JoinShopItemQuery.QUERY);
-
-        Cursor c = mDb.rawQuery(JoinShopItemQuery.QUERY, null);
-
-        if (c != null) {
-            c.moveToFirst();
-        }
-        return c;
-    }
-
     public Cursor fetchShopItems(long shopId) {
         Log.v(TAG, SelectItemQuery.QUERY);
 
@@ -123,12 +138,6 @@ public class DatabaseMiddleman {
             c.moveToFirst();
         }
         return c;
-    }
-
-    public boolean gcShops() {
-        int count = mDb.delete(ShopEntry.TABLE_NAME, ShopEntry.COLUMN_DELETED + "= 1", null);
-        Log.v(TAG, "shops.gc=" + count);
-        return count > 0;
     }
 
     public boolean gcItems() {
@@ -161,6 +170,7 @@ public class DatabaseMiddleman {
                 builder.append(" ");
                 builder.append(unit);
             }
+            // FIXME: should this also include category?
             builder.append("\n");
         }while( c.moveToNext() );
         c.close();
@@ -186,15 +196,6 @@ public class DatabaseMiddleman {
         return res;
     }
 
-    public boolean renameShop(long shopId, String newName) {
-        ContentValues args = new ContentValues();
-        args.put(ShopEntry.COLUMN_SHOP_NAME, newName);
-
-        Log.v(TAG, " update: " + shopId + " " + newName);
-
-        return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
-    }
-
     public boolean updateItem(long itemId, String itemName, float itemQuantity, String unit, String category) {
         if( unit != null && ( NONE.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
             unit = null;
@@ -217,19 +218,16 @@ public class DatabaseMiddleman {
         return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
     }
 
-    public boolean updateShopDeleted(long shopId, boolean value) {
-        ContentValues args = new ContentValues();
-        args.put(ShopEntry.COLUMN_DELETED, value);
-        Log.v(TAG, " deleted: " + shopId + " << " + value);
-        return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
-    }
-
     public boolean updateItemDeleted(long itemId, boolean value) {
         ContentValues args = new ContentValues();
         args.put(ItemEntry.COLUMN_DELETED, value);
         Log.v(TAG, " deleted: " + itemId+ " << " + value);
         return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
     }
+
+    //
+    // Units
+    //
 
     public String[] getAllUnits(){
         Log.v(TAG, " Units: " + DBContract.UnitsQuery.QUERY);
@@ -251,6 +249,10 @@ public class DatabaseMiddleman {
         c.close();
         return res;
     }
+
+    //
+    // Categories
+    //
 
     public String[] getAllCategories(){
         // FIXME: default categories?
@@ -274,34 +276,6 @@ public class DatabaseMiddleman {
         return res;
     }
 
-
-    //
-    // Populate Tables
-    //
-
-    public long insertSomeValues() {
-
-        long id;
-        long first;
-
-        first = id = createShop("Jumbo");
-        createItem("Bananas", id, 10, false,null,null);
-        createItem("Batatas", id, 2, false,null,null);
-        createItem("Peixe", id, 7, true,null,null);
-
-        id = createShop("LIDL");
-        createItem("Queijo", id, 11, false,null,null);
-        createItem("Leite", id, 22, false,null,null);
-        createItem("Pao", id, 1, false,null,null);
-        createItem("Manteiga", id, 1, false,null,null);
-
-        createShop("Continente");
-        createShop("ALDI");
-        createShop("Test 123");
-
-        return first;
-    }
-
     //
     // I/O storing
     //
@@ -313,14 +287,14 @@ public class DatabaseMiddleman {
         c.moveToFirst();
         do{
             out.println(
-                    // removes any chance of collision with ','
-                    c.getString(SelectItemQuery.INDEX_NAME).replace(',', ' ')
-                    + "," +
-                    c.getString(SelectItemQuery.INDEX_QUANTITY)
-                    + "," +
-                    Boolean.toString(c.getInt(SelectItemQuery.INDEX_IS_DONE) != 0)
-                    + "," +
-                    c.getString(SelectItemQuery.INDEX_UNIT)
+                // removes any chance of collision with ','
+                c.getString(SelectItemQuery.INDEX_NAME).replace(',', ' ')
+                + "," +
+                c.getString(SelectItemQuery.INDEX_QUANTITY)
+                + "," +
+                Boolean.toString(c.getInt(SelectItemQuery.INDEX_IS_DONE) != 0)
+                + "," +
+                c.getString(SelectItemQuery.INDEX_UNIT).replace(',', ' ')
             );
 
         }while( c.moveToNext() );
@@ -334,10 +308,10 @@ public class DatabaseMiddleman {
             float quantity = Float.parseFloat(sc.next().trim());
             boolean isDone = Boolean.parseBoolean(sc.next().trim());
             String unit = sc.next();
-            if( unit.equalsIgnoreCase("null") )
+            if( unit.equalsIgnoreCase(NULL_STR) )
                 unit = null;
             String category = sc.next();
-            if( category.equalsIgnoreCase("null") )
+            if( category.equalsIgnoreCase(NULL_STR) )
                 category = null;
             long res = createItem(name,shopId,quantity,isDone,unit,category);
             if( res != -1 )
