@@ -7,7 +7,7 @@ public interface DBContract {
     // note in SQLite 'false' is '0' and 'true' is '1'
 
     String DATABASE_NAME = "shopper.db";
-    int DATABASE_VERSION = 13;
+    int DATABASE_VERSION = 14;
 
     interface ShopEntry extends BaseColumns {
         String TABLE_NAME = "shops";
@@ -25,6 +25,7 @@ public interface DBContract {
         String COLUMN_ITEM_SHOP_ID_FK = "shop_id";
         String COLUMN_DELETED = "deleted";
         String COLUMN_ITEM_UNIT = "item_unit";
+        String COLUMN_ITEM_CATEGORY = "item_category";
     }
 
     //
@@ -74,11 +75,14 @@ public interface DBContract {
                 ItemEntry.COLUMN_ITEM_NAME+", "+
                 ItemEntry.COLUMN_ITEM_QUANTITY+", "+
                 ItemEntry.COLUMN_ITEM_DONE+", "+
-                ItemEntry.COLUMN_ITEM_UNIT +" "+
+                ItemEntry.COLUMN_ITEM_UNIT +", "+
+                ItemEntry.COLUMN_ITEM_CATEGORY +" "+
                 " FROM " + ItemEntry.TABLE_NAME + " WHERE " +
                 ItemEntry.COLUMN_DELETED + " = 0 AND " +
                 ItemEntry.COLUMN_ITEM_SHOP_ID_FK + "=? ORDER BY " +
-                ItemEntry.COLUMN_ITEM_DONE + ", " + ItemEntry.COLUMN_ITEM_NAME + " COLLATE NOCASE ;";
+                    ItemEntry.COLUMN_ITEM_DONE + ", " +
+                    ItemEntry.COLUMN_ITEM_CATEGORY + ", "+
+                    ItemEntry.COLUMN_ITEM_NAME + " COLLATE NOCASE ;";
 
         // indexes of query above, if order above changes so must the values below
         int INDEX_ID = 0;
@@ -86,24 +90,7 @@ public interface DBContract {
         int INDEX_QUANTITY = 2;
         int INDEX_IS_DONE = 3;
         int INDEX_UNIT = 4;
-    }
-
-    interface SelectItemByIdQuery {
-        String QUERY = "SELECT " +
-                ItemEntry._ID+", "+
-                ItemEntry.COLUMN_ITEM_NAME+", "+
-                ItemEntry.COLUMN_ITEM_QUANTITY+", "+
-                ItemEntry.COLUMN_ITEM_DONE+", "+
-                ItemEntry.COLUMN_ITEM_UNIT +" "+
-                " FROM " + ItemEntry.TABLE_NAME + " WHERE " +
-                ItemEntry._ID+ " =? ;";
-
-        // indexes of query above, if order above changes so must the values below
-        int INDEX_ID = 0;
-        int INDEX_NAME = 1;
-        int INDEX_QUANTITY = 2;
-        int INDEX_IS_DONE = 3;
-        int INDEX_UNIT = 4;
+        int INDEX_CATEGORY = 5;
     }
 
     interface ShopsQuery {
@@ -127,6 +114,16 @@ public interface DBContract {
         int INDEX_NAME = 0;
     }
 
+    interface CategoryQuery {
+        String QUERY = "SELECT DISTINCT " +
+                ItemEntry.COLUMN_ITEM_CATEGORY+
+                " FROM  " + ItemEntry.TABLE_NAME +
+                " WHERE " + ItemEntry.COLUMN_ITEM_CATEGORY + " IS NOT NULL "+
+                " ORDER BY "+ItemEntry.COLUMN_ITEM_CATEGORY +" ;";
+
+        int INDEX_NAME = 0;
+    }
+
     //
     // creation queries
     //
@@ -145,6 +142,7 @@ public interface DBContract {
             ItemEntry.COLUMN_ITEM_DONE + " BOOLEAN NOT NULL, " +
             ItemEntry.COLUMN_DELETED + " BOOLEAN NOT NULL, " +
             ItemEntry.COLUMN_ITEM_UNIT + " TEXT, " +
+            ItemEntry.COLUMN_ITEM_CATEGORY + " TEXT, " +
             "FOREIGN KEY (" + ItemEntry.COLUMN_ITEM_SHOP_ID_FK + ") REFERENCES " +
             ShopEntry.TABLE_NAME + " (" + ShopEntry._ID + ") " +
             " );";

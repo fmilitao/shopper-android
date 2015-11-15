@@ -24,6 +24,7 @@ import io.github.fmilitao.shopper.utils.Utilities;
 public class DatabaseMiddleman {
 
     private static final String NONE = "<none>";
+    private static final String DEFAULT = "<default>";
     private static final String TAG = DatabaseMiddleman.class.toString();
 
     private DatabaseHelper mDbHelper;
@@ -66,16 +67,18 @@ public class DatabaseMiddleman {
         // creates items for the shop if provided
         if( items != null ) {
             for (Utilities.Triple<String,Float,String> item : items) {
-                createItem(item.first, shopId, item.second, false, item.third);
+                createItem(item.first, shopId, item.second, false, item.third,null);
             }
         }
 
         return shopId;
     }
 
-    public long createItem(String name, long shopId, float quantity, boolean done, String unit) {
+    public long createItem(String name, long shopId, float quantity, boolean done, String unit, String category) {
         if( unit != null && ( NONE.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
             unit = null;
+        if( category != null && ( DEFAULT.equalsIgnoreCase(category) || category.length() <= 0  ) )
+            category = null;
 
         ContentValues v = new ContentValues();
         v.put(ItemEntry.COLUMN_ITEM_NAME, name);
@@ -84,6 +87,7 @@ public class DatabaseMiddleman {
         v.put(ItemEntry.COLUMN_ITEM_DONE, done);
         v.put(ItemEntry.COLUMN_DELETED, false);
         v.put(ItemEntry.COLUMN_ITEM_UNIT, unit);
+        v.put(ItemEntry.COLUMN_ITEM_CATEGORY, category);
         return mDb.insert(ItemEntry.TABLE_NAME, null, v);
     }
 
@@ -191,14 +195,17 @@ public class DatabaseMiddleman {
         return mDb.update(ShopEntry.TABLE_NAME, args, ShopEntry._ID + "=" + shopId, null) > 0;
     }
 
-    public boolean updateItem(long itemId, String itemName, float itemQuantity, String unit) {
+    public boolean updateItem(long itemId, String itemName, float itemQuantity, String unit, String category) {
         if( unit != null && ( NONE.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
             unit = null;
+        if( category != null && ( DEFAULT.equalsIgnoreCase(category) || category.length() <= 0  ) )
+            category = null;
 
         ContentValues args = new ContentValues();
         args.put(ItemEntry.COLUMN_ITEM_NAME, itemName);
         args.put(ItemEntry.COLUMN_ITEM_QUANTITY, itemQuantity);
         args.put(ItemEntry.COLUMN_ITEM_UNIT, unit);
+        args.put(ItemEntry.COLUMN_ITEM_CATEGORY, category);
 
         return mDb.update(ItemEntry.TABLE_NAME, args, ItemEntry._ID + "=" + itemId, null) > 0;
     }
@@ -245,6 +252,29 @@ public class DatabaseMiddleman {
         return res;
     }
 
+    public String[] getAllCategories(){
+        // FIXME: default categories?
+        Log.v(TAG, " Units: " + DBContract.CategoryQuery.QUERY);
+
+        Cursor c = mDb.rawQuery(DBContract.CategoryQuery.QUERY, null);
+        c.moveToFirst();
+
+        String[] res;
+        if( c.getCount() > 0 ) {
+            res = new String[c.getCount() + 1];
+            int i = 0;
+            res[i++] = DEFAULT;
+            do {
+                res[i++] = c.getString(DBContract.CategoryQuery.INDEX_NAME);
+            } while (c.moveToNext());
+        }else{
+            res = new String[]{DEFAULT};
+        }
+        c.close();
+        return res;
+    }
+
+
     //
     // Populate Tables
     //
@@ -255,15 +285,15 @@ public class DatabaseMiddleman {
         long first;
 
         first = id = createShop("Jumbo");
-        createItem("Bananas", id, 10, false,null);
-        createItem("Batatas", id, 2, false,null);
-        createItem("Peixe", id, 7, true,null);
+        createItem("Bananas", id, 10, false,null,null);
+        createItem("Batatas", id, 2, false,null,null);
+        createItem("Peixe", id, 7, true,null,null);
 
         id = createShop("LIDL");
-        createItem("Queijo", id, 11, false,null);
-        createItem("Leite", id, 22, false,null);
-        createItem("Pao", id, 1, false,null);
-        createItem("Manteiga", id, 1, false,null);
+        createItem("Queijo", id, 11, false,null,null);
+        createItem("Leite", id, 22, false,null,null);
+        createItem("Pao", id, 1, false,null,null);
+        createItem("Manteiga", id, 1, false,null,null);
 
         createShop("Continente");
         createShop("ALDI");
@@ -306,7 +336,10 @@ public class DatabaseMiddleman {
             String unit = sc.next();
             if( unit.equalsIgnoreCase("null") )
                 unit = null;
-            long res = createItem(name,shopId,quantity,isDone,unit);
+            String category = sc.next();
+            if( category.equalsIgnoreCase("null") )
+                category = null;
+            long res = createItem(name,shopId,quantity,isDone,unit,category);
             if( res != -1 )
                 set.add(res);
         }
@@ -317,7 +350,7 @@ public class DatabaseMiddleman {
             String name = p.first;
             float quantity = p.second;
             String unit = p.third;
-            long res = createItem(name,shopId,quantity,false,unit);
+            long res = createItem(name,shopId,quantity,false,unit,null);
             if( res != -1 )
                 set.add(res);
         }

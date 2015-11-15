@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import io.github.fmilitao.shopper.R;
 
+import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_CATEGORY;
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
@@ -55,35 +56,44 @@ public class ItemsAdapter extends CursorAdapter {
 
         boolean isDone = cursor.getInt(INDEX_IS_DONE) != 0;
 
+        String category = cursor.getString(INDEX_CATEGORY);
+        if( !isDone && category != null  ){
+            viewHolder.mItemCategory.setVisibility(View.VISIBLE);
+            viewHolder.mItemCategory.setText(category);
+        }else{
+            viewHolder.mItemCategory.setVisibility(View.GONE);
+        }
+
         if( isDone ){
             viewHolder.mItemName.setPaintFlags(viewHolder.mItemName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            viewHolder.mItemName.setTextColor(Color.GRAY);
 
-//            viewHolder.mItemQuantity.setPaintFlags(viewHolder.mItemQuantity.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            viewHolder.mItemName.setTextColor(Color.GRAY);
             viewHolder.mItemQuantity.setTextColor(Color.GRAY);
             viewHolder.mItemUnit.setTextColor(Color.GRAY);
 
+            view.setAlpha(0.5f);
             view.setBackgroundColor(Color.LTGRAY);
         }else{
             viewHolder.mItemName.setPaintFlags(viewHolder.mFlags);
-            viewHolder.mItemName.setTextColor(viewHolder.mTextColor);
 
-//            viewHolder.mItemQuantity.setPaintFlags(viewHolder.mFlags);
+            viewHolder.mItemName.setTextColor(viewHolder.mTextColor);
             viewHolder.mItemQuantity.setTextColor(viewHolder.mTextColor);
             viewHolder.mItemUnit.setTextColor(viewHolder.mTextColor);
 
+            view.setAlpha(1);
             view.setBackgroundColor(Color.WHITE);
         }
     }
 
     private static class ViewHolder {
-        public final TextView mItemName, mItemQuantity, mItemUnit;
+        public final TextView mItemName, mItemQuantity, mItemUnit, mItemCategory;
         public final int mTextColor, mFlags;
 
         public ViewHolder(View view) {
             mItemName = (TextView) view.findViewById(R.id.item_name);
             mItemQuantity = (TextView) view.findViewById(R.id.item_quantity);
             mItemUnit = (TextView) view.findViewById(R.id.item_unit);
+            mItemCategory = (TextView) view.findViewById(R.id.item_category);
 
             mTextColor  = mItemName.getCurrentTextColor();
             mFlags = mItemName.getPaintFlags();

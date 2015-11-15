@@ -11,8 +11,11 @@ import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.widget.CursorAdapter;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +29,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -93,8 +97,12 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         inflater.inflate(R.menu.items_menu, menu);
     }
 
-    protected String[] getAutoComplete(){
+    protected String[] getAutoCompleteUnit(){
         return mDb.getAllUnits();
+    }
+
+    protected String[] getAutoCompleteCategory(){
+        return mDb.getAllCategories();
     }
 
     protected void addItem(final MenuItem item){
@@ -105,7 +113,44 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final View root = inflater.inflate(R.layout.item_create_dialog, null);
 
         final AutoCompleteTextView u = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_unit);
-        u.setAdapter(new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoComplete()));
+        final ArrayAdapter adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoCompleteUnit());
+        u.setAdapter(adapter);
+
+        //
+        // FIXME: testing
+        //
+
+        final AutoCompleteTextView c = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_category);
+        final String[] array = getAutoCompleteCategory();
+        final ArrayAdapter a = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line, array){
+//            @Override
+//            public View getView(int position, View convertView, ViewGroup parent) {
+//                View s = super.getView(position, convertView, parent);
+//                s.setBackgroundColor(Utilities.color(getContext(),array[position]));
+//                return s;
+//            }
+        };
+        c.setAdapter(a);
+//        c.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//                // intentionally empty
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                // intentionally empty
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                c.setBackgroundColor(Utilities.color(getContext(),u.getText().toString()));
+//            }
+//        });
+
+        //
+        // ========
+        //
 
         builder.setTitle(R.string.NEW_ITEM);
         builder.setView(root);
@@ -119,36 +164,37 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                 final String p_name = n.getText().toString().trim();
                 final String p_unit = u.getText().toString().trim();
+                final String p_cat = c.getText().toString().trim();
 
-                // nothing to add
-                if( p_name.length() == 0 )
-                    return;
+                // something to add
+                if( p_name.length() > 0 ) {
 
-                float qt = 1; // default quantity is '1'
-                try {
-                    qt = Float.parseFloat(q.getText().toString().trim());
-                } catch (NumberFormatException e) {
-                    // ignores error
-                }
-
-                final float p_quantity = qt;
-
-                animateAdd(new ListAnimations.Runner() {
-                    @Override
-                    public void run(Set<Long> set) {
-                        long newItem = mDb.createItem(p_name, mShopId, p_quantity, false,p_unit);
-                        if (newItem > 0) {
-                            set.add(newItem);
-                            mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                            mAdapter.notifyDataSetChanged();
-                        }
+                    float qt = 1; // default quantity is '1'
+                    try {
+                        qt = Float.parseFloat(q.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        // ignores error
                     }
-                });
+
+                    final float p_quantity = qt;
+
+                    animateAdd(new ListAnimations.Runner() {
+                        @Override
+                        public void run(Set<Long> set) {
+                            long newItem = mDb.createItem(p_name, mShopId, p_quantity, false, p_unit,p_cat);
+                            if (newItem > 0) {
+                                set.add(newItem);
+                                mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                                mAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+
+                    popUp(format(R.string.ITEM_ADDED, p_name, Float.toString(p_quantity)));
+                }
 
                 // ok to re-enable on first create because item is not visible anyway
                 item.setEnabled(true);
-                popUp(format(R.string.ITEM_ADDED, p_name, Float.toString(p_quantity)));
-
             }
         };
 
@@ -404,12 +450,13 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     @Override
     public void onLongClick(ListView listView, View view) {
         final int position = listView.getPositionForView(view);
-        final Cursor c = (Cursor) listView.getItemAtPosition(position);
-        final long itemId = c.getLong(DBContract.SelectItemQuery.INDEX_ID);
-        final String itemName = c.getString(DBContract.SelectItemQuery.INDEX_NAME);
-        final float itemQuantity = c.getFloat(DBContract.SelectItemQuery.INDEX_QUANTITY);
-        final String itemQuantityStr = c.getString(DBContract.SelectItemQuery.INDEX_QUANTITY);
-        final String itemUnit = c.getString(DBContract.SelectItemQuery.INDEX_UNIT);
+        final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
+        final long itemId = cursor.getLong(DBContract.SelectItemQuery.INDEX_ID);
+        final String itemName = cursor.getString(DBContract.SelectItemQuery.INDEX_NAME);
+        final float itemQuantity = cursor.getFloat(DBContract.SelectItemQuery.INDEX_QUANTITY);
+        final String itemQuantityStr = cursor.getString(DBContract.SelectItemQuery.INDEX_QUANTITY);
+        final String itemUnit = cursor.getString(DBContract.SelectItemQuery.INDEX_UNIT);
+        final String itemCategory = cursor.getString(DBContract.SelectItemQuery.INDEX_CATEGORY);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -421,12 +468,16 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
         final AutoCompleteTextView u = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_unit);
-        u.setAdapter(new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoComplete()));
+        u.setAdapter(new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoCompleteUnit()));
+
+        final AutoCompleteTextView c = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_category);
+        c.setAdapter(new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoCompleteCategory()));
 
         n.setText(itemName);
         n.setSelection(n.getText().length());
         q.setText(itemQuantityStr);
         u.setText(itemUnit);
+        c.setText(itemCategory);
 
         builder.setTitle(R.string.UPDATE);
         builder.setView(root);
@@ -437,14 +488,15 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 final String p_name = n.getText().toString().trim();
                 final float p_quantity = Float.parseFloat(q.getText().toString().trim());
                 final String p_unit = u.getText().toString().trim();
+                final String p_cat = c.getText().toString().trim();
 
                 if (p_name.length() > 0 && (!p_name.equals(itemName) || p_quantity != itemQuantity
-                        || !p_unit.equals(itemUnit)  )) {
+                        || !p_unit.equals(itemUnit) || !p_cat.equals(itemCategory) )) {
 
                     animateAdd(new ListAnimations.Runner() {
                         @Override
                         public void run(Set<Long> set) {
-                            mDb.updateItem(itemId,p_name,p_quantity,p_unit);
+                            mDb.updateItem(itemId,p_name,p_quantity,p_unit,p_cat);
                             mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                             mAdapter.notifyDataSetChanged();
                         }

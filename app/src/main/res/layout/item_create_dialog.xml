@@ -24,6 +24,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/ITEM_UNIT"
+        android:inputType="textCapSentences"
+        />
+
+    <io.github.fmilitao.shopper.utils.InstantAutoCompleteTextView
+        android:id="@+id/dialog_product_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/ITEM_CATEGORY"
+        android:inputType="textCapSentences"
         />
 
 </LinearLayout>

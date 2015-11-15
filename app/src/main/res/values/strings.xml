@@ -61,4 +61,5 @@
     <string name="ERROR_FILE">Error: \'%1$s\'</string>
     <string name="SAVED_FILE">Saved to \'%1$s\'</string>
     <string name="ITEM_UNIT">Unit: none</string>
+    <string name="ITEM_CATEGORY">Category: default</string>
 </resources>

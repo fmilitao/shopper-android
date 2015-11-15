@@ -20,7 +20,10 @@ Features:
 ###Tasks
 
 - [ ] weird bug with some TextViews underlined red/blue ?!
-- [ ] allow tags, allow categories
+- [ ] allow labels
+- [x] allow categories
+- [ ] paint categories with different colors, provide some sane default categories
+- [ ] re-test I/O when editing categories.
 - [ ] prettify lists/app (idea: show background fill as percentage of list completion, also mess with item count)
 - [ ] capture simple video/gif to show functionality
 - [ ] build release .apk and add it to github releases page, [see](http://stackoverflow.com/questions/18460774/how-to-set-up-gradle-and-android-studio-to-do-release-build).

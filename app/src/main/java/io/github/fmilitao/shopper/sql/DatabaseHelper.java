@@ -27,12 +27,16 @@ class DatabaseHelper extends SQLiteOpenHelper {
         Log.v(TAG, "Upgrading from " + oldVersion + " to " + newVersion + ", all destroyed.");
 
         // Useful stuff on altering existing tables: http://www.w3schools.com/sql/sql_alter.asp
-        if( oldVersion == 12 && newVersion == 13 ){
+        if( oldVersion == 12 ){
          db.execSQL("ALTER TABLE "+DBContract.ItemEntry.TABLE_NAME+" ADD "+ DBContract.ItemEntry.COLUMN_ITEM_UNIT+" TEXT");
-        }else {
-            db.execSQL("DROP TABLE IF EXISTS " + DBContract.ShopEntry.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + DBContract.ItemEntry.TABLE_NAME);
-            onCreate(db);
+        } else {
+            if( oldVersion == 13 ) {
+                db.execSQL("ALTER TABLE " + DBContract.ItemEntry.TABLE_NAME + " ADD " + DBContract.ItemEntry.COLUMN_ITEM_CATEGORY + " TEXT");
+            }else{
+                    db.execSQL("DROP TABLE IF EXISTS " + DBContract.ShopEntry.TABLE_NAME);
+                    db.execSQL("DROP TABLE IF EXISTS " + DBContract.ItemEntry.TABLE_NAME);
+                    onCreate(db);
+                }
         }
     }
 }

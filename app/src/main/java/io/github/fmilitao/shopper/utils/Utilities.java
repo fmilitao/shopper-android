@@ -5,12 +5,16 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.util.Pair;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.github.fmilitao.shopper.R;
 
 public class Utilities {
 
@@ -30,6 +34,31 @@ public class Utilities {
     static final Pattern PATTERN = Pattern.compile("(\\D+)(\\d+(\\.\\d+)?)(.*)");
     // indexes for 'name', 'quantity', 'unit'
     static final int[] INDEX = {1,2,4};
+
+
+    //TODO: alternative http://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
+    static public int color(Context context, String name){
+        int v = 0;
+        name = name.toUpperCase().substring(0,Math.min(name.length(),16));
+        for(int i=0; i < name.length(); ++i){
+            v += 1;
+        }
+
+        int hash = 0;
+        for (int i = 0; i < name.length(); ++i) {
+            hash = name.charAt(i) + ((hash << 5) - hash);
+        }
+        return hash;
+
+//        Resources res = context.getResources();
+//        TypedArray ta = res.obtainTypedArray(R.array.colors);
+//        int index = v % ta.length();
+//        android.util.Log.v("Color",""+index+" "+ta.length());
+//        // reuses 'index' to store color
+//        index = ta.getResourceId(index, 0);
+//        ta.recycle();
+//        return v;
+    }
 
     //
     // Import from clipboard
