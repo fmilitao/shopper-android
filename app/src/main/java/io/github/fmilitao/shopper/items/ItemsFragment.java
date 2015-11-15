@@ -257,7 +257,6 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             // SPINNER
             final Spinner spinner = (Spinner) root.findViewById(R.id.shop_pick);
 
-
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.item_move_spinner, shops);
             spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(spinnerArrayAdapter);

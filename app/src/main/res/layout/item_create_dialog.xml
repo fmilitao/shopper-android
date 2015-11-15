@@ -11,26 +11,37 @@
         android:inputType="textCapSentences"
         />
 
-    <EditText
-        android:id="@+id/dialog_product_quantity"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
-        android:hint="@string/ITEM_QUANTITY"
-        />
+        android:layout_height="wrap_content">
 
-    <io.github.fmilitao.shopper.utils.InstantAutoCompleteTextView
-        android:id="@+id/dialog_product_unit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/ITEM_UNIT"
-        android:inputType="textCapSentences"
-        />
+        <EditText
+            android:id="@+id/dialog_product_quantity"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:hint="@string/ITEM_QUANTITY"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            />
+
+        <io.github.fmilitao.shopper.utils.InstantAutoCompleteTextView
+            android:id="@+id/dialog_product_unit"
+            android:layout_height="wrap_content"
+            android:hint="@string/ITEM_UNIT"
+            android:inputType="textCapSentences"
+            android:singleLine="true"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            />
+
+    </LinearLayout>
 
     <io.github.fmilitao.shopper.utils.InstantAutoCompleteTextView
         android:id="@+id/dialog_product_category"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:singleLine="true"
         android:hint="@string/ITEM_CATEGORY"
         android:inputType="textCapSentences"
         />
