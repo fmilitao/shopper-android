@@ -81,7 +81,8 @@ public interface DBContract {
                 ItemEntry.COLUMN_DELETED + " = 0 AND " +
                 ItemEntry.COLUMN_ITEM_SHOP_ID_FK + "=? ORDER BY " +
                     ItemEntry.COLUMN_ITEM_DONE + ", " +
-                    ItemEntry.COLUMN_ITEM_CATEGORY + ", "+
+                    // only sorts by category if not done
+                    " CASE WHEN "+ItemEntry.COLUMN_ITEM_DONE+" = 0 THEN " + ItemEntry.COLUMN_ITEM_CATEGORY + " END, "+
                     ItemEntry.COLUMN_ITEM_NAME + " COLLATE NOCASE ;";
 
         // indexes of query above, if order above changes so must the values below

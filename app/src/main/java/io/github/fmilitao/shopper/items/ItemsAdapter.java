@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.github.fmilitao.shopper.R;
-import io.github.fmilitao.shopper.utils.ColorAdapter;
-import io.github.fmilitao.shopper.utils.Utilities;
+import io.github.fmilitao.shopper.utils.UtilColors;
+import io.github.fmilitao.shopper.utils.UtilFragment;
 
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_CATEGORY;
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
@@ -72,7 +72,7 @@ public class ItemsAdapter extends CursorAdapter {
 
             String category = cursor.getString(INDEX_CATEGORY);
             if( category != null  ){
-                Integer color = ColorAdapter.colorMap.get(category);
+                Integer color = UtilColors.colorMap.get(category);
 
                 // category has color
                 if(color != null) {

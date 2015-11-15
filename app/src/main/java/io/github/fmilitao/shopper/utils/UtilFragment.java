@@ -20,6 +20,14 @@ import io.github.fmilitao.shopper.R;
  */
 public class UtilFragment extends Fragment {
 
+    public UtilFragment(){
+        super();
+    }
+
+    //
+    //
+    //
+
     private static final int REQUEST_FILE_SAVE = 42;
     private static final int REQUEST_FILE_LOAD = 24;
 
@@ -34,6 +42,10 @@ public class UtilFragment extends Fragment {
         t.setGravity(Gravity.TOP, 0, 0);
         t.show();
     }
+
+    //
+    // Save Dialog
+    //
 
     private void dialog(String path, final boolean isLoad) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -97,7 +109,6 @@ public class UtilFragment extends Fragment {
 
     }
 
-
     protected void save(String file){
         // does nothing
     }
@@ -105,4 +116,5 @@ public class UtilFragment extends Fragment {
     protected void load(String file){
         // does nothing
     }
+
 }

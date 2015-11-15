@@ -6,19 +6,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,7 +28,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,10 +44,11 @@ import io.github.fmilitao.shopper.utils.ColorAdapter;
 import io.github.fmilitao.shopper.utils.ListAnimations;
 import io.github.fmilitao.shopper.utils.ShakeSensor;
 import io.github.fmilitao.shopper.utils.TouchAndClickListener;
+import io.github.fmilitao.shopper.utils.UtilColors;
 import io.github.fmilitao.shopper.utils.UtilFragment;
 import io.github.fmilitao.shopper.utils.Utilities;
 
-
+// FIXME: this code is too long and some duplication on add/edit item.
 public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
         TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener {
 
@@ -131,29 +127,28 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         colorAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinner.setAdapter(colorAdapter);
 
-        // TODO update adapter as category changes
-//        c.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//                // intentionally empty
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                String cat = c.getText().toString();
-//                Integer color = ColorAdapter.colorMap.get(cat);
-//                if( color != null ){
-//                    int position = ColorAdapter.getColorPosition(color);
-//                    if( position != -1 )
-//                        spinner.setSelection(position,true);
-//                }
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                // intentionally empty
-//            }
-//        });
+        c.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // intentionally empty
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String cat = c.getText().toString();
+                Integer color = UtilColors.colorMap.get(cat);
+                if( color != null ){
+                    int position = UtilColors.getColorPosition(color);
+                    if( position != -1 )
+                        spinner.setSelection(position,true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // intentionally empty
+            }
+        });
 
         //
         // ========
@@ -176,9 +171,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                 // updates category colors
                 if( pos == 0 ){
-                    ColorAdapter.colorMap.remove(p_cat);
+                    UtilColors.colorMap.remove(p_cat);
                 }else{
-                    ColorAdapter.colorMap.put(p_cat,ColorAdapter.getColorAt(pos));
+                    UtilColors.colorMap.put(p_cat,UtilColors.getColorAt(pos));
                 }
 
                 // something to add
@@ -498,6 +493,38 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         u.setText(itemUnit);
         c.setText(itemCategory);
 
+        c.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // intentionally empty
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String cat = c.getText().toString();
+                Integer color = UtilColors.colorMap.get(cat);
+                if (color != null) {
+                    int position = UtilColors.getColorPosition(color);
+                    if (position != -1)
+                        spinner.setSelection(position, true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // intentionally empty
+            }
+        });
+
+        if( itemCategory != null ) {
+            Integer color = UtilColors.colorMap.get(itemCategory);
+            if (color != null) {
+                int pos = UtilColors.getColorPosition(color);
+                if (pos != -1)
+                    spinner.setSelection(pos, true);
+            }
+        }
+
         builder.setTitle(R.string.UPDATE);
         builder.setView(root);
         builder.setPositiveButton(R.string.UPDATE, new DialogInterface.OnClickListener() {
@@ -512,9 +539,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                 // updates category colors
                 if( pos == 0 ){
-                    ColorAdapter.colorMap.remove(p_cat);
+                    UtilColors.colorMap.remove(p_cat);
                 }else{
-                    ColorAdapter.colorMap.put(p_cat,ColorAdapter.getColorAt(pos));
+                    UtilColors.colorMap.put(p_cat,UtilColors.getColorAt(pos));
                 }
 
                 if (p_name.length() > 0 && (!p_name.equals(itemName) || p_quantity != itemQuantity

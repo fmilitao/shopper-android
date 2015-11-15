@@ -20,9 +20,11 @@ Features:
 ###Tasks
 
 - [ ] weird bug with some TextViews underlined red/blue ?!
-- [ ] allow labels
+- [ ] allow labels?
 - [x] allow categories
 - [ ] disable create while product has no name
+- [ ] add interface for importing from console
+- [ ] add categories to copy-paste
 - [ ] paint categories with different colors, provide some sane default categories
 - [ ] re-test I/O when editing categories.
 - [ ] prettify lists/app (idea: show background fill as percentage of list completion, also mess with item count)

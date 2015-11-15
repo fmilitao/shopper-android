@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import io.github.fmilitao.shopper.R;
+import io.github.fmilitao.shopper.utils.UtilColors;
 
 public class ItemsActivity extends AppCompatActivity {
 
@@ -15,6 +16,10 @@ public class ItemsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_activity);
+
+
+        // this initialization must be done *before* any list is created
+        UtilColors.init(this);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
