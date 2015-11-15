@@ -69,7 +69,7 @@ public interface DBContract {
     }
 
 
-    interface SelectItemQuery { //FIXME: SelectShopItemsQuery
+    interface SelectShopItemsQuery {
         String QUERY = "SELECT " +
                 ItemEntry._ID+", "+
                 ItemEntry.COLUMN_ITEM_NAME+", "+

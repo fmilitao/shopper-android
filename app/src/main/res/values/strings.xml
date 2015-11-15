@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Shopper</string>
+    <string name="app_name" translatable="false">Shopper</string>
 
     <string name="CANCEL">Cancel</string>
     <string name="CREATE">Create</string>
@@ -62,4 +62,10 @@
     <string name="SAVED_FILE">Saved to \'%1$s\'</string>
     <string name="ITEM_UNIT">Unit: none</string>
     <string name="ITEM_CATEGORY">Category: default</string>
+
+    <string name="SHOW_TEXT"><![CDATA[<Show Text>]]></string>
+    <string name="UNIT_NONE"><![CDATA[<none>]]></string>
+    <string name="CATEGORY_DEFAULT"><![CDATA[<default>]]></string>
+
+    <string name="NULL_STR" translatable="false">null</string>
 </resources>

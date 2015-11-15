@@ -20,14 +20,6 @@ import io.github.fmilitao.shopper.R;
  */
 public class UtilFragment extends Fragment {
 
-    public UtilFragment(){
-        super();
-    }
-
-    //
-    //
-    //
-
     private static final int REQUEST_FILE_SAVE = 42;
     private static final int REQUEST_FILE_LOAD = 24;
 

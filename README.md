@@ -21,11 +21,10 @@ Features:
 
 - [ ] weird bug with some TextViews underlined red/blue ?!
 - [ ] allow labels?
-- [x] allow categories
-- [ ] disable create while product has no name
-- [ ] add interface for importing from console
-- [ ] add categories to copy-paste
-- [ ] paint categories with different colors, provide some sane default categories
+- [ ] too many colors?
+- [ ] disable create while product has no name to avoid weirdness. try to verify input ahead.
+- [ ] add interface for importing from clipboard, try different patterns
+- [ ] add categories to copy-paste format
 - [ ] re-test I/O when editing categories.
 - [ ] prettify lists/app (idea: show background fill as percentage of list completion, also mess with item count)
 - [ ] capture simple video/gif to show functionality

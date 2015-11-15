@@ -48,7 +48,8 @@ import io.github.fmilitao.shopper.utils.UtilColors;
 import io.github.fmilitao.shopper.utils.UtilFragment;
 import io.github.fmilitao.shopper.utils.Utilities;
 
-// FIXME: this code is too long and some duplication on add/edit item.
+// FIXME-STYLE this code is too long and some duplication on add/edit item.
+// FIXME-FEATURE connect category writing to color picker.
 public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
         TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener {
 
@@ -443,8 +444,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     public void onClick(ListView listView, View view) {
         int position = listView.getPositionForView(view);
         Cursor c = (Cursor) listView.getItemAtPosition(position);
-        final long itemId = c.getLong(DBContract.SelectItemQuery.INDEX_ID);
-        final int itemDone = c.getInt(DBContract.SelectItemQuery.INDEX_IS_DONE);
+        final long itemId = c.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
+        final int itemDone = c.getInt(DBContract.SelectShopItemsQuery.INDEX_IS_DONE);
 
         animateAdd(new ListAnimations.Runner() {
             @Override
@@ -460,12 +461,12 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     public void onLongClick(ListView listView, View view) {
         final int position = listView.getPositionForView(view);
         final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-        final long itemId = cursor.getLong(DBContract.SelectItemQuery.INDEX_ID);
-        final String itemName = cursor.getString(DBContract.SelectItemQuery.INDEX_NAME);
-        final float itemQuantity = cursor.getFloat(DBContract.SelectItemQuery.INDEX_QUANTITY);
-        final String itemQuantityStr = cursor.getString(DBContract.SelectItemQuery.INDEX_QUANTITY);
-        final String itemUnit = cursor.getString(DBContract.SelectItemQuery.INDEX_UNIT);
-        final String itemCategory = cursor.getString(DBContract.SelectItemQuery.INDEX_CATEGORY);
+        final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
+        final String itemName = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_NAME);
+        final float itemQuantity = cursor.getFloat(DBContract.SelectShopItemsQuery.INDEX_QUANTITY);
+        final String itemQuantityStr = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_QUANTITY);
+        final String itemUnit = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_UNIT);
+        final String itemCategory = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_CATEGORY);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -574,8 +575,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     public void onSwipeOut(ListView listView, View view) {
         final int position = listView.getPositionForView(view);
         final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-        final long itemId = cursor.getLong(DBContract.SelectItemQuery.INDEX_ID);
-        final String itemName = cursor.getString(DBContract.SelectItemQuery.INDEX_NAME);
+        final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
+        final String itemName = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_NAME);
 
         animateAdd(new ListAnimations.Runner() {
             @Override

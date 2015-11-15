@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- from: http://www.codexpedia.com/android/list-of-color-names-and-color-code-for-android/ -->
+    <!-- TODO: these are way to many names to ever be translatable... remove? use hex instead? -->
     <string-array name="colorNames">
         <item>White</item>
         <item>Ivory</item>

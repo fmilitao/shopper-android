@@ -11,13 +11,11 @@ import java.util.TreeMap;
 
 import io.github.fmilitao.shopper.R;
 
+//
+// Category-Color Cache
+//
+
 public class UtilColors {
-
-    static final String DEFAULT = "<Show Text>";
-
-    //
-    // Color Cache
-    //
 
     // overrides will update shared preferences accordingly
     static public final Map<String,Integer> colorMap = new TreeMap<String,Integer>(){
@@ -82,7 +80,7 @@ public class UtilColors {
             // initializes colorNames including default value
             String[] tmp = activity.getResources().getStringArray(R.array.colorNames);
             colorNames = new String[tmp.length+1];
-            colorNames[0] = DEFAULT;
+            colorNames[0] = activity.getResources().getString(R.string.SHOW_TEXT);
             System.arraycopy(tmp,0,colorNames,1,tmp.length);
 
             // initializes colorValues, position 0 is 0 for no special reason.
@@ -92,6 +90,7 @@ public class UtilColors {
             for(int i = 0; i < tmp.length; ++i){
                 colorValues[i+1] = ContextCompat.getColor(activity, ta.getResourceId(i, 0));
             }
+
             ta.recycle();
         }
 

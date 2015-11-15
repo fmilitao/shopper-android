@@ -13,12 +13,12 @@ import android.widget.TextView;
 
 import io.github.fmilitao.shopper.R;
 
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_ID;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_ID;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_IS_DONE;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_NAME;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_QUANTITY;
 
-// FIXME: does not display units nor category
+// FIXME-FEATURE does not display units nor category
 public class ItemsMoveAdapter extends CursorAdapter {
 
     final Long[] set;

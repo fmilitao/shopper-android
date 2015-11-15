@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 import android.widget.AutoCompleteTextView;
 
 // from: http://stackoverflow.com/questions/15544943/show-all-items-in-autocompletetextview-without-writing-text
-
+// FIXME-BUG dropdown does not always appear when regaining focus
 public class InstantAutoCompleteTextView extends AutoCompleteTextView {
 
     public InstantAutoCompleteTextView(Context context) {

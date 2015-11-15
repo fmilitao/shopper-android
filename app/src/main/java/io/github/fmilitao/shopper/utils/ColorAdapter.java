@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+// recall that UtilColors position 0 is the dummy/no-color
 public class ColorAdapter extends ArrayAdapter<String>{
 
     static boolean hasDefaults = false;

@@ -12,13 +12,12 @@ import android.widget.TextView;
 
 import io.github.fmilitao.shopper.R;
 import io.github.fmilitao.shopper.utils.UtilColors;
-import io.github.fmilitao.shopper.utils.UtilFragment;
 
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_CATEGORY;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_NAME;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_QUANTITY;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_UNIT;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_CATEGORY;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_IS_DONE;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_NAME;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_QUANTITY;
+import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_UNIT;
 
 public class ItemsAdapter extends CursorAdapter {
 

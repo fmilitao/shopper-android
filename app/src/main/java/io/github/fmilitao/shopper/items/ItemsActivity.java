@@ -16,8 +16,7 @@ public class ItemsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.item_activity);
-
-
+        
         // this initialization must be done *before* any list is created
         UtilColors.init(this);
 

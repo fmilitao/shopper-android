@@ -13,29 +13,34 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import io.github.fmilitao.shopper.R;
 import io.github.fmilitao.shopper.sql.DBContract.ItemEntry;
 import io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery;
-import io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery;
+import io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery;
 import io.github.fmilitao.shopper.sql.DBContract.ShopEntry;
 import io.github.fmilitao.shopper.sql.DBContract.ShopsQuery;
 import io.github.fmilitao.shopper.utils.Utilities;
 
-//TODO: consider protecting against sql injections.
-//FIXME: 'getWritableDatabase' should be moved off the main thread, use AsyncTask?
+//TODO-SAFETY consider protecting against sql injections.
+//FIXME-PERFORMANCE 'getWritableDatabase' should be moved off the main thread, use AsyncTask?
 public class DatabaseMiddleman {
 
-    private static final String NONE = "<none>";
-    private static final String DEFAULT = "<default>";
-    private static final String NULL_STR = "null";
     private static final String TAG = DatabaseMiddleman.class.toString();
 
-
+    private final String NONE_UNIT;
+    private final String DEFAULT_CATEGORY;
+    private final String NULL_STR;
     private final Context mCtx;
+
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
 
     public DatabaseMiddleman(Context ctx) {
         this.mCtx = ctx;
+
+        NONE_UNIT = ctx.getString(R.string.UNIT_NONE);
+        DEFAULT_CATEGORY = ctx.getString(R.string.CATEGORY_DEFAULT);
+        NULL_STR = ctx.getString(R.string.NULL_STR);
     }
 
     public void open() throws SQLException {
@@ -113,9 +118,9 @@ public class DatabaseMiddleman {
     //
 
     public long createItem(String name, long shopId, float quantity, boolean done, String unit, String category) {
-        if( unit != null && ( NONE.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
+        if( unit != null && ( NONE_UNIT.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
             unit = null;
-        if( category != null && ( DEFAULT.equalsIgnoreCase(category) || category.length() <= 0  ) )
+        if( category != null && ( DEFAULT_CATEGORY.equalsIgnoreCase(category) || category.length() <= 0  ) )
             category = null;
 
         ContentValues v = new ContentValues();
@@ -130,9 +135,9 @@ public class DatabaseMiddleman {
     }
 
     public Cursor fetchShopItems(long shopId) {
-        Log.v(TAG, SelectItemQuery.QUERY);
+        Log.v(TAG, SelectShopItemsQuery.QUERY);
 
-        Cursor c = mDb.rawQuery(SelectItemQuery.QUERY, new String[]{Long.toString(shopId)});
+        Cursor c = mDb.rawQuery(SelectShopItemsQuery.QUERY, new String[]{Long.toString(shopId)});
 
         if (c != null) {
             c.moveToFirst();
@@ -162,15 +167,15 @@ public class DatabaseMiddleman {
         String unit;
         StringBuilder builder = new StringBuilder();
         do{
-            builder.append(c.getString(SelectItemQuery.INDEX_NAME));
+            builder.append(c.getString(SelectShopItemsQuery.INDEX_NAME));
             builder.append(" ");
-            builder.append(c.getString(SelectItemQuery.INDEX_QUANTITY));
-            unit = c.getString(SelectItemQuery.INDEX_UNIT);
+            builder.append(c.getString(SelectShopItemsQuery.INDEX_QUANTITY));
+            unit = c.getString(SelectShopItemsQuery.INDEX_UNIT);
             if( unit != null ){
                 builder.append(" ");
                 builder.append(unit);
             }
-            // FIXME: should this also include category?
+            // FIXME-FEATURE include category into clipboard, move clipboard code here too?
             builder.append("\n");
         }while( c.moveToNext() );
         c.close();
@@ -197,9 +202,9 @@ public class DatabaseMiddleman {
     }
 
     public boolean updateItem(long itemId, String itemName, float itemQuantity, String unit, String category) {
-        if( unit != null && ( NONE.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
+        if( unit != null && ( NONE_UNIT.equalsIgnoreCase(unit) || unit.length() <= 0  ) )
             unit = null;
-        if( category != null && ( DEFAULT.equalsIgnoreCase(category) || category.length() <= 0  ) )
+        if( category != null && ( DEFAULT_CATEGORY.equalsIgnoreCase(category) || category.length() <= 0  ) )
             category = null;
 
         ContentValues args = new ContentValues();
@@ -239,12 +244,12 @@ public class DatabaseMiddleman {
         if( c.getCount() > 0 ) {
             res = new String[c.getCount() + 1];
             int i = 0;
-            res[i++] = NONE;
+            res[i++] = NONE_UNIT;
             do {
                 res[i++] = c.getString(DBContract.UnitsQuery.INDEX_NAME);
             } while (c.moveToNext());
         }else{
-            res = new String[]{NONE};
+            res = new String[]{NONE_UNIT};
         }
         c.close();
         return res;
@@ -255,7 +260,6 @@ public class DatabaseMiddleman {
     //
 
     public String[] getAllCategories(){
-        // FIXME: default categories?
         Log.v(TAG, " Units: " + DBContract.CategoryQuery.QUERY);
 
         Cursor c = mDb.rawQuery(DBContract.CategoryQuery.QUERY, null);
@@ -265,12 +269,12 @@ public class DatabaseMiddleman {
         if( c.getCount() > 0 ) {
             res = new String[c.getCount() + 1];
             int i = 0;
-            res[i++] = DEFAULT;
+            res[i++] = DEFAULT_CATEGORY;
             do {
                 res[i++] = c.getString(DBContract.CategoryQuery.INDEX_NAME);
             } while (c.moveToNext());
         }else{
-            res = new String[]{DEFAULT};
+            res = new String[]{DEFAULT_CATEGORY};
         }
         c.close();
         return res;
@@ -288,13 +292,13 @@ public class DatabaseMiddleman {
         do{
             out.println(
                 // removes any chance of collision with ','
-                c.getString(SelectItemQuery.INDEX_NAME).replace(',', ' ')
+                c.getString(SelectShopItemsQuery.INDEX_NAME).replace(',', ' ')
                 + "," +
-                c.getString(SelectItemQuery.INDEX_QUANTITY)
+                c.getString(SelectShopItemsQuery.INDEX_QUANTITY)
                 + "," +
-                Boolean.toString(c.getInt(SelectItemQuery.INDEX_IS_DONE) != 0)
+                Boolean.toString(c.getInt(SelectShopItemsQuery.INDEX_IS_DONE) != 0)
                 + "," +
-                c.getString(SelectItemQuery.INDEX_UNIT).replace(',', ' ')
+                c.getString(SelectShopItemsQuery.INDEX_UNIT).replace(',', ' ')
             );
 
         }while( c.moveToNext() );
