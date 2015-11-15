@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.github.fmilitao.shopper.R;
+import io.github.fmilitao.shopper.utils.ColorAdapter;
+import io.github.fmilitao.shopper.utils.Utilities;
 
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_CATEGORY;
 import static io.github.fmilitao.shopper.sql.DBContract.SelectItemQuery.INDEX_IS_DONE;
@@ -56,32 +58,45 @@ public class ItemsAdapter extends CursorAdapter {
 
         boolean isDone = cursor.getInt(INDEX_IS_DONE) != 0;
 
-        String category = cursor.getString(INDEX_CATEGORY);
-        if( !isDone && category != null  ){
-            viewHolder.mItemCategory.setVisibility(View.VISIBLE);
-            viewHolder.mItemCategory.setText(category);
-        }else{
-            viewHolder.mItemCategory.setVisibility(View.GONE);
-        }
-
         if( isDone ){
             viewHolder.mItemName.setPaintFlags(viewHolder.mItemName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
             viewHolder.mItemName.setTextColor(Color.GRAY);
             viewHolder.mItemQuantity.setTextColor(Color.GRAY);
             viewHolder.mItemUnit.setTextColor(Color.GRAY);
+            viewHolder.mItemCategory.setVisibility(View.GONE);
 
             view.setAlpha(0.5f);
             view.setBackgroundColor(Color.LTGRAY);
         }else{
-            viewHolder.mItemName.setPaintFlags(viewHolder.mFlags);
 
+            String category = cursor.getString(INDEX_CATEGORY);
+            if( category != null  ){
+                Integer color = ColorAdapter.colorMap.get(category);
+
+                // category has color
+                if(color != null) {
+                    // hides text and paints background with color
+                    viewHolder.mItemCategory.setVisibility(View.GONE);
+                    view.setBackgroundColor(color);
+                }else{
+                    // category has no picked color
+                    // shows label over default background color
+                    viewHolder.mItemCategory.setVisibility(View.VISIBLE);
+                    viewHolder.mItemCategory.setText(category);
+                    view.setBackgroundColor(Color.WHITE);
+                }
+            }else{
+                viewHolder.mItemCategory.setVisibility(View.GONE);
+                view.setBackgroundColor(Color.WHITE);
+            }
+
+            viewHolder.mItemName.setPaintFlags(viewHolder.mFlags);
             viewHolder.mItemName.setTextColor(viewHolder.mTextColor);
             viewHolder.mItemQuantity.setTextColor(viewHolder.mTextColor);
             viewHolder.mItemUnit.setTextColor(viewHolder.mTextColor);
 
             view.setAlpha(1);
-            view.setBackgroundColor(Color.WHITE);
         }
     }
 

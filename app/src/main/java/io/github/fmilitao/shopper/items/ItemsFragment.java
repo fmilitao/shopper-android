@@ -6,10 +6,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,6 +45,7 @@ import java.util.Stack;
 import io.github.fmilitao.shopper.R;
 import io.github.fmilitao.shopper.sql.DBContract;
 import io.github.fmilitao.shopper.sql.DatabaseMiddleman;
+import io.github.fmilitao.shopper.utils.ColorAdapter;
 import io.github.fmilitao.shopper.utils.ListAnimations;
 import io.github.fmilitao.shopper.utils.ShakeSensor;
 import io.github.fmilitao.shopper.utils.TouchAndClickListener;
@@ -116,21 +120,18 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final ArrayAdapter adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoCompleteUnit());
         u.setAdapter(adapter);
 
-        //
-        // FIXME: testing
-        //
-
         final AutoCompleteTextView c = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_category);
         final String[] array = getAutoCompleteCategory();
-        final ArrayAdapter a = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line, array){
-//            @Override
-//            public View getView(int position, View convertView, ViewGroup parent) {
-//                View s = super.getView(position, convertView, parent);
-//                s.setBackgroundColor(Utilities.color(getContext(),array[position]));
-//                return s;
-//            }
-        };
+        final ArrayAdapter a = new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, array);
         c.setAdapter(a);
+
+        // Color spinner
+        final Spinner spinner = (Spinner) root.findViewById(R.id.dialog_product_color);
+        final ColorAdapter colorAdapter = new ColorAdapter(getActivity(), android.R.layout.simple_dropdown_item_1line);
+        colorAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        spinner.setAdapter(colorAdapter);
+
+        // TODO update adapter as category changes
 //        c.addTextChangedListener(new TextWatcher() {
 //            @Override
 //            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -139,12 +140,18 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 //
 //            @Override
 //            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                // intentionally empty
+//                String cat = c.getText().toString();
+//                Integer color = ColorAdapter.colorMap.get(cat);
+//                if( color != null ){
+//                    int position = ColorAdapter.getColorPosition(color);
+//                    if( position != -1 )
+//                        spinner.setSelection(position,true);
+//                }
 //            }
 //
 //            @Override
 //            public void afterTextChanged(Editable s) {
-//                c.setBackgroundColor(Utilities.color(getContext(),u.getText().toString()));
+//                // intentionally empty
 //            }
 //        });
 
@@ -165,6 +172,14 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 final String p_name = n.getText().toString().trim();
                 final String p_unit = u.getText().toString().trim();
                 final String p_cat = c.getText().toString().trim();
+                final int pos = spinner.getSelectedItemPosition();
+
+                // updates category colors
+                if( pos == 0 ){
+                    ColorAdapter.colorMap.remove(p_cat);
+                }else{
+                    ColorAdapter.colorMap.put(p_cat,ColorAdapter.getColorAt(pos));
+                }
 
                 // something to add
                 if( p_name.length() > 0 ) {
@@ -472,6 +487,11 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final AutoCompleteTextView c = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_category);
         c.setAdapter(new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoCompleteCategory()));
 
+        final Spinner spinner = (Spinner) root.findViewById(R.id.dialog_product_color);
+        final ColorAdapter colorAdapter = new ColorAdapter(getActivity(), android.R.layout.simple_dropdown_item_1line);
+        colorAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        spinner.setAdapter(colorAdapter);
+
         n.setText(itemName);
         n.setSelection(n.getText().length());
         q.setText(itemQuantityStr);
@@ -488,6 +508,14 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 final float p_quantity = Float.parseFloat(q.getText().toString().trim());
                 final String p_unit = u.getText().toString().trim();
                 final String p_cat = c.getText().toString().trim();
+                final int pos = spinner.getSelectedItemPosition();
+
+                // updates category colors
+                if( pos == 0 ){
+                    ColorAdapter.colorMap.remove(p_cat);
+                }else{
+                    ColorAdapter.colorMap.put(p_cat,ColorAdapter.getColorAt(pos));
+                }
 
                 if (p_name.length() > 0 && (!p_name.equals(itemName) || p_quantity != itemQuantity
                         || !p_unit.equals(itemUnit) || !p_cat.equals(itemCategory) )) {
