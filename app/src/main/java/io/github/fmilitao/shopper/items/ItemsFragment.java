@@ -222,7 +222,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                item.setEnabled(true);
+                item.setEnabled(true); //FIXME: use dialog onShow to more reliable trigger
                 // aborted, nothing to do
             }
         });
