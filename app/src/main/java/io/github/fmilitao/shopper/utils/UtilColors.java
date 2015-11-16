@@ -78,19 +78,18 @@ public class UtilColors {
         // loads all color names and color values
         if( colorNames == null ){
             // initializes colorNames including default value
-            String[] tmp = activity.getResources().getStringArray(R.array.colorNames);
-            colorNames = new String[tmp.length+1];
-            colorNames[0] = activity.getResources().getString(R.string.SHOW_TEXT);
-            System.arraycopy(tmp,0,colorNames,1,tmp.length);
-
             // initializes colorValues, position 0 is 0 for no special reason.
-            colorValues = new int[tmp.length+1];
+            final TypedArray ta = activity.getResources().obtainTypedArray(R.array.colors);
+            final int length = ta.length();
+            colorValues = new int[length+1];
             colorValues[0] = 0;
-            TypedArray ta = activity.getResources().obtainTypedArray(R.array.colors);
-            for(int i = 0; i < tmp.length; ++i){
-                colorValues[i+1] = ContextCompat.getColor(activity, ta.getResourceId(i, 0));
+            colorNames = new String[length+1];
+            colorNames[0] = activity.getResources().getString(R.string.SHOW_TEXT);
+            for(int i = 0; i < length; ++i){
+                int id = ta.getResourceId(i, 0);
+                colorValues[i+1] = ContextCompat.getColor(activity, id);
+                colorNames[i+1] = "";
             }
-
             ta.recycle();
         }
 

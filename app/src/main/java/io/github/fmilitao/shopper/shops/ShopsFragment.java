@@ -3,12 +3,16 @@ package io.github.fmilitao.shopper.shops;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.CursorAdapter;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Pair;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,9 +21,11 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +39,9 @@ import io.github.fmilitao.shopper.sql.DatabaseMiddleman;
 import io.github.fmilitao.shopper.utils.ListAnimations;
 import io.github.fmilitao.shopper.utils.ShakeSensor;
 import io.github.fmilitao.shopper.utils.TouchAndClickListener;
+import io.github.fmilitao.shopper.utils.UtilEditorActionListener;
 import io.github.fmilitao.shopper.utils.UtilFragment;
+import io.github.fmilitao.shopper.utils.UtilTextWatcher;
 import io.github.fmilitao.shopper.utils.Utilities;
 
 
@@ -111,7 +119,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 @Override
                 public void onClick(View v) {
                     if (box.isChecked()) {
-                        List<Utilities.Triple<String,Float,String>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
+                        List<Utilities.Triple<String, Float, String>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
                         if (tmp != null) {
                             list.addAll(tmp);
                             box.setText(format(R.string.INCLUDE_ITEMS, tmp.size()));
@@ -127,17 +135,14 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             builder.setPositiveButton(R.string.CREATE, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    // restores item use
-                    item.setEnabled(true);
-
                     final String name = text.getText().toString().trim();
                     if (name.length() > 0) {
 
                         animateAdd(new ListAnimations.Runner() {
                             @Override
                             public void run(Set<Long> set) {
-                                long newShop = mDb.createShop(name,list);
-                                if( newShop > 0 ) {
+                                long newShop = mDb.createShop(name, list);
+                                if (newShop > 0) {
                                     set.add(newShop);
                                     mAdapter.changeCursor(mDb.fetchAllShops());
                                     mAdapter.notifyDataSetChanged();
@@ -147,23 +152,29 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                         popUp(format(R.string.LIST_ADDED, name));
                     }
-
                 }
             });
 
-            builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // restores item use
-                    item.setEnabled(true);
+            // nothing to do
+            builder.setNegativeButton(R.string.CANCEL, null);
 
-                    // aborted, nothing to do
-                }
-            });
+            final AlertDialog dialog = builder.create();
 
-            AlertDialog dialog = builder.create();
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    // after dialog is showing, restore button to enabled
+                    item.setEnabled(true);
+                }
+            });
+
+            text.addTextChangedListener(new UtilTextWatcher(dialog));
+            text.setOnEditorActionListener(new UtilEditorActionListener(dialog));
+
             dialog.show();
+            text.setText("");
 
             return true;
         }
@@ -185,10 +196,6 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             // should only run once in the lifetime of this Fragment
             mDb.gcShops();
             undo = new Stack<>();
-
-            // cleans tables and inserts some example values, for testing purposes
-//            mDb.deleteAll();
-//            mDb.insertSomeValues();
         }
 
 
@@ -272,28 +279,29 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newName = text.getText().toString().trim();
-                if( mDb.renameShop(shopId,newName) ) {
+                if (mDb.renameShop(shopId, newName)) {
                     mAdapter.changeCursor(mDb.fetchAllShops());
                     mAdapter.notifyDataSetChanged();
 
                     popUp(format(R.string.LIST_RENAMED, oldName, newName));
-                }else{
+                } else {
                     popUp(format(R.string.LIST_RENAME_FAILED, oldName));
                 }
             }
         });
 
-        builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // aborted, nothing to do
-            }
-        });
+        // nothing to do on cancel
+        builder.setNegativeButton(R.string.CANCEL, null);
 
+
+        final AlertDialog dialog = builder.create();
+        text.addTextChangedListener(new UtilTextWatcher(dialog));
+        text.setOnEditorActionListener(new UtilEditorActionListener(dialog));
+
+        dialog.show();
+        // after showing to trigger TextChangedListener appropriately (must happen AFTER show)
         text.setText(oldName);
         text.setSelection(text.getText().length());
-
-        builder.create().show();
     }
 
     @Override

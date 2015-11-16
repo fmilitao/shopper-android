@@ -24,10 +24,10 @@
     <string name="TRANSFER_ITEMS">Transfer</string>
     <string name="LIST_NAME">List Name</string>
 
-    <string name="LIST_ADDED">List added: %1$s</string>
-    <string name="LIST_DELETED">List deleted: %1$s</string>
-    <string name="LIST_RENAMED">Renamed %1$s to %2$s</string>
-    <string name="LIST_RENAME_FAILED">Failed to renamed %1$s</string>
+    <string name="LIST_ADDED">List \'%1$s\' added</string>
+    <string name="LIST_DELETED">List \'%1$s\' deleted</string>
+    <string name="LIST_RENAMED">Renamed \'%1$s\' to \'%2$s\'</string>
+    <string name="LIST_RENAME_FAILED">Failed to renamed \'%1$s\'</string>
 
     <string name="ITEM_TRANSFER">Transfer Item</string>
     <string name="ITEM_DELETED">Item deleted: %1$s</string>

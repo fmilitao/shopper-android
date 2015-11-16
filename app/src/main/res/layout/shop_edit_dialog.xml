@@ -3,19 +3,13 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- <Button
-        android:id="@+id/dialog_delete_shop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Delete"
-        /> -->
-
     <EditText
         android:id="@+id/dialog_shop_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Shop Name"
-        android:inputType="textNoSuggestions"
+        android:hint="@string/LIST_NAME"
+        android:singleLine="true"
+        android:inputType="textCapSentences"
         />
 
 </LinearLayout>
