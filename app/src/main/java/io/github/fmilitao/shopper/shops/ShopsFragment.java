@@ -155,13 +155,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
             final AlertDialog dialog = builder.create();
 
-            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                @Override
-                public void onShow(DialogInterface dialog) {
-                    // after dialog is showing, restore button to enabled
-                    item.setEnabled(true);
-                }
-            });
+            dialog.setOnShowListener( new EnableOnShow(item) );
 
             text.addTextChangedListener(new UtilTextWatcher(dialog));
             text.setOnEditorActionListener(new UtilEditorActionListener(dialog));

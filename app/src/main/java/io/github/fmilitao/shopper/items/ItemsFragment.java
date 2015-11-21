@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -45,7 +44,9 @@ import io.github.fmilitao.shopper.utils.ListAnimations;
 import io.github.fmilitao.shopper.utils.ShakeSensor;
 import io.github.fmilitao.shopper.utils.TouchAndClickListener;
 import io.github.fmilitao.shopper.utils.UtilColors;
+import io.github.fmilitao.shopper.utils.UtilEditorActionListener;
 import io.github.fmilitao.shopper.utils.UtilFragment;
+import io.github.fmilitao.shopper.utils.UtilTextWatcher;
 import io.github.fmilitao.shopper.utils.Utilities;
 
 // FIXME-STYLE this code is too long and some duplication on add/edit item.
@@ -61,7 +62,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
     long mShopId;
     String mShopName;
-    Stack<Pair<String,Long>> undo;
+    Stack<Pair<String, Long>> undo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,270 +99,54 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         inflater.inflate(R.menu.items_menu, menu);
     }
 
-    protected String[] getAutoCompleteUnit(){
-        return mDb.getAllUnits();
-    }
-
-    protected String[] getAutoCompleteCategory(){
-        return mDb.getAllCategories();
-    }
-
-    protected void addItem(final MenuItem item){
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        final LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        @SuppressLint("InflateParams")
-        final View root = inflater.inflate(R.layout.item_create_dialog, null);
-
-        final AutoCompleteTextView u = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_unit);
-        final ArrayAdapter adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoCompleteUnit());
-        u.setAdapter(adapter);
-
-        final AutoCompleteTextView c = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_category);
-        final String[] array = getAutoCompleteCategory();
-        final ArrayAdapter a = new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, array);
-        c.setAdapter(a);
-
-        // Color spinner
-        final Spinner spinner = (Spinner) root.findViewById(R.id.dialog_product_color);
-        final ColorAdapter colorAdapter = new ColorAdapter(getActivity(), android.R.layout.simple_dropdown_item_1line);
-        colorAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        spinner.setAdapter(colorAdapter);
-
-        c.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // intentionally empty
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String cat = c.getText().toString();
-                Integer color = UtilColors.colorMap.get(cat);
-                if( color != null ){
-                    int position = UtilColors.getColorPosition(color);
-                    if( position != -1 )
-                        spinner.setSelection(position,true);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                // intentionally empty
-            }
-        });
-
-        //
-        // ========
-        //
-
-        builder.setTitle(R.string.NEW_ITEM);
-        builder.setView(root);
-
-        // Same code for Positive and Neutral buttons.
-        final DialogInterface.OnClickListener aux = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
-                EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
-
-                final String p_name = n.getText().toString().trim();
-                final String p_unit = u.getText().toString().trim();
-                final String p_cat = c.getText().toString().trim();
-                final int pos = spinner.getSelectedItemPosition();
-
-                // updates category colors
-                if( pos == 0 ){
-                    UtilColors.colorMap.remove(p_cat);
-                }else{
-                    UtilColors.colorMap.put(p_cat,UtilColors.getColorAt(pos));
-                }
-
-                // something to add
-                if( p_name.length() > 0 ) {
-
-                    float qt = 1; // default quantity is '1'
-                    try {
-                        qt = Float.parseFloat(q.getText().toString().trim());
-                    } catch (NumberFormatException e) {
-                        // ignores error
-                    }
-
-                    final float p_quantity = qt;
-
-                    animateAdd(new ListAnimations.Runner() {
-                        @Override
-                        public void run(Set<Long> set) {
-                            long newItem = mDb.createItem(p_name, mShopId, p_quantity, false, p_unit,p_cat);
-                            if (newItem > 0) {
-                                set.add(newItem);
-                                mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                                mAdapter.notifyDataSetChanged();
-                            }
-                        }
-                    });
-
-                    popUp(format(R.string.ITEM_ADDED, p_name, Float.toString(p_quantity)));
-                }
-
-                // ok to re-enable on first create because item is not visible anyway
-                item.setEnabled(true);
-            }
-        };
-
-        builder.setPositiveButton(R.string.CREATE, aux);
-
-        builder.setNeutralButton(R.string.NEXT, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                aux.onClick(dialog, which);
-                addItem(item);
-            }
-        });
-
-        builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                item.setEnabled(true); //FIXME: use dialog onShow to more reliable trigger
-                // aborted, nothing to do
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.show();
-
-    }
-
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         item.setEnabled(false);
 
         if (id == R.id.add_item) {
-            addItem(item); // item must be re-enables in function
+            addItem(item); // 'item' must be re-enabled in function
             return true;
         }
 
-        if( id == R.id.transfer_products ){
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            final LayoutInflater inflater = getActivity().getLayoutInflater();
-
-            @SuppressLint("InflateParams")
-            final View root = inflater.inflate(R.layout.item_move_dialog, null);
-
-            // aux
-            final Pair<Long,String>[] shopArray = mDb.makeAllShopPair();
-            String[] shops = new String[shopArray.length];
-            int i =0;
-            int pos = -1;
-            for(Pair<Long,String> p : shopArray){
-                if( p.first == mShopId )
-                    pos = i;
-                shops[i] = p.second;
-                ++i;
-            }
-
-            final int position = pos;
-
-            // SPINNER
-            final Spinner spinner = (Spinner) root.findViewById(R.id.shop_pick);
-
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.item_move_spinner, shops);
-            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinner.setAdapter(spinnerArrayAdapter);
-            spinner.setSelection(pos);
-            // SPINNER
-
-            // LIST
-            final ItemsMoveAdapter moveAdapter = new ItemsMoveAdapter(getActivity(),mDb.fetchShopItems(mShopId),0);
-            final ListView listView = (ListView) root.findViewById(R.id.product_list);
-            listView.setAdapter(moveAdapter);
-            // LIST
-
-            builder.setTitle(R.string.TRANSFER_TITLE);
-            builder.setView(root);
-
-            builder.setPositiveButton(R.string.TRANSFER, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    item.setEnabled(true);
-                    // ...
-                    final Long[] set = moveAdapter.getSelectedItemIds();
-                    final int i = spinner.getSelectedItemPosition();
-
-                    int count = 0;
-                    for(Long b : set ){
-                        count += b != null ? 1 : 0;
-                    }
-
-                    if( i == position || count == 0 ) {
-                        popUp(getString(R.string.TRANSFER_FAIL));
-                    } else {
-                        final long toShopId = shopArray[i].first;
-                        final String toShopName = shopArray[i].second;
-                        final String fromShopName = shopArray[position].second;
-
-                        // pick elements for transfer
-                        final long[] transfers = new long[count];
-                        for(int x=0,y=0; x < set.length; ++x ){
-                            if( set[x] != null ){
-                                transfers[y++] = set[x];
-                            }
-                        }
-
-                        animateDelete(new Runnable() {
-                            @Override
-                            public void run() {
-                                for(long id : transfers) {
-                                    mDb.updateItemShopId(id,toShopId);
-                                }
-
-                                // no need to animate since order did not change
-                                mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                                mAdapter.notifyDataSetChanged();
-                            }
-                        }, transfers);
-
-                        popUp(format(R.string.ITEM_TRANSFERRED, count, fromShopName, toShopName));
-                    }
-                }
-            });
-
-            builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    item.setEnabled(true);
-                    // aborted, nothing to do
-                }
-            });
-
-            builder.create().show();
-
+        if (id == R.id.transfer_products) {
+            transferItems(item); // 'item' must be re-enabled in function
             return true;
         }
 
         // all following should not need double-tap protection.
         item.setEnabled(true);
 
-        if (id == R.id.load_items){
+        if (id == R.id.load_items) {
+            //
+            // shows 'load' dialog
+            //
             loadDialog(null);
             return true;
         }
-        if (id == R.id.save_items){
+        if (id == R.id.save_items) {
+            //
+            // shows 'save' dialog
+            //
             saveDialog(mShopName);
             return true;
         }
-        if( id == R.id.save_clipboard){
+        if (id == R.id.save_clipboard) {
+            //
+            // copies items to clipboard
+            //
             String text = mDb.stringifyItemList(mShopId);
             Utilities.setClipboardString(getActivity(), mShopName, text);
             popUp(format(R.string.ITEMS_COPIED, mShopName));
             return true;
         }
-        if( id == R.id.load_clipboard ){
-            final List<Utilities.Triple<String,Float,String>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
-            if( tmp != null && !tmp.isEmpty()){
+        if (id == R.id.load_clipboard) {
+            //
+            // pastes items from clipboard
+            //
+            final List<Utilities.Triple<String, Float, String>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
+            if (tmp != null && !tmp.isEmpty()) {
 
                 animateAdd(new ListAnimations.Runner() {
                     @Override
@@ -369,7 +154,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                         mDb.loadShopItems(tmp, mShopId, set);
                         mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                         mAdapter.notifyDataSetChanged();
-                        popUp(format(R.string.ITEMS_PASTED, tmp.size()) );
+                        popUp(format(R.string.ITEMS_PASTED, tmp.size()));
                     }
                 });
 
@@ -394,35 +179,38 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         mListView = (ListView) rootView.findViewById(R.id.product_list);
 
         mDb.open();
-        if( undo == null ) {
+        if (undo == null) {
             mDb.gcItems();
             undo = new Stack<>();
         }
 
-        TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(getContext()),mListView);
+        TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(getContext()), mListView);
         t.setOnClick(this);
         t.setOnLongClick(this);
         t.setOnSwipeOut(this);
 
-        mAdapter = new ItemsAdapter(getActivity(),mDb.fetchShopItems(mShopId), 0, t);
+        mAdapter = new ItemsAdapter(getActivity(), mDb.fetchShopItems(mShopId), 0, t);
         mListView.setAdapter(mAdapter);
 
         getActivity().setTitle(mShopName);
         return rootView;
     }
 
-    private void animateDelete(Runnable andThen, long... deletes){
+    private void animateDelete(Runnable andThen, long... deletes) {
         ListAnimations.animateDelete(mAdapter, mListView, andThen, deletes);
     }
 
     @Override
     public void onShake() {
+        //
+        // undoes deleted item
+        //
         if (undo.isEmpty()) {
             popUp(getString(R.string.SHAKE_FAIL));
             return;
         }
 
-        final Pair<String,Long> u = undo.pop();
+        final Pair<String, Long> u = undo.pop();
         final long itemId = u.second;
         final String itemName = u.first;
 
@@ -442,8 +230,11 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
     @Override
     public void onClick(ListView listView, View view) {
-        int position = listView.getPositionForView(view);
-        Cursor c = (Cursor) listView.getItemAtPosition(position);
+        //
+        // flips done marker on item
+        //
+        final int position = listView.getPositionForView(view);
+        final Cursor c = (Cursor) listView.getItemAtPosition(position);
         final long itemId = c.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
         final int itemDone = c.getInt(DBContract.SelectShopItemsQuery.INDEX_IS_DONE);
 
@@ -458,7 +249,36 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     }
 
     @Override
+    public void onSwipeOut(ListView listView, View view) {
+        //
+        // deletes item from list
+        //
+        final int position = listView.getPositionForView(view);
+        final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
+        final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
+        final String itemName = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_NAME);
+
+        animateAdd(new ListAnimations.Runner() {
+            @Override
+            public void run(Set<Long> set) {
+                if (mDb.updateItemDeleted(itemId, true)) {
+                    undo.push(new Pair<>(itemName, itemId));
+                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+    private void animateAdd(ListAnimations.Runner action) {
+        ListAnimations.animateAdd(mAdapter, mListView, action);
+    }
+
+    @Override
     public void onLongClick(ListView listView, View view) {
+        //
+        // edits item on list
+        //
         final int position = listView.getPositionForView(view);
         final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
         final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
@@ -478,53 +298,20 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
         final AutoCompleteTextView u = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_unit);
-        u.setAdapter(new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoCompleteUnit()));
+        u.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, mDb.getAllUnits()));
 
         final AutoCompleteTextView c = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_category);
-        c.setAdapter(new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line, getAutoCompleteCategory()));
+        c.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, mDb.getAllCategories()));
 
         final Spinner spinner = (Spinner) root.findViewById(R.id.dialog_product_color);
-        final ColorAdapter colorAdapter = new ColorAdapter(getActivity(), android.R.layout.simple_dropdown_item_1line);
-        colorAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        spinner.setAdapter(colorAdapter);
+        setupColorSpinner(spinner, c);
 
+        // initial values, MUST be after adding listeners to trigger changed event
         n.setText(itemName);
         n.setSelection(n.getText().length());
         q.setText(itemQuantityStr);
         u.setText(itemUnit);
         c.setText(itemCategory);
-
-        c.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // intentionally empty
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String cat = c.getText().toString();
-                Integer color = UtilColors.colorMap.get(cat);
-                if (color != null) {
-                    int position = UtilColors.getColorPosition(color);
-                    if (position != -1)
-                        spinner.setSelection(position, true);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                // intentionally empty
-            }
-        });
-
-        if( itemCategory != null ) {
-            Integer color = UtilColors.colorMap.get(itemCategory);
-            if (color != null) {
-                int pos = UtilColors.getColorPosition(color);
-                if (pos != -1)
-                    spinner.setSelection(pos, true);
-            }
-        }
 
         builder.setTitle(R.string.UPDATE);
         builder.setView(root);
@@ -538,20 +325,16 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 final String p_cat = c.getText().toString().trim();
                 final int pos = spinner.getSelectedItemPosition();
 
-                // updates category colors
-                if( pos == 0 ){
-                    UtilColors.colorMap.remove(p_cat);
-                }else{
-                    UtilColors.colorMap.put(p_cat,UtilColors.getColorAt(pos));
-                }
+                updateCategoryColors(pos, p_cat);
 
+                // checks if valid update: different name, quantity, unit, or category
                 if (p_name.length() > 0 && (!p_name.equals(itemName) || p_quantity != itemQuantity
-                        || !p_unit.equals(itemUnit) || !p_cat.equals(itemCategory) )) {
+                        || !p_unit.equals(itemUnit) || !p_cat.equals(itemCategory))) {
 
                     animateAdd(new ListAnimations.Runner() {
                         @Override
                         public void run(Set<Long> set) {
-                            mDb.updateItem(itemId,p_name,p_quantity,p_unit,p_cat);
+                            mDb.updateItem(itemId, p_name, p_quantity, p_unit, p_cat);
                             mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                             mAdapter.notifyDataSetChanged();
                         }
@@ -562,36 +345,237 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             }
         });
 
-        builder.setNegativeButton(R.string.CANCEL, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // does nothing
-            }
-        });
+        builder.setNegativeButton(R.string.CANCEL, null);
         builder.create().show();
     }
 
-    @Override
-    public void onSwipeOut(ListView listView, View view) {
-        final int position = listView.getPositionForView(view);
-        final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-        final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
-        final String itemName = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_NAME);
 
-        animateAdd(new ListAnimations.Runner() {
+    private void addItem(final MenuItem item) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        @SuppressLint("InflateParams")
+        final View root = inflater.inflate(R.layout.item_create_dialog, null);
+
+        final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
+        final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
+
+        final AutoCompleteTextView u = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_unit);
+        final ArrayAdapter adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, mDb.getAllUnits());
+        u.setAdapter(adapter);
+
+        final AutoCompleteTextView c = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_category);
+        final String[] array = mDb.getAllCategories();
+        final ArrayAdapter a = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, array);
+        c.setAdapter(a);
+
+        // Color spinner
+        final Spinner spinner = (Spinner) root.findViewById(R.id.dialog_product_color);
+        setupColorSpinner(spinner, c);
+
+        builder.setTitle(R.string.NEW_ITEM);
+        builder.setView(root);
+
+        // Same code for Positive and Neutral buttons.
+        final DialogInterface.OnClickListener aux = new DialogInterface.OnClickListener() {
             @Override
-            public void run(Set<Long> set) {
-                if( mDb.updateItemDeleted(itemId, true) ) {
-                    undo.push(new Pair<>(itemName,itemId));
-                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                    mAdapter.notifyDataSetChanged();
+            public void onClick(DialogInterface dialog, int which) {
+
+                final String p_name = n.getText().toString().trim();
+                final String p_unit = u.getText().toString().trim();
+                final String p_cat = c.getText().toString().trim();
+                final int pos = spinner.getSelectedItemPosition();
+
+                updateCategoryColors(pos, p_cat);
+
+                // check if valid add (i.e. just some non-empty name)
+                if (p_name.length() > 0) {
+
+                    float qt = 1; // default quantity is '1'
+                    try {
+                        qt = Float.parseFloat(q.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        // ignores error
+                    }
+
+                    final float p_quantity = qt;
+
+                    animateAdd(new ListAnimations.Runner() {
+                        @Override
+                        public void run(Set<Long> set) {
+                            long newItem = mDb.createItem(p_name, mShopId, p_quantity, false, p_unit, p_cat);
+                            if (newItem > 0) {
+                                set.add(newItem);
+                                mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                                mAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+
+                    popUp(format(R.string.ITEM_ADDED, p_name, Float.toString(p_quantity)));
                 }
+            }
+        };
+
+        builder.setPositiveButton(R.string.CREATE, aux);
+
+        builder.setNeutralButton(R.string.NEXT, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                aux.onClick(dialog, which);
+                addItem(item); //recur
+            }
+        });
+
+        // nothing to do
+        builder.setNegativeButton(R.string.CANCEL, null);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new EnableOnShow(item));
+
+        n.addTextChangedListener(new UtilTextWatcher(dialog, true)); // has neutral too
+        n.setOnEditorActionListener(new UtilEditorActionListener(dialog));
+
+        dialog.show();
+        n.setText(""); // default value used to trigger listeners and show keyboard
+        //dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
+    private void setupColorSpinner(final Spinner spinner, final AutoCompleteTextView c) {
+        final ColorAdapter colorAdapter = new ColorAdapter(getActivity(), android.R.layout.simple_dropdown_item_1line);
+        colorAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        spinner.setAdapter(colorAdapter);
+
+        c.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // intentionally empty
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //
+                // updates spinner when TextView is updated
+                //
+                String cat = c.getText().toString();
+                Integer color = UtilColors.colorMap.get(cat);
+                if (color != null) {
+                    int position = UtilColors.getColorPosition(color);
+                    if (position != -1) {
+                        spinner.setSelection(position, true);
+                        return;
+                    }
+                }
+                // something failed, use default
+                spinner.setSelection(0, true);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // intentionally empty
             }
         });
     }
 
-    private void animateAdd(ListAnimations.Runner action){
-        ListAnimations.animateAdd(mAdapter, mListView, action);
+    private void updateCategoryColors(int pos, String category) {
+        if (pos == 0) {
+            // no color for category
+            UtilColors.colorMap.remove(category);
+        } else {
+            // updates if already exists
+            UtilColors.colorMap.put(category, UtilColors.getColorAt(pos));
+        }
+    }
+
+    private void transferItems(final MenuItem item) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        final LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        @SuppressLint("InflateParams")
+        final View root = inflater.inflate(R.layout.item_move_dialog, null);
+
+        // aux
+        final Pair<Long, String>[] shopArray = mDb.makeAllShopPair();
+        String[] shops = new String[shopArray.length];
+        int i = 0;
+        int pos = -1;
+        for (Pair<Long, String> p : shopArray) {
+            if (p.first == mShopId)
+                pos = i;
+            shops[i] = p.second;
+            ++i;
+        }
+
+        final int position = pos;
+
+        // SPINNER
+        final Spinner spinner = (Spinner) root.findViewById(R.id.shop_pick);
+
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.item_move_spinner, shops);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerArrayAdapter);
+        spinner.setSelection(pos);
+        // SPINNER
+
+        // LIST
+        final ItemsMoveAdapter moveAdapter = new ItemsMoveAdapter(getActivity(), mDb.fetchShopItems(mShopId), 0);
+        final ListView listView = (ListView) root.findViewById(R.id.product_list);
+        listView.setAdapter(moveAdapter);
+        // LIST
+
+        builder.setTitle(R.string.TRANSFER_TITLE);
+        builder.setView(root);
+
+        builder.setPositiveButton(R.string.TRANSFER, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final Long[] set = moveAdapter.getSelectedItemIds();
+                final int i = spinner.getSelectedItemPosition();
+
+                int count = 0;
+                for (Long b : set) {
+                    count += b != null ? 1 : 0;
+                }
+
+                if (i == position || count == 0) {
+                    popUp(getString(R.string.TRANSFER_FAIL));
+                } else {
+                    final long toShopId = shopArray[i].first;
+                    final String toShopName = shopArray[i].second;
+                    final String fromShopName = shopArray[position].second;
+
+                    // pick elements for transfer
+                    final long[] transfers = new long[count];
+                    for (int x = 0, y = 0; x < set.length; ++x) {
+                        if (set[x] != null) {
+                            transfers[y++] = set[x];
+                        }
+                    }
+
+                    animateDelete(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (long id : transfers) {
+                                mDb.updateItemShopId(id, toShopId);
+                            }
+
+                            // no need to animate since order did not change
+                            mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }, transfers);
+
+                    popUp(format(R.string.ITEM_TRANSFERRED, count, fromShopName, toShopName));
+                }
+            }
+        });
+
+        // nothing to do on cancel
+        builder.setNegativeButton(R.string.CANCEL, null);
+
+        AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new EnableOnShow(item));
+        dialog.show();
     }
 
     //
@@ -601,18 +585,18 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     protected void save(String name) {
         // either saves given file to downloads directory, or attempts given absolute path
         try {
-            if( !name.endsWith(".txt") ) {
+            if (!name.endsWith(".txt")) {
                 name = name + ".txt";
             }
 
             Context c = null;
             File file;
 
-            if( !name.startsWith("/")){
+            if (!name.startsWith("/")) {
                 c = getActivity();
                 File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 file = new File(path, name);
-            }else{
+            } else {
                 // note that when given 'any' file name writing may fail due to filesystem permissions
                 file = new File(name);
             }
@@ -623,7 +607,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             mDb.saveShopItems(pw, mShopId);
             pw.close();
 
-            if( c != null ) {
+            if (c != null) {
                 // Tell the media scanner about the new file so that it is
                 // immediately available to the user.
                 MediaScannerConnection.scanFile(c, new String[]{file.toString()}, null, null);
@@ -632,15 +616,14 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             popUp(format(R.string.SAVED_FILE, file.getAbsolutePath()));
         } catch (Exception e) {
             e.printStackTrace();
-            popUp(format(R.string.ERROR_FILE,e));
+            popUp(format(R.string.ERROR_FILE, e));
         }
     }
-
 
     protected void load(final String file) {
         try {
             File tmp = new File(file);
-            if( !tmp.exists() ){
+            if (!tmp.exists()) {
                 // attempt download directory
                 tmp = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), file);
             }
@@ -656,13 +639,13 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                     mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                     mAdapter.notifyDataSetChanged();
-                    popUp(format(R.string.LOADED_FILE,finalTmp.getAbsolutePath()));
+                    popUp(format(R.string.LOADED_FILE, finalTmp.getAbsolutePath()));
                 }
             });
 
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            popUp(format(R.string.ERROR_FILE,e));
+            popUp(format(R.string.ERROR_FILE, e));
         }
     }
 }

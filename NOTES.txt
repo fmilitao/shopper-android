@@ -4,6 +4,7 @@ TODO: remove import from clipboard on "new list"
 TODO: escape any occurrence  of ',' when writing to CSV file, unescape on load, remove accidental newlines too?
 TODO: link length of trimmed string in a dialog to enabling Create button, etc.
 TODO: better error reporting?
+TODO: validate file as typed, and warn on overwrites, show small text on what will be done and where will be placed?
 
 NOTES AND USEFUL LINKS
 ======================

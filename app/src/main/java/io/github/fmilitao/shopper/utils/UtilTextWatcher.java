@@ -8,9 +8,15 @@ import android.text.TextWatcher;
 public class UtilTextWatcher implements TextWatcher{
 
     private AlertDialog mDialog;
+    private boolean mHasNeutral;
 
     public UtilTextWatcher(AlertDialog d){
+        this(d,false);
+    }
+
+    public UtilTextWatcher(AlertDialog d, boolean hasNeutral){
         mDialog = d;
+        mHasNeutral = hasNeutral;
     }
 
     @Override
@@ -20,7 +26,11 @@ public class UtilTextWatcher implements TextWatcher{
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        mDialog.getButton(Dialog.BUTTON_POSITIVE).setEnabled(s.toString().trim().length() > 0);
+        boolean enable = s.toString().trim().length() > 0;
+        mDialog.getButton(Dialog.BUTTON_POSITIVE).setEnabled(enable);
+        if( mHasNeutral ){
+            mDialog.getButton(Dialog.BUTTON_NEUTRAL).setEnabled(enable);
+        }
     }
 
     @Override

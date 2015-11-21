@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -107,6 +108,25 @@ public class UtilFragment extends Fragment {
 
     protected void load(String file){
         // does nothing
+    }
+
+    //
+    // convenient class to enable an item when a dialog is first shown
+    //
+
+    protected static final class EnableOnShow implements DialogInterface.OnShowListener{
+
+        MenuItem mItem;
+
+        public EnableOnShow(MenuItem item){
+            mItem = item;
+        }
+
+        @Override
+        public void onShow(DialogInterface dialog) {
+            // after dialog is showing, restore button to enabled
+            mItem.setEnabled(true);
+        }
     }
 
 }

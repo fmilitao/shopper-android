@@ -292,6 +292,7 @@ public class DatabaseMiddleman {
         do{
             out.println(
                 // removes any chance of collision with ','
+                // FIXME: this should instead escape commas (see CSV spec)
                 c.getString(SelectShopItemsQuery.INDEX_NAME).replace(',', ' ')
                 + "," +
                 c.getString(SelectShopItemsQuery.INDEX_QUANTITY)
