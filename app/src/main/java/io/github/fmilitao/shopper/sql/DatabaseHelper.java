@@ -32,12 +32,13 @@ class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + DBContract.ItemEntry.TABLE_NAME + " ADD " + DBContract.ItemEntry.COLUMN_ITEM_CATEGORY + " TEXT");
         }
 
-//        else{
-////                    db.execSQL("DROP TABLE IF EXISTS " + DBContract.ShopEntry.TABLE_NAME);
-////                    db.execSQL("DROP TABLE IF EXISTS " + DBContract.ItemEntry.TABLE_NAME);
-////                    onCreate(db);
-//                }
-//        }
+        /*
+        // last resort, just drop everything
+        db.execSQL("DROP TABLE IF EXISTS " + DBContract.ShopEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + DBContract.ItemEntry.TABLE_NAME);
+        onCreate(db);
+        */
+
 
     }
 }
