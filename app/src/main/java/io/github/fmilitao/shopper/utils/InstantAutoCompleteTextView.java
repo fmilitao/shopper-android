@@ -3,6 +3,8 @@ package io.github.fmilitao.shopper.utils;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 // from: http://stackoverflow.com/questions/15544943/show-all-items-in-autocompletetextview-without-writing-text

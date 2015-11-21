@@ -5,18 +5,11 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.util.Pair;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import io.github.fmilitao.shopper.R;
 
 public class Utilities {
 
@@ -37,6 +30,7 @@ public class Utilities {
     // indexes for 'name', 'quantity', 'unit'
     static final int[] INDEX = {1, 2, 4};
     // FIXME: this is ready to include additional PATTERNs
+    // FIXME: also include categories here
 
     //
     // Import from clipboard

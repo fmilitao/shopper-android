@@ -49,8 +49,7 @@ import io.github.fmilitao.shopper.utils.UtilFragment;
 import io.github.fmilitao.shopper.utils.UtilTextWatcher;
 import io.github.fmilitao.shopper.utils.Utilities;
 
-// FIXME-STYLE this code is too long and some duplication on add/edit item.
-// FIXME-FEATURE connect category writing to color picker.
+
 public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
         TouchAndClickListener.ClickListener, TouchAndClickListener.LongClickListener, TouchAndClickListener.SwipeOutListener {
 
