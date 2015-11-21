@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -161,7 +162,9 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             text.setOnEditorActionListener(new UtilEditorActionListener(dialog));
 
             dialog.show();
+
             text.setText(""); // also ensures keyboard pops-up
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
             return true;
         }
@@ -293,6 +296,8 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         // after showing to trigger TextChangedListener appropriately (must happen AFTER show)
         text.setText(oldName);
         text.setSelection(text.getText().length());
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
     }
 
     @Override

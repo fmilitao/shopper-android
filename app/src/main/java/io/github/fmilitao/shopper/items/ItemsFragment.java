@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -345,7 +346,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         });
 
         builder.setNegativeButton(R.string.CANCEL, null);
-        builder.create().show();
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
 
@@ -437,7 +440,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
         dialog.show();
         n.setText(""); // default value used to trigger listeners and show keyboard
-        //dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     private void setupColorSpinner(final Spinner spinner, final AutoCompleteTextView c) {

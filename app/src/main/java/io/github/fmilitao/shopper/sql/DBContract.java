@@ -7,7 +7,7 @@ public interface DBContract {
     // note in SQLite 'false' is '0' and 'true' is '1'
 
     String DATABASE_NAME = "shopper.db";
-    int DATABASE_VERSION = 14;
+    int DATABASE_VERSION = 16;
 
     interface ShopEntry extends BaseColumns {
         String TABLE_NAME = "shops";
