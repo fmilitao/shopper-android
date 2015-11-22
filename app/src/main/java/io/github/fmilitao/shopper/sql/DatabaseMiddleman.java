@@ -292,14 +292,16 @@ public class DatabaseMiddleman {
         do{
             out.println(
                 // removes any chance of collision with ','
-                // FIXME: this should instead escape commas (see CSV spec)
-                c.getString(SelectShopItemsQuery.INDEX_NAME).replace(',', ' ')
+                // FIXME: this must escape commas (see CSV spec)
+                c.getString(SelectShopItemsQuery.INDEX_NAME)
                 + "," +
                 c.getString(SelectShopItemsQuery.INDEX_QUANTITY)
                 + "," +
                 Boolean.toString(c.getInt(SelectShopItemsQuery.INDEX_IS_DONE) != 0)
                 + "," +
-                c.getString(SelectShopItemsQuery.INDEX_UNIT).replace(',', ' ')
+                c.getString(SelectShopItemsQuery.INDEX_UNIT)
+                + "," +
+                c.getString(SelectShopItemsQuery.INDEX_CATEGORY)
             );
 
         }while( c.moveToNext() );

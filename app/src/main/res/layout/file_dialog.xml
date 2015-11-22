@@ -14,4 +14,11 @@
         android:layout_marginBottom="4dp"
         android:hint="@string/FILE_NAME" />
 
+    <TextView
+        android:id="@+id/file_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="@string/FILE_DEFAULT_MESSAGE"/>
+
 </LinearLayout>

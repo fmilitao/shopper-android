@@ -24,20 +24,29 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.v(TAG, "Upgrading from " + oldVersion + " to " + newVersion + ", all destroyed.");
+        Log.v(TAG, "Upgrading from " + oldVersion + " to " + newVersion + ".");
+
+        // DB version is too old, drop all.
+        if( oldVersion < 10 ) {
+            // last resort, just drop everything
+            db.execSQL("DROP TABLE IF EXISTS " + DBContract.ShopEntry.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + DBContract.ItemEntry.TABLE_NAME);
+            onCreate(db);
+            return;
+        }
 
         // Useful stuff on altering existing tables: http://www.w3schools.com/sql/sql_alter.asp
-        if( oldVersion < DBContract.DATABASE_VERSION) {
+
+        if( oldVersion < 12 ) {
+            // adds units
             db.execSQL("ALTER TABLE " + DBContract.ItemEntry.TABLE_NAME + " ADD " + DBContract.ItemEntry.COLUMN_ITEM_UNIT + " TEXT");
+        }
+
+        if( oldVersion < 13 ){
+            // adds categories
             db.execSQL("ALTER TABLE " + DBContract.ItemEntry.TABLE_NAME + " ADD " + DBContract.ItemEntry.COLUMN_ITEM_CATEGORY + " TEXT");
         }
 
-        /*
-        // last resort, just drop everything
-        db.execSQL("DROP TABLE IF EXISTS " + DBContract.ShopEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + DBContract.ItemEntry.TABLE_NAME);
-        onCreate(db);
-        */
 
 
     }

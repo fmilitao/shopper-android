@@ -584,24 +584,38 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     // List I/O
     //
 
+    protected File getSaveFile(String name){
+        if (!name.endsWith(".txt")) {
+            name = name + ".txt";
+        }
+
+        if (!name.startsWith("/")) {
+            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            return new File(path, name);
+        } else {
+            // note that when given 'any' file name writing may fail due to filesystem permissions
+            return new File(name);
+        }
+    }
+
     protected void save(String name) {
         // either saves given file to downloads directory, or attempts given absolute path
         try {
-            if (!name.endsWith(".txt")) {
-                name = name + ".txt";
-            }
+//            if (!name.endsWith(".txt")) {
+//                name = name + ".txt";
+//            }
 
-            Context c = null;
-            File file;
+            Context c = !name.startsWith("/") ? getActivity() : null;
+            File file = getSaveFile(name);
 
-            if (!name.startsWith("/")) {
-                c = getActivity();
-                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                file = new File(path, name);
-            } else {
-                // note that when given 'any' file name writing may fail due to filesystem permissions
-                file = new File(name);
-            }
+//            if (!name.startsWith("/")) {
+//                c = getActivity();
+//                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+//                file = new File(path, name);
+//            } else {
+//                // note that when given 'any' file name writing may fail due to filesystem permissions
+//                file = new File(name);
+//            }
 
             Log.w(">>", file.getAbsolutePath());
 
@@ -622,16 +636,20 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         }
     }
 
+
+    protected File getLoadFile(String file){
+        File tmp = new File(file);
+        if (!tmp.exists()) {
+            // attempts download directory
+            tmp = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), file);
+        }
+        return tmp;
+    }
+
     protected void load(final String file) {
         try {
-            File tmp = new File(file);
-            if (!tmp.exists()) {
-                // attempt download directory
-                tmp = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), file);
-            }
-
+            final File tmp = getLoadFile(file);
             final Scanner sc = new Scanner(tmp);
-            final File finalTmp = tmp;
 
             animateAdd(new ListAnimations.Runner() {
                 @Override
@@ -641,7 +659,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
                     mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
                     mAdapter.notifyDataSetChanged();
-                    popUp(format(R.string.LOADED_FILE, finalTmp.getAbsolutePath()));
+                    popUp(format(R.string.LOADED_FILE, tmp.getAbsolutePath()));
                 }
             });
 

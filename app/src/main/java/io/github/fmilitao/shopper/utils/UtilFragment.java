@@ -6,12 +6,17 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
 
 import io.github.fmilitao.shopper.R;
 
@@ -47,10 +52,7 @@ public class UtilFragment extends Fragment {
         @SuppressLint("InflateParams")
         final View root = inflater.inflate(R.layout.file_dialog, null);
         final EditText txt = (EditText) root.findViewById(R.id.file_path);
-
-        if (path != null) {
-            txt.setText(path);
-        }
+        final TextView msg = (TextView) root.findViewById(R.id.file_message);
 
         builder.setView(root)
                 .setTitle(isLoad ? R.string.LOAD_DIALOG : R.string.SAVE_DIALOG)
@@ -77,9 +79,51 @@ public class UtilFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int id) {
                         // intentionally empty
                     }
-                })
-                .create()
-                .show();
+                });
+
+        final AlertDialog dialog = builder.create();
+
+        txt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // empty
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String path = txt.getText().toString();
+                if (isLoad) {
+                    File file = getLoadFile(path);
+                    int stringId;
+
+                    if (!file.exists())
+                        stringId = R.string.FILE_INVALID_LOAD;
+                    else {
+                        if (file.isDirectory()) {
+                            stringId = R.string.FILE_INVALID_LOAD_DIR;
+                        } else {
+                            stringId = R.string.FILE_VALID_LOAD;
+                        }
+                    }
+
+                    dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(stringId == R.string.FILE_VALID_LOAD);
+                    msg.setText(format(stringId, file.getAbsolutePath()));
+                } else {
+                    File file = getSaveFile(path);
+                    int stringId = file.exists() ? R.string.FILE_VALID_OVERWRITE : R.string.FILE_VALID_WRITE;
+                    msg.setText(format(stringId, file.getAbsolutePath()));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // empty
+            }
+        });
+
+        dialog.show();
+        txt.setText(path == null ? "" : path);
+
     }
 
     protected void saveDialog(String path) {
@@ -102,11 +146,19 @@ public class UtilFragment extends Fragment {
 
     }
 
-    protected void save(String file){
+    protected File getSaveFile(String file) {
+        return null;
+    }
+
+    protected File getLoadFile(String file) {
+        return null;
+    }
+
+    protected void save(String file) {
         // does nothing
     }
 
-    protected void load(String file){
+    protected void load(String file) {
         // does nothing
     }
 
@@ -114,11 +166,11 @@ public class UtilFragment extends Fragment {
     // convenient class to enable an item when a dialog is first shown
     //
 
-    protected static final class EnableOnShow implements DialogInterface.OnShowListener{
+    protected static final class EnableOnShow implements DialogInterface.OnShowListener {
 
         MenuItem mItem;
 
-        public EnableOnShow(MenuItem item){
+        public EnableOnShow(MenuItem item) {
             mItem = item;
         }
 

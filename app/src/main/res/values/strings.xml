@@ -68,4 +68,12 @@
     <string name="CATEGORY_DEFAULT"><![CDATA[<default>]]></string>
 
     <string name="NULL_STR" translatable="false">null</string>
+    <string name="FILE_DEFAULT_MESSAGE">Choose a file.</string>
+
+    <string name="FILE_INVALID">Choose a file.</string>
+    <string name="FILE_VALID_WRITE">Will write to: \'%1$s\'</string>
+    <string name="FILE_VALID_OVERWRITE">Will OVERWRITE: \'%1$s\'</string>
+    <string name="FILE_INVALID_LOAD">File \'%1$s\' does not exist!</string>
+    <string name="FILE_INVALID_LOAD_DIR">Invalid file: \'%1$s\' is directory.</string>
+    <string name="FILE_VALID_LOAD">Will attempt to load \'%1$s\'</string>
 </resources>
