@@ -189,7 +189,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         }
 
         TouchAndClickListener t = new TouchAndClickListener(ViewConfiguration.get(getContext()), mListView);
-        t.setOnClick(this);
+        //t.setOnClick(this);
         t.setOnLongClick(this);
         t.setOnSwipeOut(this);
 
@@ -205,7 +205,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final int notDoneItems = c.getInt(DBContract.SelectShopItemsQuantitiesQuery.INDEX_NOT_DONE);
         c.close();
 
-        getActivity().setTitle("("+notDoneItems+") "+mShopName);
+        getActivity().setTitle("(" + notDoneItems + ") " + mShopName);
     }
 
     private void updateListDependencies(){
@@ -266,27 +266,39 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     }
 
     @Override
-    public void onSwipeOut(ListView listView, View view) {
-        //
-        // deletes item from list
-        //
-        final int position = listView.getPositionForView(view);
-        final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-        final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
-        final String itemName = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_NAME);
+    public void onSwipeOut(ListView listView, View view, TouchAndClickListener.Direction direction) {
 
-        animateAdd(new ListAnimations.Runner() {
-            @Override
-            public void run(Set<Long> set) {
-                if (mDb.updateItemDeleted(itemId, true)) {
-                    undo.push(new Pair<>(itemName, itemId));
-                    updateListDependencies();
-                }
-            }
-        });
+        switch (direction) {
+            case LEFT:
+                //
+                // deletes item from list
+                //
+                final int position = listView.getPositionForView(view);
+                final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
+                final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
+                final String itemName = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_NAME);
+
+                animateAdd(new ListAnimations.Runner() {
+                    @Override
+                    public void run(Set<Long> set) {
+                        if (mDb.updateItemDeleted(itemId, true)) {
+                            undo.push(new Pair<>(itemName, itemId));
+                            updateListDependencies();
+                        }
+                    }
+                });
+                return;
+            case RIGHT:
+                onClick(listView, view);
+                return;
+            default:
+                // does nothing
+        }
     }
 
     private void animateAdd(ListAnimations.Runner action) {
+        // FIXME animation is now inconsistent with swipe out movement
+        // FIXME display some feedback on what the action will do (delete/mark as done).
         ListAnimations.animateAdd(mAdapter, mListView, action);
     }
 

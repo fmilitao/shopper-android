@@ -85,7 +85,9 @@ public class TouchAndClickListener implements View.OnTouchListener {
                 longClick = new Runnable() {
                     @Override
                     public void run() {
-                        mOnLongClick.onLongClick(mListView, v);
+                        if (mOnLongClick!=null) {
+                            mOnLongClick.onLongClick(mListView, v);
+                        }
                     }
                 };
                 handler.postDelayed(longClick, LONG_TIMEOUT);
@@ -127,6 +129,7 @@ public class TouchAndClickListener implements View.OnTouchListener {
                     float endX;
                     float endAlpha;
                     final boolean remove;
+                    final Direction direction;
 
                     if (deltaXAbs > v.getWidth() / 4) {
                         // Greater than a quarter of the width - animate it out
@@ -134,12 +137,14 @@ public class TouchAndClickListener implements View.OnTouchListener {
                         endX = deltaX < 0 ? -v.getWidth() : v.getWidth();
                         endAlpha = 0;
                         remove = true;
+                        direction = deltaX < 0 ? Direction.LEFT : Direction.RIGHT;
                     } else {
                         // Not far enough - animate it back
                         fractionCovered = 1 - (deltaXAbs / v.getWidth());
                         endX = 0;
                         endAlpha = 1;
                         remove = false;
+                        direction = null;
                     }
 
                     // Animate position and alpha of swiped item
@@ -164,8 +169,8 @@ public class TouchAndClickListener implements View.OnTouchListener {
                                     mSwiping = false;
                                     mListView.setEnabled(true);
 
-                                    if (remove) {
-                                        mOnSwipeOut.onSwipeOut(mListView,v);
+                                    if (remove && mOnSwipeOut != null) {
+                                        mOnSwipeOut.onSwipeOut(mListView, v, direction);
                                     }
                                 }
                             });
@@ -174,7 +179,9 @@ public class TouchAndClickListener implements View.OnTouchListener {
                     if (diff < LONG_TIMEOUT) {
 //                        android.util.Log.v("DEBUG","REMOVED TIMEOUT - CLICK");
                         handler.removeCallbacks(longClick);
-                        mOnClick.onClick(mListView, v);
+                        if (mOnClick != null) {
+                            mOnClick.onClick(mListView, v);
+                        }
                     }
                 }
 
@@ -202,7 +209,9 @@ public class TouchAndClickListener implements View.OnTouchListener {
     }
 
     public interface SwipeOutListener {
-        void onSwipeOut(ListView listView, View view);
+        void onSwipeOut(ListView listView, View view, Direction direction);
     }
+
+    public enum Direction { LEFT, RIGHT }
 
 }

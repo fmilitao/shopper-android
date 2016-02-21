@@ -308,9 +308,9 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
     }
 
     @Override
-    public void onSwipeOut(ListView listView, View view) {
+    public void onSwipeOut(ListView listView, View view, TouchAndClickListener.Direction direction) {
         //
-        // deletes swiped out item
+        // deletes swiped out item (ignores direction)
         //
         final int position = listView.getPositionForView(view);
         final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
