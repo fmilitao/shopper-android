@@ -95,7 +95,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
     public boolean onOptionsItemSelected(final MenuItem item) {
         int id = item.getItemId();
 
-        // to prevent double tap on item menu
+        // to prevent double tap on item menu button
         item.setEnabled(false);
 
         if (id == R.id.import_list) {
@@ -170,6 +170,13 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         }
 
         item.setEnabled(true);
+
+        if (id == R.id.undo_delete_shop) {
+            // fake shake action to undo deletion
+            onShake();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

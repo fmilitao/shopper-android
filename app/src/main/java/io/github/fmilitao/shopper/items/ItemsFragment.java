@@ -161,6 +161,11 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             }
             return true;
         }
+        if (id == R.id.undo_delete_items ){
+            // fake shake action to undo deletion
+            onShake();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }

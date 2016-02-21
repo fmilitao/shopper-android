@@ -76,4 +76,7 @@
     <string name="FILE_INVALID_LOAD">File \'%1$s\' does not exist!</string>
     <string name="FILE_INVALID_LOAD_DIR">Invalid file: \'%1$s\' is directory.</string>
     <string name="FILE_VALID_LOAD">Will attempt to load \'%1$s\'</string>
+
+    <string name="UNDO_DELETE_ITEMS">Undo Item Deletion</string>
+    <string name="UNDO_DELETE_SHOP">Undo List Deletion</string>
 </resources>

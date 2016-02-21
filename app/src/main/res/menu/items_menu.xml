@@ -34,4 +34,11 @@
         android:orderInCategory="25"
         android:icon="@android:drawable/ic_menu_set_as"
         app:showAsAction="ifRoom|withText" />
+
+    <item android:id="@+id/undo_delete_items"
+        android:title="@string/UNDO_DELETE_ITEMS"
+        android:orderInCategory="20"
+        app:showAsAction="never" />
+
+
 </menu>

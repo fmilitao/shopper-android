@@ -9,6 +9,10 @@
         android:icon="@android:drawable/ic_menu_add"
         app:showAsAction="ifRoom|withText" />
 
+    <item android:id="@+id/undo_delete_shop"
+        android:title="@string/UNDO_DELETE_SHOP"
+        android:orderInCategory="20"
+        app:showAsAction="never" />
 
     <!--
     <item android:id="@+id/load_list"
