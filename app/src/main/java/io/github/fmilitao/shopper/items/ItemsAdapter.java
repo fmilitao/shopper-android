@@ -65,7 +65,8 @@ public class ItemsAdapter extends CursorAdapter {
             viewHolder.mItemUnit.setTextColor(Color.GRAY);
             viewHolder.mItemCategory.setVisibility(View.GONE);
 
-            view.setAlpha(0.5f);
+            // setting alpha conflicts with fade out animations
+            // view.setAlpha(0.5f);
             view.setBackgroundColor(Color.LTGRAY);
         }else{
 
@@ -95,7 +96,8 @@ public class ItemsAdapter extends CursorAdapter {
             viewHolder.mItemQuantity.setTextColor(viewHolder.mTextColor);
             viewHolder.mItemUnit.setTextColor(viewHolder.mTextColor);
 
-            view.setAlpha(1);
+            // setting alpha here conflicts with animation fade-out
+            // view.setAlpha(1);
         }
     }
 

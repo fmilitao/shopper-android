@@ -1,3 +1,5 @@
+TODO: http://www.warriorpoint.com/blog/2009/07/01/android-creating-tablerow-rows-inside-a-tablelayout-programatically/
+
 TODO: remove import from clipboard on "new list", create import from clipboard dialog
 TODO: escape any occurrence  of ',' when writing to CSV file, unescape on load, remove accidental newlines too?
 TODO: better error reporting?
@@ -62,3 +64,4 @@ SELECT L._id, L.name,
 	LEFT JOIN
 	(SELECT * FROM items WHERE items.deleted = 'FALSE') R
 	ON L._id = R.shop_id GROUP BY L._id;
+
