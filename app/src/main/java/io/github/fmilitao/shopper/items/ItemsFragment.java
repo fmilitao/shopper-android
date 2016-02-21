@@ -248,6 +248,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
     @Override
     public void onClick(ListView listView, View view) {
+
+        // TODO display some feedback on what the action will do (delete/mark as done).
+
         //
         // flips done marker on item
         //
@@ -256,7 +259,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final long itemId = c.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
         final int itemDone = c.getInt(DBContract.SelectShopItemsQuery.INDEX_IS_DONE);
 
-        animateAdd(new ListAnimations.Runner() {
+        ListAnimations.animateAdd2(mAdapter, mListView, itemId, new ListAnimations.Runner() {
             @Override
             public void run(Set<Long> set) {
                 mDb.flipItem(itemId, itemDone);
@@ -297,8 +300,6 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     }
 
     private void animateAdd(ListAnimations.Runner action) {
-        // FIXME animation is now inconsistent with swipe out movement
-        // FIXME display some feedback on what the action will do (delete/mark as done).
         ListAnimations.animateAdd(mAdapter, mListView, action);
     }
 
