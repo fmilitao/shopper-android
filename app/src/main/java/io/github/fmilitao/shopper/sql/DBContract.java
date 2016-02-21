@@ -94,7 +94,6 @@ public interface DBContract {
         int INDEX_CATEGORY = 5;
     }
 
-    // FIXME-NEW!
     interface SelectShopItemsQuantitiesQuery {
         String QUERY = "SELECT " +
                 "COUNT( " + ItemEntry._ID + " ) AS " + JoinShopItemQuery.COLUMN_ALL_ITEMS_COUNT + ", " +
@@ -117,6 +116,16 @@ public interface DBContract {
         // indexes of query above, if order above changes so must the values below
         int INDEX_ID = 0;
         int INDEX_NAME = 1;
+    }
+
+    interface ItemNameQuery {
+        String QUERY = "SELECT DISTINCT " +
+                ItemEntry.COLUMN_ITEM_NAME+
+                " FROM  " + ItemEntry.TABLE_NAME +
+                " WHERE " + ItemEntry.COLUMN_DELETED + " = 0 " +
+                " ORDER BY "+ItemEntry.COLUMN_ITEM_NAME ;
+
+        int INDEX_NAME = 0;
     }
 
     interface UnitsQuery {

@@ -268,6 +268,30 @@ public class DatabaseMiddleman {
     }
 
     //
+    // Item Names
+    //
+
+    public String[] getAllItemNames() {
+        Log.v(TAG, " Names: " + DBContract.ItemNameQuery.QUERY);
+
+        Cursor c = mDb.rawQuery(DBContract.ItemNameQuery.QUERY, null);
+        c.moveToFirst();
+
+        String[] res;
+        if (c.getCount() > 0) {
+            res = new String[c.getCount()];
+            int i = 0;
+            do {
+                res[i++] = c.getString(DBContract.ItemNameQuery.INDEX_NAME);
+            } while (c.moveToNext());
+        } else {
+            res = new String[]{};
+        }
+        c.close();
+        return res;
+    }
+
+    //
     // Categories
     //
 

@@ -322,7 +322,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         @SuppressLint("InflateParams")
         final View root = inflater.inflate(R.layout.item_create_dialog, null);
 
-        final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
+        final AutoCompleteTextView n = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_name);
+        n.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, mDb.getAllItemNames()));
+
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
         final AutoCompleteTextView u = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_unit);
@@ -386,7 +388,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         @SuppressLint("InflateParams")
         final View root = inflater.inflate(R.layout.item_create_dialog, null);
 
-        final EditText n = (EditText) root.findViewById(R.id.dialog_product_name);
+        final AutoCompleteTextView n = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_name);
+        n.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, mDb.getAllItemNames()));
+
         final EditText q = (EditText) root.findViewById(R.id.dialog_product_quantity);
 
         final AutoCompleteTextView u = (AutoCompleteTextView) root.findViewById(R.id.dialog_product_unit);

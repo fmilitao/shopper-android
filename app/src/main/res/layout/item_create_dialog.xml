@@ -4,10 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <EditText
+    <io.github.fmilitao.shopper.utils.InstantAutoCompleteTextView
         android:id="@+id/dialog_product_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:imeOptions="actionNext"
         android:hint="@string/ITEM_NAME"
         android:inputType="textCapSentences" />
 
