@@ -152,8 +152,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                     @Override
                     public void run(Set<Long> set) {
                         mDb.loadShopItems(tmp, mShopId, set);
-                        mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                        mAdapter.notifyDataSetChanged();
+                        updateListDependencies();
                         popUp(format(R.string.ITEMS_PASTED, tmp.size()));
                     }
                 });
@@ -197,8 +196,23 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         mAdapter = new ItemsAdapter(getActivity(), mDb.fetchShopItems(mShopId), 0, t);
         mListView.setAdapter(mAdapter);
 
-        getActivity().setTitle(mShopName);
+        updateActivityTitle();
         return rootView;
+    }
+
+    private void updateActivityTitle(){
+        Cursor c = mDb.fetchShopDetails(mShopId);
+        final int notDoneItems = c.getInt(DBContract.SelectShopItemsQuantitiesQuery.INDEX_NOT_DONE);
+        c.close();
+
+        getActivity().setTitle("("+notDoneItems+") "+mShopName);
+    }
+
+    private void updateListDependencies(){
+        updateActivityTitle();
+
+        mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
+        mAdapter.notifyDataSetChanged();
     }
 
     private void animateDelete(Runnable andThen, long... deletes) {
@@ -224,8 +238,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             public void run(Set<Long> set) {
                 if (mDb.updateItemDeleted(itemId, false)) {
                     set.add(itemId);
-                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                    mAdapter.notifyDataSetChanged();
+                    updateListDependencies();
                 }
             }
         });
@@ -247,8 +260,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             @Override
             public void run(Set<Long> set) {
                 mDb.flipItem(itemId, itemDone);
-                mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                mAdapter.notifyDataSetChanged();
+                updateListDependencies();
             }
         });
     }
@@ -268,8 +280,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             public void run(Set<Long> set) {
                 if (mDb.updateItemDeleted(itemId, true)) {
                     undo.push(new Pair<>(itemName, itemId));
-                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                    mAdapter.notifyDataSetChanged();
+                    updateListDependencies();
                 }
             }
         });
@@ -340,8 +351,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                         @Override
                         public void run(Set<Long> set) {
                             mDb.updateItem(itemId, p_name, p_quantity, p_unit, p_cat);
-                            mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                            mAdapter.notifyDataSetChanged();
+                            updateListDependencies();
                         }
                     });
 
@@ -413,8 +423,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                             long newItem = mDb.createItem(p_name, mShopId, p_quantity, false, p_unit, p_cat);
                             if (newItem > 0) {
                                 set.add(newItem);
-                                mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                                mAdapter.notifyDataSetChanged();
+                                updateListDependencies();
                             }
                         }
                     });
@@ -567,8 +576,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                             }
 
                             // no need to animate since order did not change
-                            mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                            mAdapter.notifyDataSetChanged();
+                            updateListDependencies();
                         }
                     }, transfers);
 
@@ -662,8 +670,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                     mDb.loadShopItems(sc, mShopId, set);
                     sc.close();
 
-                    mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
-                    mAdapter.notifyDataSetChanged();
+                    updateListDependencies();
                     popUp(format(R.string.LOADED_FILE, tmp.getAbsolutePath()));
                 }
             });

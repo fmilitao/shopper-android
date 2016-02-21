@@ -94,6 +94,20 @@ public interface DBContract {
         int INDEX_CATEGORY = 5;
     }
 
+    // FIXME-NEW!
+    interface SelectShopItemsQuantitiesQuery {
+        String QUERY = "SELECT " +
+                "COUNT( " + ItemEntry._ID + " ) AS " + JoinShopItemQuery.COLUMN_ALL_ITEMS_COUNT + ", " +
+                "IFNULL( SUM( NOT " + ItemEntry.COLUMN_ITEM_DONE +" ), 0 ) AS " + JoinShopItemQuery.COLUMN_NOT_DONE_ITEMS_COUNT +
+                " FROM " + ItemEntry.TABLE_NAME + " WHERE " +
+                ItemEntry.COLUMN_DELETED + " = 0 AND " +
+                ItemEntry.COLUMN_ITEM_SHOP_ID_FK + "=? ;";
+
+        // indexes of query above, if order above changes so must the values below
+        int INDEX_ALL_ITEMS = 0;
+        int INDEX_NOT_DONE = 1;
+    }
+
     interface ShopsQuery {
         String QUERY = "SELECT " +
                 ShopEntry._ID+", "+

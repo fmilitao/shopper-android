@@ -19,6 +19,7 @@ import io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery;
 import io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery;
 import io.github.fmilitao.shopper.sql.DBContract.ShopEntry;
 import io.github.fmilitao.shopper.sql.DBContract.ShopsQuery;
+import io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuantitiesQuery;
 import io.github.fmilitao.shopper.utils.Utilities;
 
 //TODO-SAFETY consider protecting against sql injections.
@@ -138,6 +139,17 @@ public class DatabaseMiddleman {
         Log.v(TAG, SelectShopItemsQuery.QUERY);
 
         Cursor c = mDb.rawQuery(SelectShopItemsQuery.QUERY, new String[]{Long.toString(shopId)});
+
+        if (c != null) {
+            c.moveToFirst();
+        }
+        return c;
+    }
+
+    public Cursor fetchShopDetails(long shopId) {
+        Log.v(TAG, SelectShopItemsQuantitiesQuery.QUERY);
+
+        Cursor c = mDb.rawQuery(SelectShopItemsQuantitiesQuery.QUERY, new String[]{Long.toString(shopId)});
 
         if (c != null) {
             c.moveToFirst();
