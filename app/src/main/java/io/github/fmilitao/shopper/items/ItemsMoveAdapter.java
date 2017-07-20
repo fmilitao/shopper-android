@@ -12,16 +12,12 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import io.github.fmilitao.shopper.R;
-
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_ID;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_IS_DONE;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_NAME;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_QUANTITY;
+import io.github.fmilitao.shopper.sql.queries.SelectShopItems;
 
 // TODO-FEATURE does not display units nor category
 public class ItemsMoveAdapter extends CursorAdapter {
 
-    final Long[] set;
+    private final Long[] set;
 
     public ItemsMoveAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
@@ -42,13 +38,13 @@ public class ItemsMoveAdapter extends CursorAdapter {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        viewHolder.mItemName.setText(cursor.getString(INDEX_NAME));
-        viewHolder.mItemQuantity.setText(cursor.getString(INDEX_QUANTITY));
+        viewHolder.mItemName.setText(SelectShopItems.getName(cursor));
+        viewHolder.mItemQuantity.setText(SelectShopItems.getQuantityString(cursor));
 
-        final long itemId = cursor.getLong(INDEX_ID);
-        final boolean isDone = cursor.getInt(INDEX_IS_DONE) != 0;
+        final long itemId = SelectShopItems.getId(cursor);
+        final boolean isDone = SelectShopItems.isDone(cursor);
 
-        if( isDone ){
+        if (isDone) {
             viewHolder.mItemName.setPaintFlags(viewHolder.mItemName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             viewHolder.mItemName.setTextColor(Color.GRAY);
 
@@ -56,7 +52,7 @@ public class ItemsMoveAdapter extends CursorAdapter {
             viewHolder.mItemQuantity.setTextColor(Color.GRAY);
 
             view.setBackgroundColor(Color.LTGRAY);
-        }else{
+        } else {
             viewHolder.mItemName.setPaintFlags(viewHolder.mFlags);
             viewHolder.mItemName.setTextColor(viewHolder.mTextColor);
 
@@ -77,7 +73,7 @@ public class ItemsMoveAdapter extends CursorAdapter {
         });
     }
 
-    public Long[] getSelectedItemIds(){
+    public Long[] getSelectedItemIds() {
         return set;
     }
 
@@ -90,7 +86,7 @@ public class ItemsMoveAdapter extends CursorAdapter {
             mItemName = (CheckBox) view.findViewById(R.id.item_name);
             mItemQuantity = (TextView) view.findViewById(R.id.item_quantity);
 
-            mTextColor  = mItemName.getCurrentTextColor();
+            mTextColor = mItemName.getCurrentTextColor();
             mFlags = mItemName.getPaintFlags();
         }
     }

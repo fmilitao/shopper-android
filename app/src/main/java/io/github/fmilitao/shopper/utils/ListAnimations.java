@@ -1,6 +1,5 @@
 package io.github.fmilitao.shopper.utils;
 
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
@@ -16,7 +15,7 @@ import java.util.TreeSet;
 // TODO clean up messy/duplicated code. Improve design...
 public class ListAnimations {
 
-    private static final int MOVE_SPEED = 250;
+    private static final int ANIMATION_DURATION = 250;
 
     //
     // fades and moves row to the right
@@ -42,7 +41,7 @@ public class ListAnimations {
                 for (long deletedItem : deletedItems) {
                     if (deletedItem == itemId) {
                         // found deleted item!
-                        ViewPropertyAnimator anim = child.animate().setDuration(MOVE_SPEED)
+                        ViewPropertyAnimator anim = child.animate().setDuration(ANIMATION_DURATION)
                                 .alpha(0)
                                 .translationX(child.getWidth());
 
@@ -117,7 +116,7 @@ public class ListAnimations {
                     if (set.contains(itemId)) {
                         // the new product
                         child.setTranslationX(listview.getWidth());
-                        child.animate().setDuration(MOVE_SPEED * 2).translationX(0);
+                        child.animate().setDuration(ANIMATION_DURATION * 2).translationX(0);
                         continue;
                     }
 
@@ -137,7 +136,7 @@ public class ListAnimations {
 
                     int delta = oldTop - newTop;
                     child.setTranslationY(delta);
-                    child.animate().setDuration(MOVE_SPEED).translationY(0);
+                    child.animate().setDuration(ANIMATION_DURATION).translationY(0);
                 }
                 map.clear(); // kinda of pointless with this code, but nevermind.
                 return true;
@@ -189,7 +188,7 @@ public class ListAnimations {
                     if (itemId == itemFlippedId) {
                         // the flipped product
                         child.setTranslationX(listview.getWidth());
-                        child.animate().setDuration(MOVE_SPEED).translationX(0);
+                        child.animate().setDuration(ANIMATION_DURATION).translationX(0);
                         continue;
 
                     }
@@ -212,7 +211,7 @@ public class ListAnimations {
 
                     int delta = oldTop - newTop;
                     child.setTranslationY(delta);
-                    child.animate().setDuration(MOVE_SPEED).translationY(0);
+                    child.animate().setDuration(ANIMATION_DURATION).translationY(0);
                 }
                 map.clear(); // kinda of pointless with this code, but nevermind.
                 return true;

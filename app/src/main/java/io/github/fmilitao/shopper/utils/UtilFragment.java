@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,14 +18,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import io.github.fmilitao.shopper.R;
+import io.github.fmilitao.shopper.utils.model.Item;
 
 /**
  * Extensions to 'Fragment' to include some convenient methods for formatting string resources
  * and showing pop-up toasts on the top of the screen.
  */
 public class UtilFragment extends Fragment {
+
+    private static final String TAG = "UtilFragment";
 
     private static final int REQUEST_FILE_SAVE = 42;
     private static final int REQUEST_FILE_LOAD = 24;
@@ -39,6 +45,17 @@ public class UtilFragment extends Fragment {
                 Toast.LENGTH_SHORT);
         t.setGravity(Gravity.TOP, 0, 0);
         t.show();
+    }
+
+
+    protected List<Item> parseProductList(String txt) {
+        try {
+            return UtilItemCsv.ClipBoard.stringToItemList(txt);
+
+        } catch (IOException error) {
+            Log.e(TAG, "Failed to process text.", error);
+        }
+        return null;
     }
 
     //

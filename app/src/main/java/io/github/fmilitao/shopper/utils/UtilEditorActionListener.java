@@ -8,11 +8,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class UtilEditorActionListener implements EditText.OnEditorActionListener{
+public class UtilEditorActionListener implements EditText.OnEditorActionListener {
 
     private AlertDialog mDialog;
 
-    public UtilEditorActionListener(AlertDialog d){
+    public UtilEditorActionListener(AlertDialog d) {
         mDialog = d;
     }
 
@@ -22,7 +22,7 @@ public class UtilEditorActionListener implements EditText.OnEditorActionListener
         if ((event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
                 || (actionId == EditorInfo.IME_ACTION_DONE)) {
             Button ok = mDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            if( ok.isEnabled() ) {
+            if (ok.isEnabled()) {
                 ok.performClick();
                 return true;
             }

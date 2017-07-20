@@ -11,13 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.github.fmilitao.shopper.R;
+import io.github.fmilitao.shopper.sql.queries.SelectShopItems;
 import io.github.fmilitao.shopper.utils.UtilColors;
-
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_CATEGORY;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_IS_DONE;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_NAME;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_QUANTITY;
-import static io.github.fmilitao.shopper.sql.DBContract.SelectShopItemsQuery.INDEX_UNIT;
 
 public class ItemsAdapter extends CursorAdapter {
 
@@ -44,20 +39,20 @@ public class ItemsAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        viewHolder.mItemName.setText(cursor.getString(INDEX_NAME));
-        viewHolder.mItemQuantity.setText(cursor.getString(INDEX_QUANTITY));
+        viewHolder.mItemName.setText(SelectShopItems.getName(cursor));
+        viewHolder.mItemQuantity.setText(SelectShopItems.getQuantityString(cursor));
 
-        String unit = cursor.getString(INDEX_UNIT);
-        if( unit != null  ){
+        String unit = SelectShopItems.getUnit(cursor);
+        if (unit != null) {
             viewHolder.mItemUnit.setVisibility(View.VISIBLE);
             viewHolder.mItemUnit.setText(unit);
-        }else{
+        } else {
             viewHolder.mItemUnit.setVisibility(View.GONE);
         }
 
-        boolean isDone = cursor.getInt(INDEX_IS_DONE) != 0;
+        boolean isDone = SelectShopItems.isDone(cursor);
 
-        if( isDone ){
+        if (isDone) {
             viewHolder.mItemName.setPaintFlags(viewHolder.mItemName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
             viewHolder.mItemName.setTextColor(Color.GRAY);
@@ -68,25 +63,25 @@ public class ItemsAdapter extends CursorAdapter {
             // setting alpha conflicts with fade out animations
             // view.setAlpha(0.5f);
             view.setBackgroundColor(Color.LTGRAY);
-        }else{
+        } else {
 
-            String category = cursor.getString(INDEX_CATEGORY);
-            if( category != null  ){
+            String category = SelectShopItems.getCategory(cursor);
+            if (category != null) {
                 Integer color = UtilColors.colorMap.get(category);
 
                 // category has color
-                if(color != null) {
+                if (color != null) {
                     // hides text and paints background with color
                     viewHolder.mItemCategory.setVisibility(View.GONE);
                     view.setBackgroundColor(color);
-                }else{
+                } else {
                     // category has no picked color
                     // shows label over default background color
                     viewHolder.mItemCategory.setVisibility(View.VISIBLE);
                     viewHolder.mItemCategory.setText(category);
                     view.setBackgroundColor(Color.WHITE);
                 }
-            }else{
+            } else {
                 viewHolder.mItemCategory.setVisibility(View.GONE);
                 view.setBackgroundColor(Color.WHITE);
             }
@@ -111,7 +106,7 @@ public class ItemsAdapter extends CursorAdapter {
             mItemUnit = (TextView) view.findViewById(R.id.item_unit);
             mItemCategory = (TextView) view.findViewById(R.id.item_category);
 
-            mTextColor  = mItemName.getCurrentTextColor();
+            mTextColor = mItemName.getCurrentTextColor();
             mFlags = mItemName.getPaintFlags();
         }
     }

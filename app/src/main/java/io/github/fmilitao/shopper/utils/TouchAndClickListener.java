@@ -10,7 +10,7 @@ import android.widget.ListView;
  * Implements a basic listener of touch and click events.
  * Only supports 'swipe' movement and 'single' or 'long' clicks.
  * Code based off tutorial: https://www.youtube.com/watch?v=YCHNAi9kJI4
- *
+ * <p>
  * Note: we must launch a timer event for the 'long' click since we did not
  * find a better way to trigger an event after a continuous touch state.
  */
@@ -40,15 +40,15 @@ public class TouchAndClickListener implements View.OnTouchListener {
         mListView = listView;
     }
 
-    public void setOnClick(ClickListener onClick){
+    public void setOnClick(ClickListener onClick) {
         mOnClick = onClick;
     }
 
-    public void setOnLongClick(LongClickListener onLongClick){
+    public void setOnLongClick(LongClickListener onLongClick) {
         mOnLongClick = onLongClick;
     }
 
-    public void setOnSwipeOut(SwipeOutListener onSwipeOut){
+    public void setOnSwipeOut(SwipeOutListener onSwipeOut) {
         mOnSwipeOut = onSwipeOut;
     }
 
@@ -85,7 +85,7 @@ public class TouchAndClickListener implements View.OnTouchListener {
                 longClick = new Runnable() {
                     @Override
                     public void run() {
-                        if (mOnLongClick!=null) {
+                        if (mOnLongClick != null) {
                             mOnLongClick.onLongClick(mListView, v);
                         }
                     }
@@ -212,6 +212,6 @@ public class TouchAndClickListener implements View.OnTouchListener {
         void onSwipeOut(ListView listView, View view, Direction direction);
     }
 
-    public enum Direction { LEFT, RIGHT }
+    public enum Direction {LEFT, RIGHT}
 
 }

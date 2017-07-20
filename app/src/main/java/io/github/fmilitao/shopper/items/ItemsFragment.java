@@ -31,6 +31,7 @@ import android.widget.Spinner;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Scanner;
@@ -38,8 +39,9 @@ import java.util.Set;
 import java.util.Stack;
 
 import io.github.fmilitao.shopper.R;
-import io.github.fmilitao.shopper.sql.DBContract;
-import io.github.fmilitao.shopper.sql.DatabaseMiddleman;
+import io.github.fmilitao.shopper.sql.ShopperDatabase;
+import io.github.fmilitao.shopper.sql.queries.SelectShopItems;
+import io.github.fmilitao.shopper.sql.queries.SelectShopItemsQuantities;
 import io.github.fmilitao.shopper.utils.ColorAdapter;
 import io.github.fmilitao.shopper.utils.ListAnimations;
 import io.github.fmilitao.shopper.utils.ShakeSensor;
@@ -47,8 +49,11 @@ import io.github.fmilitao.shopper.utils.TouchAndClickListener;
 import io.github.fmilitao.shopper.utils.UtilColors;
 import io.github.fmilitao.shopper.utils.UtilEditorActionListener;
 import io.github.fmilitao.shopper.utils.UtilFragment;
+import io.github.fmilitao.shopper.utils.UtilFuzzyItemParser;
 import io.github.fmilitao.shopper.utils.UtilTextWatcher;
-import io.github.fmilitao.shopper.utils.Utilities;
+import io.github.fmilitao.shopper.utils.UtilClipboard;
+import io.github.fmilitao.shopper.utils.model.Item;
+import io.github.fmilitao.shopper.utils.model.Shop;
 
 
 public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
@@ -57,7 +62,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     ListView mListView;
     ShakeSensor mShakeSensor;
 
-    DatabaseMiddleman mDb;
+    ShopperDatabase mDb;
     CursorAdapter mAdapter;
 
     long mShopId;
@@ -73,7 +78,14 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         mShakeSensor = new ShakeSensor(this);
         mShakeSensor.onCreate(getActivity());
 
-        mDb = new DatabaseMiddleman(getContext());
+        mDb = new ShopperDatabase(
+                getContext(),
+                new ShopperDatabase.Configuration(
+                        getString(R.string.UNIT_NONE),
+                        getString(R.string.CATEGORY_DEFAULT),
+                        getString(R.string.NULL_STR)
+                )
+        );
     }
 
     @Override
@@ -137,7 +149,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             // copies items to clipboard
             //
             String text = mDb.stringifyItemList(mShopId);
-            Utilities.setClipboardString(getActivity(), mShopName, text);
+            UtilClipboard.setClipboardString(getActivity(), mShopName, text);
             popUp(format(R.string.ITEMS_COPIED, mShopName));
             return true;
         }
@@ -145,7 +157,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             //
             // pastes items from clipboard
             //
-            final List<Utilities.Triple<String, Float, String>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
+            // FIXME: make sure this is also done on the other UI?
+            final List<Item> tmp = UtilFuzzyItemParser.parseProductList(UtilClipboard.getClipboardString(getActivity()));
             if (tmp != null && !tmp.isEmpty()) {
 
                 animateAdd(new ListAnimations.Runner() {
@@ -160,7 +173,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
             }
             return true;
         }
-        if (id == R.id.undo_delete_items ){
+        if (id == R.id.undo_delete_items) {
             // fake shake action to undo deletion
             onShake();
             return true;
@@ -200,15 +213,15 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         return rootView;
     }
 
-    private void updateActivityTitle(){
+    private void updateActivityTitle() {
         Cursor c = mDb.fetchShopDetails(mShopId);
-        final int notDoneItems = c.getInt(DBContract.SelectShopItemsQuantitiesQuery.INDEX_NOT_DONE);
+        final int notDoneItems = SelectShopItemsQuantities.getNotDoneItemCount(c);
         c.close();
 
         getActivity().setTitle("(" + notDoneItems + ") " + mShopName);
     }
 
-    private void updateListDependencies(){
+    private void updateListDependencies() {
         updateActivityTitle();
 
         mAdapter.changeCursor(mDb.fetchShopItems(mShopId));
@@ -256,8 +269,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         //
         final int position = listView.getPositionForView(view);
         final Cursor c = (Cursor) listView.getItemAtPosition(position);
-        final long itemId = c.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
-        final int itemDone = c.getInt(DBContract.SelectShopItemsQuery.INDEX_IS_DONE);
+        final long itemId = SelectShopItems.getId(c);
+        final int itemDone = SelectShopItems.getIsDone(c);
 
         ListAnimations.animateAdd2(mAdapter, mListView, itemId, new ListAnimations.Runner() {
             @Override
@@ -278,8 +291,8 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 //
                 final int position = listView.getPositionForView(view);
                 final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-                final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
-                final String itemName = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_NAME);
+                final long itemId = SelectShopItems.getId(cursor);
+                final String itemName = SelectShopItems.getName(cursor);
 
                 animateAdd(new ListAnimations.Runner() {
                     @Override
@@ -287,6 +300,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                         if (mDb.updateItemDeleted(itemId, true)) {
                             undo.push(new Pair<>(itemName, itemId));
                             updateListDependencies();
+                            popUp(format(R.string.ITEM_DELETED, itemName));
                         }
                     }
                 });
@@ -310,12 +324,12 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         //
         final int position = listView.getPositionForView(view);
         final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-        final long itemId = cursor.getLong(DBContract.SelectShopItemsQuery.INDEX_ID);
-        final String itemName = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_NAME);
-        final float itemQuantity = cursor.getFloat(DBContract.SelectShopItemsQuery.INDEX_QUANTITY);
-        final String itemQuantityStr = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_QUANTITY);
-        final String itemUnit = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_UNIT);
-        final String itemCategory = cursor.getString(DBContract.SelectShopItemsQuery.INDEX_CATEGORY);
+        final long itemId = SelectShopItems.getId(cursor);
+        final String itemName = SelectShopItems.getName(cursor);
+        final float itemQuantity = SelectShopItems.getQuantity(cursor);
+        final String itemQuantityStr = SelectShopItems.getQuantityString(cursor);
+        final String itemUnit = SelectShopItems.getUnit(cursor);
+        final String itemCategory = SelectShopItems.getCategory(cursor);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -528,14 +542,15 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final View root = inflater.inflate(R.layout.item_move_dialog, null);
 
         // aux
-        final Pair<Long, String>[] shopArray = mDb.makeAllShopPair();
+        final Shop[] shopArray = mDb.makeAllShopPair();
         String[] shops = new String[shopArray.length];
         int i = 0;
         int pos = -1;
-        for (Pair<Long, String> p : shopArray) {
-            if (p.first == mShopId)
+        for (Shop shop : shopArray) {
+            if (shop.getId() == mShopId) {
                 pos = i;
-            shops[i] = p.second;
+            }
+            shops[i] = shop.getName();
             ++i;
         }
 
@@ -573,9 +588,9 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
                 if (i == position || count == 0) {
                     popUp(getString(R.string.TRANSFER_FAIL));
                 } else {
-                    final long toShopId = shopArray[i].first;
-                    final String toShopName = shopArray[i].second;
-                    final String fromShopName = shopArray[position].second;
+                    final long toShopId = shopArray[i].getId();
+                    final String toShopName = shopArray[i].getName();
+                    final String fromShopName = shopArray[position].getName();
 
                     // pick elements for transfer
                     final long[] transfers = new long[count];
@@ -614,7 +629,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     // List I/O
     //
 
-    protected File getSaveFile(String name){
+    protected File getSaveFile(String name) {
         if (!name.endsWith(".txt")) {
             name = name + ".txt";
         }
@@ -667,7 +682,7 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     }
 
 
-    protected File getLoadFile(String file){
+    protected File getLoadFile(String file) {
         File tmp = new File(file);
         if (!tmp.exists()) {
             // attempts download directory
@@ -679,13 +694,11 @@ public class ItemsFragment extends UtilFragment implements ShakeSensor.ShakeList
     protected void load(final String file) {
         try {
             final File tmp = getLoadFile(file);
-            final Scanner sc = new Scanner(tmp);
 
             animateAdd(new ListAnimations.Runner() {
                 @Override
                 public void run(Set<Long> set) {
-                    mDb.loadShopItems(sc, mShopId, set);
-                    sc.close();
+                    mDb.loadShopItems(tmp, mShopId, set);
 
                     updateListDependencies();
                     popUp(format(R.string.LOADED_FILE, tmp.getAbsolutePath()));

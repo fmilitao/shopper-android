@@ -18,7 +18,7 @@ import io.github.fmilitao.shopper.R;
 public class UtilColors {
 
     // overrides will update shared preferences accordingly
-    static public final Map<String,Integer> colorMap = new TreeMap<String,Integer>(){
+    static public final Map<String, Integer> colorMap = new TreeMap<String, Integer>() {
 
         @Override
         public Integer remove(Object key) {
@@ -31,7 +31,7 @@ public class UtilColors {
         @Override
         public Integer put(String key, Integer value) {
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt(key,value);
+            editor.putInt(key, value);
             editor.apply();
             return super.put(key, value);
         }
@@ -40,9 +40,9 @@ public class UtilColors {
         public Integer get(Object key) {
             String str = (String) key;
             Integer res = super.get(str);
-            if( res == null && sharedPref.contains(str) ){
-                res = sharedPref.getInt(str,-1);
-                super.put(str,res);
+            if (res == null && sharedPref.contains(str)) {
+                res = sharedPref.getInt(str, -1);
+                super.put(str, res);
             }
             return res;
         }
@@ -54,18 +54,18 @@ public class UtilColors {
 
     static SharedPreferences sharedPref;
 
-    static public int getColorPosition(int color){
-        if( colorValues == null )
+    static public int getColorPosition(int color) {
+        if (colorValues == null)
             return -1;
-        for(int i=1; i<colorValues.length; ++i ){
-            if( colorValues[i] == color )
+        for (int i = 1; i < colorValues.length; ++i) {
+            if (colorValues[i] == color)
                 return i;
         }
         return -1;
     }
 
-    static public int getColorAt(int position){
-        if( colorValues == null )
+    static public int getColorAt(int position) {
+        if (colorValues == null)
             return -1;
         return colorValues[position];
     }
@@ -74,26 +74,26 @@ public class UtilColors {
     // initializes all static variables
     //
 
-    static public String[] init(Activity activity){
+    static public String[] init(Activity activity) {
         // loads all color names and color values
-        if( colorNames == null ){
+        if (colorNames == null) {
             // initializes colorNames including default value
             // initializes colorValues, position 0 is 0 for no special reason.
             final TypedArray ta = activity.getResources().obtainTypedArray(R.array.colors);
             final int length = ta.length();
-            colorValues = new int[length+1];
+            colorValues = new int[length + 1];
             colorValues[0] = 0;
-            colorNames = new String[length+1];
+            colorNames = new String[length + 1];
             colorNames[0] = activity.getResources().getString(R.string.SHOW_TEXT);
-            for(int i = 0; i < length; ++i){
+            for (int i = 0; i < length; ++i) {
                 int id = ta.getResourceId(i, 0);
-                colorValues[i+1] = ContextCompat.getColor(activity, id);
-                colorNames[i+1] = "";
+                colorValues[i + 1] = ContextCompat.getColor(activity, id);
+                colorNames[i + 1] = "";
             }
             ta.recycle();
         }
 
-        if( sharedPref == null ) {
+        if (sharedPref == null) {
             sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
         }
         return colorNames;

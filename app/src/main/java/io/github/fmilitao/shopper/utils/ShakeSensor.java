@@ -16,17 +16,17 @@ import android.support.annotation.NonNull;
  */
 public class ShakeSensor implements SensorEventListener {
 
-    static final int SHAKE_THRESHOLD = 5;
-    static final int MIN_INTERVAL = 500;
+    private static final int SHAKE_THRESHOLD = 5;
+    private static final int MIN_INTERVAL = 500;
 
-    SensorManager mSensorManager;
+    private SensorManager mSensorManager;
 
-    float mAccel; // acceleration apart from gravity
-    float mAccelCurrent; // current acceleration including gravity
-    float mAccelLast; // last acceleration including gravity
-    long lastUpdate = 0;
+    private float mAccel; // acceleration apart from gravity
+    private float mAccelCurrent; // current acceleration including gravity
+    private float mAccelLast; // last acceleration including gravity
+    private long lastUpdate = 0;
 
-    ShakeListener mOnShake;
+    private ShakeListener mOnShake;
 
     public ShakeSensor(@NonNull ShakeListener onShakeAction) {
         mOnShake = onShakeAction;

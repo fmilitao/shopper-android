@@ -28,17 +28,16 @@ import java.util.Stack;
 
 import io.github.fmilitao.shopper.R;
 import io.github.fmilitao.shopper.items.ItemsActivity;
-import io.github.fmilitao.shopper.sql.DatabaseMiddleman;
+import io.github.fmilitao.shopper.sql.ShopperDatabase;
+import io.github.fmilitao.shopper.sql.queries.JoinShopsItems;
 import io.github.fmilitao.shopper.utils.ListAnimations;
 import io.github.fmilitao.shopper.utils.ShakeSensor;
 import io.github.fmilitao.shopper.utils.TouchAndClickListener;
 import io.github.fmilitao.shopper.utils.UtilEditorActionListener;
 import io.github.fmilitao.shopper.utils.UtilFragment;
 import io.github.fmilitao.shopper.utils.UtilTextWatcher;
-import io.github.fmilitao.shopper.utils.Utilities;
-
-import static io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery.INDEX_ID;
-import static io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery.INDEX_NAME;
+import io.github.fmilitao.shopper.utils.UtilClipboard;
+import io.github.fmilitao.shopper.utils.model.Item;
 
 
 public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeListener,
@@ -47,7 +46,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
     ListView mListView;
     ShakeSensor mShakeSensor;
 
-    DatabaseMiddleman mDb;
+    ShopperDatabase mDb;
     CursorAdapter mAdapter;
 
     Stack<Pair<String, Long>> undo;
@@ -61,7 +60,14 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         mShakeSensor = new ShakeSensor(this);
         mShakeSensor.onCreate(getActivity());
 
-        mDb = new DatabaseMiddleman(getContext());
+        mDb = new ShopperDatabase(
+                getContext(),
+                new ShopperDatabase.Configuration(
+                        getString(R.string.UNIT_NONE),
+                        getString(R.string.CATEGORY_DEFAULT),
+                        getString(R.string.NULL_STR)
+                )
+        );
     }
 
     @Override
@@ -98,7 +104,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         // to prevent double tap on item menu button
         item.setEnabled(false);
 
-        if (id == R.id.import_list) {
+        if (id == R.id.add_list) {
             //
             // creates new list with name + include clipboard
             //
@@ -111,13 +117,13 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
             final CheckBox box = (CheckBox) root.findViewById(R.id.dialog_shop_clipboard);
             final EditText text = (EditText) root.findViewById(R.id.dialog_shop_name);
 
-            final List<Utilities.Triple<String, Float, String>> list = new LinkedList<>();
+            final List<Item> list = new LinkedList<>();
 
             box.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (box.isChecked()) {
-                        List<Utilities.Triple<String, Float, String>> tmp = Utilities.parseProductList(Utilities.getClipboardString(getActivity()));
+                        List<Item> tmp = parseProductList(UtilClipboard.getClipboardString(getActivity()));
                         if (tmp != null) {
                             list.addAll(tmp);
                             box.setText(format(R.string.INCLUDE_ITEMS, tmp.size()));
@@ -156,7 +162,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
 
             final AlertDialog dialog = builder.create();
 
-            dialog.setOnShowListener( new EnableOnShow(item) );
+            dialog.setOnShowListener(new EnableOnShow(item));
 
             text.addTextChangedListener(new UtilTextWatcher(dialog));
             text.setOnEditorActionListener(new UtilEditorActionListener(dialog));
@@ -246,8 +252,8 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         //
         int position = mListView.getPositionForView(view);
         Cursor c = (Cursor) mListView.getItemAtPosition(position);
-        long shopId = c.getLong(INDEX_ID);
-        String shopName = c.getString(INDEX_NAME);
+        long shopId = JoinShopsItems.getId(c);
+        String shopName = JoinShopsItems.getName(c);
 
         Intent intent = new Intent(getActivity(), ItemsActivity.class);
         // links to position in the DB
@@ -267,8 +273,8 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         final int position = listView.getPositionForView(view);
         final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
 
-        final String oldName = cursor.getString(INDEX_NAME);
-        final long shopId = cursor.getLong(INDEX_ID);
+        final String oldName = JoinShopsItems.getName(cursor);
+        final long shopId = JoinShopsItems.getId(cursor);
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -314,8 +320,8 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
         //
         final int position = listView.getPositionForView(view);
         final Cursor cursor = (Cursor) listView.getItemAtPosition(position);
-        final long shopId = cursor.getLong(INDEX_ID);
-        final String shopName = cursor.getString(INDEX_NAME);
+        final long shopId = JoinShopsItems.getId(cursor);
+        final String shopName = JoinShopsItems.getName(cursor);
 
         animateAdd(new ListAnimations.Runner() {
             @Override
@@ -324,6 +330,7 @@ public class ShopsFragment extends UtilFragment implements ShakeSensor.ShakeList
                     undo.push(new Pair<>(shopName, shopId));
                     mAdapter.changeCursor(mDb.fetchAllShops());
                     mAdapter.notifyDataSetChanged();
+                    popUp(format(R.string.LIST_DELETED, shopName));
                 }
             }
         });

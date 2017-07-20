@@ -18,7 +18,7 @@ Features:
 * export/import individual list to/from CSV file
 * item categories: add new, change background color or show category text
 
-###Tasks
+### TODO
 
 - [ ] weird bug with some TextViews underlined red/blue ?!
 - [ ] allow labels?

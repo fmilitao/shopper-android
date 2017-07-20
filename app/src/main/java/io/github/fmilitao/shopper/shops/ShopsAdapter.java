@@ -9,10 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.github.fmilitao.shopper.R;
-
-import static io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery.INDEX_ALL_ITEMS_COUNT;
-import static io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery.INDEX_NAME;
-import static io.github.fmilitao.shopper.sql.DBContract.JoinShopItemQuery.INDEX_NOT_DONE_ITEMS_COUNT;
+import io.github.fmilitao.shopper.sql.queries.JoinShopsItems;
 
 public class ShopsAdapter extends CursorAdapter {
 
@@ -51,9 +48,9 @@ public class ShopsAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        viewHolder.mShopName.setText(cursor.getString(INDEX_NAME));
-        viewHolder.mAllItems.setText(cursor.getString(INDEX_ALL_ITEMS_COUNT));
-        viewHolder.mNotDoneItems.setText(cursor.getString(INDEX_NOT_DONE_ITEMS_COUNT));
+        viewHolder.mShopName.setText(JoinShopsItems.getName(cursor));
+        viewHolder.mAllItems.setText(JoinShopsItems.getItemCountString(cursor));
+        viewHolder.mNotDoneItems.setText(JoinShopsItems.getNotDoneItemCountString(cursor));
     }
 
 }
